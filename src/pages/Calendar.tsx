@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Loader2, LayoutGrid, CalendarDays, Sun, Moon } from "lucide-react";
+import { LogOut, LayoutGrid, CalendarDays, Sun, Moon } from "lucide-react";
 import {
   fetchSchedule,
   getUniqueSubjects,
@@ -23,6 +23,7 @@ import {
 import Footer from "@/components/ui/footer";
 
 import { motion, AnimatePresence } from "framer-motion";
+import CalendarSkeleton from "@/components/schedule/CalendarSkeleton";
 
 const Calendar = () => {
   const navigate = useNavigate();
@@ -39,31 +40,24 @@ const Calendar = () => {
   const [selectedDay, setSelectedDay] = useState<string>("Lundi");
 
   // --- Dark mode ---
-
   const [darkMode, setDarkMode] = useState(false);
 
   const toggleTheme = () => {
     const newMode = !darkMode;
-
     setDarkMode(newMode);
-
     if (newMode) {
       document.documentElement.classList.add("dark");
-
       localStorage.setItem("theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
-
       localStorage.setItem("theme", "light");
     }
   };
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-
     if (savedTheme === "dark") {
       setDarkMode(true);
-
       document.documentElement.classList.add("dark");
     }
   }, []);
@@ -139,6 +133,11 @@ const Calendar = () => {
   };
 
   const handleLogout = () => {
+    toast({
+      title: "Déconnexion",
+      description: "Vous avez été déconnecté avec succès.",
+      variant: "default",
+    });
     localStorage.removeItem("username");
     navigate("/");
   };
@@ -169,79 +168,39 @@ const Calendar = () => {
         className="border-b border-border/50 bg-card/50 dark:bg-black-800 backdrop-blur-sm sticky top-0 z-10 shadow-soft transition-colors duration-300"
       >
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <motion.div
-            initial={{ x: -30, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              <span className="hidden sm:inline">Emploi du temps - </span>
-              <span className="sm:hidden">EDT </span>C&D
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1 dark:text-muted-foreground/70">
-              Connecté en tant que{" "}
-              <span className="font-medium text-foreground dark:text-white">
-                {username}
-              </span>
-            </p>
-          </motion.div>
-          <motion.div
-            initial={{ x: 30, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="flex items-center gap-2"
-          >
-            {/* Theme toggle & Logout */}
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <span className="hidden sm:inline">Emploi du temps - </span>
+            <span className="sm:hidden">EDT </span>C&D
+          </h1>
+          <div className="flex items-center gap-2">
+            {/* Theme toggle */}
             <Button
               variant="outline"
               onClick={toggleTheme}
               className="rounded-xl shadow-soft hover:shadow-card transition-all flex items-center gap-2"
-              asChild
             >
-              <motion.span
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {darkMode ? (
-                  <Sun className="w-4 h-4" />
-                ) : (
-                  <Moon className="w-4 h-4" />
-                )}
-
-                <span className="hidden sm:inline">
-                  {darkMode ? "Clair" : "Sombre"}
-                </span>
-              </motion.span>
-            </Button> 
+              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <span className="hidden sm:inline">
+                {darkMode ? "Clair" : "Sombre"}
+              </span>
+            </Button>
 
             {/* Deconnexion */}
             <Button
               variant="outline"
               onClick={handleLogout}
               className="rounded-xl shadow-soft hover:shadow-card transition-all flex items-center gap-2"
-              asChild
             >
-              <motion.span
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Déconnexion</span>
-              </motion.span>
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Déconnexion</span>
             </Button>
-          </motion.div>
+          </div>
         </div>
       </motion.header>
 
       <div className="container mx-auto px-4 py-6">
         {/* Navigation & View Toggle */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="mb-6 space-y-4"
-        >
+        <div className="mb-6 space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <WeekNavigator
               currentWeek={currentWeek}
@@ -269,12 +228,7 @@ const Calendar = () => {
           </div>
 
           {viewMode === "day" && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="flex items-center gap-3"
-            >
+            <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground dark:text-muted-foreground/70">
                 Sélectionner un jour:
               </span>
@@ -288,22 +242,17 @@ const Calendar = () => {
                   <SelectItem value="Mercredi">Mercredi</SelectItem>
                   <SelectItem value="Jeudi">Jeudi</SelectItem>
                   <SelectItem value="Vendredi">Vendredi</SelectItem>
-                  {/* <SelectItem value="Samedi">Samedi</SelectItem> */}
-                  {/* <SelectItem value="Dimanche">Dimanche</SelectItem> */}
+                  <SelectItem value="Samedi">Samedi</SelectItem>
+                  <SelectItem value="Dimanche">Dimanche</SelectItem>
                 </SelectContent>
               </Select>
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
 
         {/* Content */}
         <div className="grid lg:grid-cols-[300px_1fr] gap-6">
-          <motion.aside
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-            className="space-y-4"
-          >
+          <aside className="space-y-4">
             {!isLoading && subjects.length > 0 && (
               <SubjectFilter
                 subjects={subjects}
@@ -313,27 +262,17 @@ const Calendar = () => {
                 onToggleDistanciel={() => setFilterDistanciel((v) => !v)}
               />
             )}
-          </motion.aside>
+          </aside>
 
           <main>
             {isLoading ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex items-center justify-center h-96"
-              >
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              </motion.div>
+              <CalendarSkeleton />
             ) : filteredSchedule.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-12"
-              >
+              <div className="text-center py-12">
                 <p className="text-muted-foreground dark:text-muted-foreground/70">
                   Aucun cours pour cette semaine
                 </p>
-              </motion.div>
+              </div>
             ) : (
               <AnimatePresence mode="wait">
                 {viewMode === "week" ? (

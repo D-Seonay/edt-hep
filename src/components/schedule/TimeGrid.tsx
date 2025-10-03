@@ -47,7 +47,7 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
       {!hasAnyCourse ? (
         // Message affiché si pas de cours (visible sur tous les écrans)
         <div className="p-8 text-center text-sm text-muted-foreground">
-          Semaine en entreprise ou pas de cours cette semaine 🙂
+          Semaine en entreprise / pas de cours cette semaine / vérifier vos filtres 
         </div>
       ) : (
         <>
