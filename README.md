@@ -1,73 +1,72 @@
-# Welcome to your Lovable project
+# 📅 EDT Manager
 
-## Project info
+**EDT Manager** est une application web responsive permettant de visualiser un emploi du temps étudiant de manière claire et interactive. Elle récupère les données depuis le site EDT officiel, les parse et les affiche sous forme de **grille pour desktop** ou **liste pour mobile**, avec gestion des couleurs par matière et détails enrichis.
 
-**URL**: https://lovable.dev/projects/d0ce871b-b427-4ef6-a28d-09fe52ad04a1
+---
 
-## How can I edit this code?
 
-There are several ways of editing your application.
+## 🛠️ Tech Stack
 
-**Use Lovable**
+* **Frontend** : React + TypeScript + Vite
+* **Styles** : Tailwind CSS
+* **Icons** : lucide-react
+* **HTTP Requests** : Axios
+* **Parsing HTML** : DOMParser (pour transformer le HTML EDT en objets Course)
+* **Gestion des couleurs** : Map dynamique par matière
+* **Responsive** : Grid pour desktop, liste pour mobile
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d0ce871b-b427-4ef6-a28d-09fe52ad04a1) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## ⚙️ Installation
 
-**Use your preferred IDE**
+1. **Cloner le projet :**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+```bash
+git clone https://github.com/D-Seonay/EDT-HEP.git
+cd EDT-HEP
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Installer les dépendances :**
 
-Follow these steps:
+```bash
+npm install
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. **Lancer le projet :**
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+4. **Accéder à l’application :**
+   Ouvre [http://localhost:8080](http://localhost:8080) dans ton navigateur.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 📁 Structure du projet
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+src/
+ ├─ components/
+ │   ├─ TimeGrid.tsx          # Grille / liste responsive
+ │   ├─ CourseBlock.tsx       # Bloc de cours avec modale
+ ├─ services/
+ │   └─ scheduleService.ts    # Parsing HTML, fetch EDT, gestion couleurs, semaines
+ ├─ lib/
+ │   └─ utils.ts              # Fonctions utilitaires
+ ├─ App.tsx
+ └─ main.tsx
+```
 
-## What technologies are used for this project?
+---
 
-This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## ❤️ Contribuer
 
-## How can I deploy this project?
+Si tu souhaites contribuer :
 
-Simply open [Lovable](https://lovable.dev/projects/d0ce871b-b427-4ef6-a28d-09fe52ad04a1) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+1. Fork le projet
+2. Crée une branche feature : `git checkout -b feature/nom-fonctionnalité`
+3. Commit tes modifications : `git commit -m "Ajout : nouvelle fonctionnalité"`
+4. Push : `git push origin feature/nom-fonctionnalité`
+5. Ouvre un Pull Request
