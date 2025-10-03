@@ -65,12 +65,12 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
       >
         <div className="space-y-2">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-sm text-foreground dark:text-white line-clamp-2">
+            <h3 className="font-semibold text-sm text-foreground dark:text-black line-clamp-2">
               {course.matiere}
             </h3>
           </div>
 
-          <div className="space-y-1 text-xs text-foreground/80 dark:text-gray-300">
+          <div className="space-y-1 text-xs text-foreground/80 dark:text-black">
             <div className="flex items-center gap-1.5">
               <MapPin className="w-3 h-3 flex-shrink-0" />
               <span className="truncate">

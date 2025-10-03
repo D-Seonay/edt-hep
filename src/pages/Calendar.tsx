@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, Loader2, LayoutGrid, CalendarDays } from "lucide-react";
+import { LogOut, Loader2, LayoutGrid, CalendarDays, Sun, Moon } from "lucide-react";
 import {
   fetchSchedule,
   getUniqueSubjects,
@@ -37,6 +37,36 @@ const Calendar = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"week" | "day">("week");
   const [selectedDay, setSelectedDay] = useState<string>("Lundi");
+
+  // --- Dark mode ---
+
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleTheme = () => {
+    const newMode = !darkMode;
+
+    setDarkMode(newMode);
+
+    if (newMode) {
+      document.documentElement.classList.add("dark");
+
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+
+      localStorage.setItem("theme", "light");
+    }
+  };
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme === "dark") {
+      setDarkMode(true);
+
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
 
   // --- Load username & schedule ---
   useEffect(() => {
@@ -129,14 +159,14 @@ const Calendar = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
+      className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 dark:from-black dark:via-black-800 dark:to-black-900 transition-colors duration-300"
     >
       {/* Header */}
       <motion.header
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="border-b border-border/50 bg-card/50 dark:bg-gray-800 backdrop-blur-sm sticky top-0 z-10 shadow-soft transition-colors duration-300"
+        className="border-b border-border/50 bg-card/50 dark:bg-black-800 backdrop-blur-sm sticky top-0 z-10 shadow-soft transition-colors duration-300"
       >
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <motion.div
@@ -161,6 +191,30 @@ const Calendar = () => {
             transition={{ delay: 0.3 }}
             className="flex items-center gap-2"
           >
+            {/* Theme toggle & Logout */}
+            <Button
+              variant="outline"
+              onClick={toggleTheme}
+              className="rounded-xl shadow-soft hover:shadow-card transition-all flex items-center gap-2"
+              asChild
+            >
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {darkMode ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+
+                <span className="hidden sm:inline">
+                  {darkMode ? "Clair" : "Sombre"}
+                </span>
+              </motion.span>
+            </Button> 
+
+            {/* Deconnexion */}
             <Button
               variant="outline"
               onClick={handleLogout}
@@ -202,13 +256,13 @@ const Calendar = () => {
               className="w-auto"
             >
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="week" className="flex items-center gap-2">
-                  <LayoutGrid className="w-4 h-4" />
-                  Semaine
-                </TabsTrigger>
                 <TabsTrigger value="day" className="flex items-center gap-2">
                   <CalendarDays className="w-4 h-4" />
                   Jour
+                </TabsTrigger>
+                <TabsTrigger value="week" className="flex items-center gap-2">
+                  <LayoutGrid className="w-4 h-4" />
+                  Semaine
                 </TabsTrigger>
               </TabsList>
             </Tabs>
