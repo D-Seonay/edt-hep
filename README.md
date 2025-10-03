@@ -22,8 +22,8 @@
 1. **Cloner le projet :**
 
 ```bash
-git clone https://github.com/D-Seonay/EDT-HEP.git
-cd EDT-HEP
+git clone https://github.com/D-Seonay/edt-hep.git
+cd edt-hep
 ```
 
 2. **Installer les dépendances :**
