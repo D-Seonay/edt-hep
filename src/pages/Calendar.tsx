@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut, Loader2, Download, Calendar as CalendarIcon } from 'lucide-react';
+import { LogOut, Loader2, Download, Calendar as CalendarIcon, LayoutGrid, CalendarDays } from 'lucide-react';
 import { fetchSchedule, getUniqueSubjects, Day } from '@/services/scheduleService';
 import { toast } from '@/hooks/use-toast';
 import WeekNavigator from '@/components/schedule/WeekNavigator';
 import TimeGrid from '@/components/schedule/TimeGrid';
+import DayView from '@/components/schedule/DayView';
 import SubjectFilter from '@/components/schedule/SubjectFilter';
 import { exportToICS } from '@/utils/googleCalendar';
 import {
@@ -14,6 +15,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Calendar = () => {
   const navigate = useNavigate();
@@ -24,6 +33,8 @@ const Calendar = () => {
   const [selectedSubjects, setSelectedSubjects] = useState<Set<string>>(new Set());
   const [currentWeek, setCurrentWeek] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
+  const [selectedDay, setSelectedDay] = useState<string>('Lundi');
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
@@ -105,6 +116,17 @@ const Calendar = () => {
     });
   };
 
+  const getCurrentDay = (): Day | null => {
+    return filteredSchedule.find(d => d.day === selectedDay) || null;
+  };
+
+  const isCurrentDayToday = (): boolean => {
+    const today = new Date();
+    const dayOfWeek = today.toLocaleDateString('fr-FR', { weekday: 'long' });
+    const capitalizedDay = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
+    return selectedDay === capitalizedDay && currentWeek === 0;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
@@ -150,14 +172,48 @@ const Calendar = () => {
       </header>
 
       <div className="container mx-auto px-4 py-6">
-        {/* Navigation */}
-        <div className="mb-6">
-          <WeekNavigator
-            currentWeek={currentWeek}
-            onPrevious={() => handleWeekChange(-1)}
-            onNext={() => handleWeekChange(1)}
-            onToday={handleToday}
-          />
+        {/* Navigation & View Toggle */}
+        <div className="mb-6 space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <WeekNavigator
+              currentWeek={currentWeek}
+              onPrevious={() => handleWeekChange(-1)}
+              onNext={() => handleWeekChange(1)}
+              onToday={handleToday}
+            />
+            
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'week' | 'day')} className="w-auto">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="week" className="flex items-center gap-2">
+                  <LayoutGrid className="w-4 h-4" />
+                  Semaine
+                </TabsTrigger>
+                <TabsTrigger value="day" className="flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4" />
+                  Jour
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          {/* Day selector for day view */}
+          {viewMode === 'day' && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">Sélectionner un jour:</span>
+              <Select value={selectedDay} onValueChange={setSelectedDay}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Lundi">Lundi</SelectItem>
+                  <SelectItem value="Mardi">Mardi</SelectItem>
+                  <SelectItem value="Mercredi">Mercredi</SelectItem>
+                  <SelectItem value="Jeudi">Jeudi</SelectItem>
+                  <SelectItem value="Vendredi">Vendredi</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -183,8 +239,10 @@ const Calendar = () => {
               <div className="text-center py-12">
                 <p className="text-muted-foreground">Aucun cours pour cette semaine</p>
               </div>
+            ) : viewMode === 'week' ? (
+              <TimeGrid schedule={filteredSchedule} currentDate={new Date()} />
             ) : (
-              <TimeGrid schedule={filteredSchedule} />
+              <DayView day={getCurrentDay()} isToday={isCurrentDayToday()} />
             )}
           </main>
         </div>

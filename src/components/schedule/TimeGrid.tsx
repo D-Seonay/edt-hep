@@ -2,6 +2,7 @@ import { Day } from '@/services/scheduleService';
 
 interface TimeGridProps {
   schedule: Day[];
+  currentDate?: Date;
 }
 
 const HOURS = [
@@ -30,7 +31,16 @@ const calculateTopOffset = (debut: string): number => {
   return (start - 8) * 45;
 };
 
-const TimeGrid = ({ schedule }: TimeGridProps) => {
+const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
+  // Check if a day is today
+  const isToday = (dateStr: string): boolean => {
+    const today = currentDate.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    return dateStr === today;
+  };
   return (
     <div className="bg-card rounded-2xl shadow-card border border-border/50 overflow-hidden">
       {/* Header with days */}
@@ -38,11 +48,25 @@ const TimeGrid = ({ schedule }: TimeGridProps) => {
         <div className="p-4 border-r border-border/50"></div>
         {DAYS.map((day) => {
           const dayData = schedule.find(d => d.day === day);
+          const isTodayCell = dayData && isToday(dayData.date);
+          
           return (
-            <div key={day} className="p-4 text-center border-r border-border/50 last:border-r-0">
-              <div className="font-semibold text-foreground">{day}</div>
+            <div 
+              key={day} 
+              className={`p-4 text-center border-r border-border/50 last:border-r-0 ${
+                isTodayCell ? 'bg-primary/10' : ''
+              }`}
+            >
+              <div className={`font-semibold ${isTodayCell ? 'text-primary' : 'text-foreground'}`}>
+                {day}
+              </div>
               {dayData && (
-                <div className="text-xs text-muted-foreground mt-1">{dayData.date}</div>
+                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-1">
+                  {isTodayCell && (
+                    <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                  )}
+                  <span>{dayData.date}</span>
+                </div>
               )}
             </div>
           );
@@ -66,10 +90,14 @@ const TimeGrid = ({ schedule }: TimeGridProps) => {
         {/* Days columns with courses */}
         {DAYS.map((day) => {
           const dayData = schedule.find(d => d.day === day);
+          const isTodayCell = dayData && isToday(dayData.date);
+          
           return (
             <div
               key={day}
-              className="border-r border-border/50 last:border-r-0 relative"
+              className={`border-r border-border/50 last:border-r-0 relative ${
+                isTodayCell ? 'bg-primary/5' : ''
+              }`}
             >
               {/* Hour lines */}
               {HOURS.map((hour) => (
