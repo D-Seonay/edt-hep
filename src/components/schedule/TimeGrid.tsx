@@ -1,4 +1,5 @@
 import { Day } from '@/services/scheduleService';
+import CourseBlock from './CourseBlock'; // import du composant CourseBlock
 
 interface TimeGridProps {
   schedule: Day[];
@@ -108,20 +109,13 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
                   return (
                     <div
                       key={idx}
-                      className="absolute left-1 right-1 rounded-lg p-2 shadow-card border border-white/20 overflow-hidden"
+                      className="absolute left-1 right-1"
                       style={{
                         top: `${top}px`,
-                        height: `${height - 4}px`,
-                        backgroundColor: course.color.bg,
-                        color: course.color.text,
+                        height: `${height}px`,
                       }}
                     >
-                      <div className="text-xs font-semibold mb-1 line-clamp-1">{course.matiere}</div>
-                      <div className="text-[10px] space-y-0.5">
-                        <div className="truncate">{course.salle.startsWith("SALLE") ? "DISTANCIEL" : course.salle}</div>
-                        <div className="truncate">{course.prof}</div>
-                        <div className="font-medium">{course.debut} - {course.fin}</div>
-                      </div>
+                      <CourseBlock course={course} />
                     </div>
                   );
                 })}
@@ -143,22 +137,11 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
                 <div className="text-xs text-muted-foreground">{dayData.date}</div>
               </div>
               <div className="space-y-2">
-                {dayData.courses.map((course, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded-lg p-2 shadow-card border border-white/20 overflow-hidden"
-                    style={{
-                      backgroundColor: course.color.bg,
-                      color: course.color.text,
-                    }}
-                  >
-                    <div className="text-sm font-semibold">{course.matiere}</div>
-                    <div className="text-xs truncate">{course.salle.startsWith("SALLE") ? "DISTANCIEL" : course.salle}</div>
-                    <div className="text-xs truncate">{course.prof}</div>
-                    <div className="text-xs font-medium">{course.debut} - {course.fin}</div>
-                  </div>
-                ))}
-                {dayData.courses.length === 0 && (
+                {dayData.courses.length > 0 ? (
+                  dayData.courses.map((course, idx) => (
+                    <CourseBlock key={idx} course={course} />
+                  ))
+                ) : (
                   <div className="text-xs text-muted-foreground">Pas de cours</div>
                 )}
               </div>
