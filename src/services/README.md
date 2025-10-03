@@ -23,7 +23,7 @@
 
 ```bash
 git clone https://github.com/D-Seonay/EDT-HEP.git
-cd edt-manager
+cd EDT-HEP
 ```
 
 2. **Installer les dépendances :**
