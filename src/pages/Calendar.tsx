@@ -1,21 +1,18 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut, Loader2, Download, Calendar as CalendarIcon, LayoutGrid, CalendarDays, Sun, Moon } from 'lucide-react';
+import { LogOut, Loader2, LayoutGrid, CalendarDays } from 'lucide-react';
 import { fetchSchedule, getUniqueSubjects, Day } from '@/services/scheduleService';
 import { toast } from '@/hooks/use-toast';
 import WeekNavigator from '@/components/schedule/WeekNavigator';
 import TimeGrid from '@/components/schedule/TimeGrid';
 import DayView from '@/components/schedule/DayView';
 import SubjectFilter from '@/components/schedule/SubjectFilter';
-import { exportToICS } from '@/utils/googleCalendar';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+  Tabs,
+  TabsList,
+  TabsTrigger
+} from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -31,33 +28,11 @@ const Calendar = () => {
   const [schedule, setSchedule] = useState<Day[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
   const [selectedSubjects, setSelectedSubjects] = useState<Set<string>>(new Set());
+  const [filterDistanciel, setFilterDistanciel] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
   const [selectedDay, setSelectedDay] = useState<string>('Lundi');
-
-  // --- Dark mode ---
-  const [darkMode, setDarkMode] = useState(false);
-
-  const toggleTheme = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    if (newMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  };
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
 
   // --- Load username & schedule ---
   useEffect(() => {
@@ -90,12 +65,17 @@ const Calendar = () => {
     }
   };
 
+  // --- Filtres appliqués ---
   const filteredSchedule = useMemo(() => {
     return schedule.map(day => ({
       ...day,
-      courses: day.courses.filter(course => selectedSubjects.has(course.matiere))
+      courses: day.courses.filter(course => {
+        const matchSubject = selectedSubjects.has(course.matiere);
+        const matchDistanciel = !filterDistanciel || course.salle.startsWith("SALLE");
+        return matchSubject && matchDistanciel;
+      })
     }));
-  }, [schedule, selectedSubjects]);
+  }, [schedule, selectedSubjects, filterDistanciel]);
 
   useEffect(() => {
     if (viewMode === 'day') {
@@ -128,14 +108,6 @@ const Calendar = () => {
     navigate('/');
   };
 
-  const handleExportICS = () => {
-    exportToICS(filteredSchedule, `edt-semaine-${currentWeek}.ics`);
-    toast({
-      title: "Export réussi",
-      description: "L'emploi du temps a été téléchargé au format ICS",
-    });
-  };
-
   const getCurrentDay = (): Day | null => filteredSchedule.find(d => d.day === selectedDay) || null;
   const isCurrentDayToday = (): boolean => {
     const today = new Date();
@@ -158,30 +130,6 @@ const Calendar = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {/* <Button
-              variant="outline"
-              onClick={toggleTheme}
-              className="rounded-xl shadow-soft hover:shadow-card transition-all flex items-center gap-2"
-            >
-              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              <span className="hidden sm:inline">{darkMode ? 'Clair' : 'Sombre'}</span>
-            </Button> */}
-
-            {/* <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="rounded-xl shadow-soft hover:shadow-card transition-all">
-                  <Download className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Exporter</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleExportICS}>
-                  <CalendarIcon className="w-4 h-4 mr-2" />
-                  Format ICS (Google Calendar, Outlook...)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu> */}
-
             <Button
               variant="outline"
               onClick={handleLogout}
@@ -248,6 +196,8 @@ const Calendar = () => {
                 subjects={subjects}
                 selectedSubjects={selectedSubjects}
                 onToggle={handleSubjectToggle}
+                filterDistanciel={filterDistanciel}
+                onToggleDistanciel={() => setFilterDistanciel(v => !v)}
               />
             )}
           </aside>
