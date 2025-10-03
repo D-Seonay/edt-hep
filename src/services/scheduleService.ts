@@ -57,62 +57,46 @@ function getWorkingDays(dateInput?: string | number | null): string[] {
 
   console.debug('[getWorkingDays] dateInput (raw):', dateInput);
 
-  // --- Gestion spéciale si dateInput est un nombre de semaines à ajouter ---
-  const weeksToAdd = (typeof dateInput === 'string' && /^\d+$/.test(dateInput))
-    ? parseInt(dateInput)
-    : typeof dateInput === 'number' ? dateInput : 0;
-
-  currentDate = new Date();
-  if (weeksToAdd > 0) {
-    currentDate.setDate(currentDate.getDate() + weeksToAdd * 7);
-    console.debug(`[getWorkingDays] Adding ${weeksToAdd} week(s) ->`, currentDate);
-  } 
-  // --- Sinon parsing normal si ce n'est pas un nombre ---
-  else if (!dateInput || dateInput === 0 || dateInput === "0") {
-    console.debug('[getWorkingDays] using current system date');
-  } else if (typeof dateInput === 'string') {
-    if (dateInput.includes('/')) {
-      const [day, month, year] = dateInput.split('/').map(Number);
-      currentDate = new Date(year, month - 1, day);
-      console.debug('[getWorkingDays] parsed dd/mm/yyyy ->', currentDate);
-    } else {
-      currentDate = new Date(dateInput);
-      console.debug('[getWorkingDays] parsed string (ISO?) ->', currentDate);
-    }
+  // --- Déterminer le décalage en semaines ---
+  let weeksToAdd = 0;
+  if (typeof dateInput === 'string' && /^-?\d+$/.test(dateInput)) {
+    weeksToAdd = parseInt(dateInput);
   } else if (typeof dateInput === 'number') {
-    currentDate = new Date(dateInput);
-    console.debug('[getWorkingDays] parsed number timestamp ->', currentDate);
+    weeksToAdd = dateInput;
   }
 
-  // --- Régler l'heure à midi pour éviter les effets fuseau ---
+  currentDate = new Date();
+  if (weeksToAdd !== 0) {
+    currentDate.setDate(currentDate.getDate() + weeksToAdd * 7);
+    console.debug(`[getWorkingDays] Adding ${weeksToAdd} week(s) ->`, currentDate);
+  } else {
+    console.debug('[getWorkingDays] using current system date');
+  }
+
+  // --- Régler l'heure à midi pour éviter fuseau ---
   currentDate.setHours(12, 0, 0, 0);
 
   const dayOfWeek = currentDate.getDay();
   const currentHour = currentDate.getHours();
-
   const addDays = (d: Date, n: number) => {
     const res = new Date(d);
     res.setDate(res.getDate() + n);
     return res;
   };
 
-  // --- Construire les 5 jours ouvrés ---
+  // --- Calculer les 5 jours ouvrés selon le jour courant ---
   switch (dayOfWeek) {
-    case 0: for (let i = 1; i <= 5; i++) workingDays.push(addDays(currentDate, i)); break;
-    case 6: for (let i = 2; i <= 6; i++) workingDays.push(addDays(currentDate, i - 2)); break;
-    case 1: for (let i = 0; i < 5; i++) workingDays.push(addDays(currentDate, i)); break;
-    case 2: for (let i = -1; i <= 3; i++) workingDays.push(addDays(currentDate, i)); break;
-    case 3: for (let i = -2; i <= 2; i++) workingDays.push(addDays(currentDate, i)); break;
-    case 4: for (let i = -3; i <= 1; i++) workingDays.push(addDays(currentDate, i)); break;
-    case 5:
-      if (currentHour >= 20) {
-        for (let i = 3; i <= 7; i++) workingDays.push(addDays(currentDate, i));
-      } else {
-        for (let i = -4; i <= 0; i++) workingDays.push(addDays(currentDate, i));
-      }
+    case 0: // dimanche
+      for (let i = 1; i <= 5; i++) workingDays.push(addDays(currentDate, i));
       break;
-    default:
-      for (let i = 0; i < 5; i++) workingDays.push(addDays(currentDate, i));
+    case 6: // samedi
+      for (let i = 2; i <= 6; i++) workingDays.push(addDays(currentDate, i - 2));
+      break;
+    default: // lundi à vendredi
+      const startOffset = -dayOfWeek + 1; // décaler pour avoir lundi en premier
+      for (let i = 0; i < 5; i++) {
+        workingDays.push(addDays(currentDate, startOffset + i));
+      }
   }
 
   const isoDays = workingDays.map(d => d.toISOString().split('T')[0]);
@@ -120,6 +104,7 @@ function getWorkingDays(dateInput?: string | number | null): string[] {
 
   return isoDays;
 }
+
 
 
 
