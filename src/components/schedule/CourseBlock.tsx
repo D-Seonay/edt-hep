@@ -59,21 +59,23 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
             <h3 className="font-semibold text-sm text-foreground line-clamp-2">
               {course.matiere}
             </h3>
-            <div className="flex items-center gap-1 text-xs text-foreground/80 bg-white/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+            {/* <div className="flex items-center gap-1 text-xs text-foreground/80 bg-white/20 px-2 py-0.5 rounded-full whitespace-nowrap">
               <Clock className="w-3 h-3" />
               <span>{course.debut} - {course.fin}</span>
-            </div>
+            </div> */}
           </div>
 
           <div className="space-y-1 text-xs text-foreground/80">
             <div className="flex items-center gap-1.5">
               <MapPin className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">{course.salle}</span>
+              <span className="truncate">{course.salle.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.salle}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <User className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">{course.prof}</span>
-            </div>
+            {course.prof && course.prof.trim() !== "" && (
+              <div className="flex items-center gap-2 mb-2">
+                <User className="w-4 h-4" />
+                <span>{course.prof}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -99,13 +101,15 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
 
             <div className="flex items-center gap-2 mb-2">
               <MapPin className="w-4 h-4" />
-              <span>{course.salle.startsWith("SALLE") ? "DISTANCIEL" : course.salle}</span>
+              <span>{course.salle.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.salle}</span>
             </div>
 
-            <div className="flex items-center gap-2 mb-2">
-              <User className="w-4 h-4" />
-              <span>{course.prof}</span>
-            </div>
+            {course.prof && course.prof.trim() !== "" && (
+              <div className="flex items-center gap-2 mb-2">
+                <User className="w-4 h-4" />
+                <span>{course.prof}</span>
+              </div>
+            )}
           </div>
         </div>
       )}
