@@ -1,8 +1,8 @@
 import { Day } from '@/services/scheduleService';
 
 interface TimeGridProps {
-  schedule: Day[];
-  currentDate?: Date;
+  schedule: Day[]; // EDT filtré par matières sélectionnées
+  currentDate?: Date; // Date actuelle pour marquer le jour
 }
 
 const HOURS = [
@@ -12,27 +12,23 @@ const HOURS = [
 
 const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 
-// Convert "HH:mm" to decimal hours
 const convertHourToNumber = (hourString: string): number => {
   const [hours, minutes] = hourString.split(":").map(Number);
-  return hours + (minutes / 60);
+  return hours + minutes / 60;
 };
 
-// Calculate height in pixels (45px per hour)
 const calculateCourseHeight = (debut: string, fin: string): number => {
   const start = convertHourToNumber(debut);
   const end = convertHourToNumber(fin);
   return (end - start) * 45;
 };
 
-// Calculate top position offset from 8:00
 const calculateTopOffset = (debut: string): number => {
   const start = convertHourToNumber(debut);
   return (start - 8) * 45;
 };
 
 const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
-  // Check if a day is today
   const isToday = (dateStr: string): boolean => {
     const today = currentDate.toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -41,30 +37,29 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
     });
     return dateStr === today;
   };
+
   return (
     <div className="bg-card rounded-2xl shadow-card border border-border/50 overflow-hidden">
-      {/* Header with days */}
+      {/* --- Header : jours + dates --- */}
       <div className="grid grid-cols-[80px_repeat(5,1fr)] border-b border-border/50 bg-muted/30">
         <div className="p-4 border-r border-border/50"></div>
-        {DAYS.map((day) => {
+        {DAYS.map(day => {
           const dayData = schedule.find(d => d.day === day);
-          const isTodayCell = dayData && isToday(dayData.date);
-          
+          const todayCell = dayData && isToday(dayData.date);
+
           return (
-            <div 
-              key={day} 
+            <div
+              key={day}
               className={`p-4 text-center border-r border-border/50 last:border-r-0 ${
-                isTodayCell ? 'bg-primary/10' : ''
+                todayCell ? 'bg-primary/10' : ''
               }`}
             >
-              <div className={`font-semibold ${isTodayCell ? 'text-primary' : 'text-foreground'}`}>
+              <div className={`font-semibold ${todayCell ? 'text-primary' : 'text-foreground'}`}>
                 {day}
               </div>
               {dayData && (
-                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground mt-1">
-                  {isTodayCell && (
-                    <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                  )}
+                <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-1">
+                  {todayCell && <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>}
                   <span>{dayData.date}</span>
                 </div>
               )}
@@ -73,11 +68,11 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
         })}
       </div>
 
-      {/* Time grid */}
+      {/* --- Grille horaire --- */}
       <div className="grid grid-cols-[80px_repeat(5,1fr)] relative">
-        {/* Hour labels column */}
+        {/* Colonne des heures */}
         <div className="border-r border-border/50">
-          {HOURS.map((hour) => (
+          {HOURS.map(hour => (
             <div
               key={hour}
               className="h-[45px] px-3 py-2 text-xs text-muted-foreground border-b border-border/20 flex items-center"
@@ -87,31 +82,31 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
           ))}
         </div>
 
-        {/* Days columns with courses */}
-        {DAYS.map((day) => {
+        {/* Colonnes des jours avec cours */}
+        {DAYS.map(day => {
           const dayData = schedule.find(d => d.day === day);
-          const isTodayCell = dayData && isToday(dayData.date);
-          
+          const todayCell = dayData && isToday(dayData.date);
+
           return (
             <div
               key={day}
               className={`border-r border-border/50 last:border-r-0 relative ${
-                isTodayCell ? 'bg-primary/5' : ''
+                todayCell ? 'bg-primary/5' : ''
               }`}
             >
-              {/* Hour lines */}
-              {HOURS.map((hour) => (
+              {/* Lignes horaires */}
+              {HOURS.map(hour => (
                 <div
                   key={hour}
                   className="h-[45px] border-b border-border/20"
                 />
               ))}
 
-              {/* Courses positioned absolutely */}
+              {/* Cours */}
               {dayData?.courses.map((course, idx) => {
                 const height = calculateCourseHeight(course.debut, course.fin);
                 const top = calculateTopOffset(course.debut);
-                
+
                 return (
                   <div
                     key={idx}
@@ -123,13 +118,9 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
                       color: course.color.text,
                     }}
                   >
-                    <div className="text-xs font-semibold text-foreground mb-1 line-clamp-1">
-                      {course.matiere}
-                    </div>
-                    <div className="text-[10px] text-foreground/80 space-y-0.5">
-                      <div className="truncate">
-                        {course.salle.startsWith("SALLE") ? "DISTANCIEL" : course.salle}
-                      </div>
+                    <div className="text-xs font-semibold mb-1 line-clamp-1">{course.matiere}</div>
+                    <div className="text-[10px] space-y-0.5">
+                      <div className="truncate">{course.salle.startsWith("SALLE") ? "DISTANCIEL" : course.salle}</div>
                       <div className="truncate">{course.prof}</div>
                       <div className="font-medium">{course.debut} - {course.fin}</div>
                     </div>

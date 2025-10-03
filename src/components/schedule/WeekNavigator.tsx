@@ -2,14 +2,16 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 interface WeekNavigatorProps {
-  currentWeek: number;
-  onPrevious: () => void;
-  onNext: () => void;
-  onToday: () => void;
+  currentWeek: number; // Semaine affichée actuellement (0 = cette semaine)
+  onPrevious: () => void; // Callback pour passer à la semaine précédente
+  onNext: () => void; // Callback pour passer à la semaine suivante
+  onToday: () => void; // Callback pour revenir à la semaine actuelle
 }
 
 const WeekNavigator = ({ currentWeek, onPrevious, onNext, onToday }: WeekNavigatorProps) => {
+  // Génère le libellé à afficher selon la semaine
   const getWeekLabel = () => {
+    console.log("[DEBUG] currentWeek:", currentWeek); // Log pour savoir quelle semaine est affichée
     if (currentWeek === 0) return "Cette semaine";
     if (currentWeek === 1) return "Semaine prochaine";
     if (currentWeek === -1) return "Semaine dernière";
@@ -18,16 +20,21 @@ const WeekNavigator = ({ currentWeek, onPrevious, onNext, onToday }: WeekNavigat
 
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap">
+      {/* Navigation précédente / suivante */}
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="icon"
-          onClick={onPrevious}
+          onClick={() => {
+            console.log("[DEBUG] Previous week clicked");
+            onPrevious();
+          }}
           className="h-10 w-10 rounded-xl shadow-soft hover:shadow-card transition-all"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
         
+        {/* Label indiquant la semaine actuelle */}
         <div className="px-4 py-2 bg-card rounded-xl shadow-soft border border-border/50 min-w-[180px] text-center">
           <span className="text-sm font-medium text-foreground">
             {getWeekLabel()}
@@ -37,17 +44,24 @@ const WeekNavigator = ({ currentWeek, onPrevious, onNext, onToday }: WeekNavigat
         <Button
           variant="outline"
           size="icon"
-          onClick={onNext}
+          onClick={() => {
+            console.log("[DEBUG] Next week clicked");
+            onNext();
+          }}
           className="h-10 w-10 rounded-xl shadow-soft hover:shadow-card transition-all"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
 
+      {/* Bouton "Aujourd'hui" si on n'est pas sur la semaine actuelle */}
       {currentWeek !== 0 && (
         <Button
           variant="outline"
-          onClick={onToday}
+          onClick={() => {
+            console.log("[DEBUG] Today button clicked");
+            onToday();
+          }}
           className="h-10 px-4 rounded-xl shadow-soft hover:shadow-card transition-all"
         >
           <Calendar className="h-4 w-4 mr-2" />

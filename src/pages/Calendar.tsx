@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogOut, Loader2, Download, Calendar as CalendarIcon, LayoutGrid, CalendarDays } from 'lucide-react';
@@ -28,7 +28,6 @@ const Calendar = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [schedule, setSchedule] = useState<Day[]>([]);
-  const [filteredSchedule, setFilteredSchedule] = useState<Day[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
   const [selectedSubjects, setSelectedSubjects] = useState<Set<string>>(new Set());
   const [currentWeek, setCurrentWeek] = useState(0);
@@ -36,8 +35,10 @@ const Calendar = () => {
   const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
   const [selectedDay, setSelectedDay] = useState<string>('Lundi');
 
+  // Au montage → récupérer username et EDT
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
+    console.log("[DEBUG] storedUsername:", storedUsername);
     if (!storedUsername) {
       navigate('/');
       return;
@@ -46,24 +47,22 @@ const Calendar = () => {
     loadSchedule(storedUsername, 0);
   }, [navigate]);
 
-  useEffect(() => {
-    if (schedule.length > 0) {
-      const allSubjects = getUniqueSubjects(schedule);
-      setSubjects(allSubjects);
-      setSelectedSubjects(new Set(allSubjects));
-    }
-  }, [schedule]);
-
-  useEffect(() => {
-    filterSchedule();
-  }, [schedule, selectedSubjects]);
-
+  // Chargement EDT + matières
   const loadSchedule = async (user: string, weekOffset: number) => {
+    console.log(`[DEBUG] loadSchedule called for user: ${user}, weekOffset: ${weekOffset}`);
     setIsLoading(true);
     try {
-      const data = await fetchSchedule(user, weekOffset);
+      const data = await fetchSchedule(user, weekOffset.toString());
+      console.log("[DEBUG] fetched schedule:", data);
       setSchedule(data);
+
+      // Extraire matières
+      const allSubjects = getUniqueSubjects(data);
+      console.log("[DEBUG] extracted subjects:", allSubjects);
+      setSubjects(allSubjects);
+      setSelectedSubjects(new Set(allSubjects));
     } catch (error) {
+      console.error("[ERROR] fetching schedule:", error);
       toast({
         title: "Erreur",
         description: "Impossible de charger l'emploi du temps",
@@ -74,21 +73,36 @@ const Calendar = () => {
     }
   };
 
-  const filterSchedule = () => {
+  // Filtrage optimisé des cours
+  const filteredSchedule = useMemo(() => {
     const filtered = schedule.map(day => ({
       ...day,
       courses: day.courses.filter(course => selectedSubjects.has(course.matiere))
     }));
-    setFilteredSchedule(filtered);
-  };
+    console.log("[DEBUG] filteredSchedule:", filtered);
+    return filtered;
+  }, [schedule, selectedSubjects]);
+
+  // Quand on passe en vue "jour", on sélectionne le jour actuel
+  useEffect(() => {
+    if (viewMode === 'day') {
+      const today = new Date();
+      const dayOfWeek = today.toLocaleDateString('fr-FR', { weekday: 'long' });
+      const capitalizedDay = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
+      console.log("[DEBUG] Switching to day view, selectedDay set to:", capitalizedDay);
+      setSelectedDay(capitalizedDay);
+    }
+  }, [viewMode]);
 
   const handleWeekChange = (offset: number) => {
     const newWeek = currentWeek + offset;
+    console.log(`[DEBUG] handleWeekChange: newWeek = ${newWeek}`);
     setCurrentWeek(newWeek);
     loadSchedule(username, newWeek);
   };
 
   const handleToday = () => {
+    console.log("[DEBUG] handleToday clicked");
     setCurrentWeek(0);
     loadSchedule(username, 0);
   };
@@ -97,18 +111,22 @@ const Calendar = () => {
     const newSelected = new Set(selectedSubjects);
     if (newSelected.has(subject)) {
       newSelected.delete(subject);
+      console.log(`[DEBUG] Subject removed: ${subject}`);
     } else {
       newSelected.add(subject);
+      console.log(`[DEBUG] Subject added: ${subject}`);
     }
     setSelectedSubjects(newSelected);
   };
 
   const handleLogout = () => {
+    console.log("[DEBUG] Logging out");
     localStorage.removeItem('username');
     navigate('/');
   };
 
   const handleExportICS = () => {
+    console.log("[DEBUG] Export ICS clicked");
     exportToICS(filteredSchedule, `edt-semaine-${currentWeek}.ics`);
     toast({
       title: "Export réussi",
@@ -117,14 +135,18 @@ const Calendar = () => {
   };
 
   const getCurrentDay = (): Day | null => {
-    return filteredSchedule.find(d => d.day === selectedDay) || null;
+    const day = filteredSchedule.find(d => d.day === selectedDay);
+    console.log("[DEBUG] getCurrentDay:", selectedDay, "->", day);
+    return day || null;
   };
 
   const isCurrentDayToday = (): boolean => {
     const today = new Date();
     const dayOfWeek = today.toLocaleDateString('fr-FR', { weekday: 'long' });
     const capitalizedDay = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
-    return selectedDay === capitalizedDay && currentWeek === 0;
+    const result = selectedDay === capitalizedDay && currentWeek === 0;
+    console.log("[DEBUG] isCurrentDayToday:", result);
+    return result;
   };
 
   return (
@@ -210,6 +232,8 @@ const Calendar = () => {
                   <SelectItem value="Mercredi">Mercredi</SelectItem>
                   <SelectItem value="Jeudi">Jeudi</SelectItem>
                   <SelectItem value="Vendredi">Vendredi</SelectItem>
+                  <SelectItem value="Samedi">Samedi</SelectItem>
+                  <SelectItem value="Dimanche">Dimanche</SelectItem>
                 </SelectContent>
               </Select>
             </div>
