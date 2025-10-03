@@ -27,7 +27,8 @@ const COLORS = [
 
 // --- 🆕 Ajout : validation prenom.nom ---
 export const isStringDotString = (input: string): boolean => {
-  const regex = /^[a-zA-Z]+\.[a-zA-Z]+$/;
+  // accepte prenom.nom ou prenom.nom123 (chiffres optionnels à la fin)
+  const regex = /^[a-zA-Z]+\.[a-zA-Z]+\d*$/;
   return regex.test(input);
 };
 
@@ -119,11 +120,6 @@ function getWorkingDays(dateInput?: string | number | null): string[] {
 
   return isoDays;
 }
-
-
-
-
-
 
 
 
