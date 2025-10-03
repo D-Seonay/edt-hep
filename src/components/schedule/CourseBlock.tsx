@@ -46,8 +46,8 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
       <div
         onClick={openModal}
         className={cn(
-          "p-3 rounded-xl shadow-card hover:shadow-elevated transition-all cursor-pointer",
-          "border border-white/20 backdrop-blur-sm"
+          "p-3 rounded-xl shadow-card hover:shadow-elevated transition-all cursor-pointer border border-white/20 backdrop-blur-sm",
+          "dark:border-gray-700"
         )}
         style={{
           backgroundColor: course.color.bg,
@@ -56,16 +56,12 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
       >
         <div className="space-y-2">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-sm text-foreground line-clamp-2">
+            <h3 className="font-semibold text-sm text-foreground dark:text-white line-clamp-2">
               {course.matiere}
             </h3>
-            {/* <div className="flex items-center gap-1 text-xs text-foreground/80 bg-white/20 px-2 py-0.5 rounded-full whitespace-nowrap">
-              <Clock className="w-3 h-3" />
-              <span>{course.debut} - {course.fin}</span>
-            </div> */}
           </div>
 
-          <div className="space-y-1 text-xs text-foreground/80">
+          <div className="space-y-1 text-xs text-foreground/80 dark:text-gray-300">
             <div className="flex items-center gap-1.5">
               <MapPin className="w-3 h-3 flex-shrink-0" />
               <span className="truncate">{course.salle.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.salle}</span>
@@ -82,30 +78,33 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
 
       {/* --- Modale --- */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div ref={modalRef} className="bg-card rounded-2xl shadow-lg max-w-md w-full p-6 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 p-4">
+          <div
+            ref={modalRef}
+            className="bg-card dark:bg-gray-800 rounded-2xl shadow-lg max-w-md w-full p-6 relative transition-colors duration-300"
+          >
             {/* Bouton fermer */}
             <button
               onClick={closeModal}
-              className="absolute top-3 right-3 text-foreground/70 hover:text-foreground"
+              className="absolute top-3 right-3 text-foreground/70 dark:text-gray-300 hover:text-foreground dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <h2 className="text-lg font-bold mb-4">{course.matiere}</h2>
+            <h2 className="text-lg font-bold mb-4 text-foreground dark:text-white">{course.matiere}</h2>
 
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 text-foreground/80 dark:text-gray-300">
               <Clock className="w-4 h-4" />
               <span>{course.debut} - {course.fin}</span>
             </div>
 
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 text-foreground/80 dark:text-gray-300">
               <MapPin className="w-4 h-4" />
               <span>{course.salle.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.salle}</span>
             </div>
 
             {course.prof && course.prof.trim() !== "" && (
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 text-foreground/80 dark:text-gray-300">
                 <User className="w-4 h-4" />
                 <span>{course.prof}</span>
               </div>
