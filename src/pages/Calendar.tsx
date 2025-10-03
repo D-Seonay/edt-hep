@@ -158,14 +158,14 @@ const Calendar = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button
+            {/* <Button
               variant="outline"
               onClick={toggleTheme}
               className="rounded-xl shadow-soft hover:shadow-card transition-all flex items-center gap-2"
             >
               {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               <span className="hidden sm:inline">{darkMode ? 'Clair' : 'Sombre'}</span>
-            </Button>
+            </Button> */}
 
             {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
