@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Course } from '@/services/scheduleService';
 import { Clock, MapPin, User, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -9,9 +9,36 @@ interface CourseBlockProps {
 
 const CourseBlock = ({ course }: CourseBlockProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  // --- Fermer la modale sur clic en dehors ---
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        closeModal();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isModalOpen]);
+
+  // --- Fermer la modale sur touche Échap ---
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeModal();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]);
 
   return (
     <>
@@ -54,7 +81,7 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
       {/* --- Modale --- */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-card rounded-2xl shadow-lg max-w-md w-full p-6 relative">
+          <div ref={modalRef} className="bg-card rounded-2xl shadow-lg max-w-md w-full p-6 relative">
             {/* Bouton fermer */}
             <button
               onClick={closeModal}
@@ -78,11 +105,6 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
             <div className="flex items-center gap-2 mb-2">
               <User className="w-4 h-4" />
               <span>{course.prof}</span>
-            </div>
-
-            {/* Exemple : ajouter plus d’infos si besoin */}
-            <div className="mt-4 text-sm text-muted-foreground">
-              <p>Informations complémentaires peuvent être ajoutées ici.</p>
             </div>
           </div>
         </div>
