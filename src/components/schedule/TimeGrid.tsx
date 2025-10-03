@@ -1,8 +1,8 @@
 import { Day } from '@/services/scheduleService';
 
 interface TimeGridProps {
-  schedule: Day[]; // EDT filtré par matières sélectionnées
-  currentDate?: Date; // Date actuelle pour marquer le jour
+  schedule: Day[];
+  currentDate?: Date;
 }
 
 const HOURS = [
@@ -40,93 +40,128 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
 
   return (
     <div className="bg-card rounded-2xl shadow-card border border-border/50 overflow-hidden">
-      {/* --- Header : jours + dates --- */}
-      <div className="grid grid-cols-[80px_repeat(5,1fr)] border-b border-border/50 bg-muted/30">
-        <div className="p-4 border-r border-border/50"></div>
-        {DAYS.map(day => {
-          const dayData = schedule.find(d => d.day === day);
-          const todayCell = dayData && isToday(dayData.date);
+      {/* --- Grand écran : Grille --- */}
+      <div className="hidden md:block">
+        {/* Header */}
+        <div className="grid grid-cols-[80px_repeat(5,1fr)] border-b border-border/50 bg-muted/30">
+          <div className="p-4 border-r border-border/50"></div>
+          {DAYS.map(day => {
+            const dayData = schedule.find(d => d.day === day);
+            const todayCell = dayData && isToday(dayData.date);
 
-          return (
-            <div
-              key={day}
-              className={`p-4 text-center border-r border-border/50 last:border-r-0 ${
-                todayCell ? 'bg-primary/10' : ''
-              }`}
-            >
-              <div className={`font-semibold ${todayCell ? 'text-primary' : 'text-foreground'}`}>
-                {day}
-              </div>
-              {dayData && (
-                <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-1">
-                  {todayCell && <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>}
-                  <span>{dayData.date}</span>
+            return (
+              <div
+                key={day}
+                className={`p-4 text-center border-r border-border/50 last:border-r-0 ${
+                  todayCell ? 'bg-primary/10' : ''
+                }`}
+              >
+                <div className={`font-semibold ${todayCell ? 'text-primary' : 'text-foreground'}`}>
+                  {day}
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* --- Grille horaire --- */}
-      <div className="grid grid-cols-[80px_repeat(5,1fr)] relative">
-        {/* Colonne des heures */}
-        <div className="border-r border-border/50">
-          {HOURS.map(hour => (
-            <div
-              key={hour}
-              className="h-[45px] px-3 py-2 text-xs text-muted-foreground border-b border-border/20 flex items-center"
-            >
-              {hour}
-            </div>
-          ))}
+                {dayData && (
+                  <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-1">
+                    {todayCell && <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>}
+                    <span>{dayData.date}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        {/* Colonnes des jours avec cours */}
-        {DAYS.map(day => {
-          const dayData = schedule.find(d => d.day === day);
-          const todayCell = dayData && isToday(dayData.date);
+        {/* Grille horaire */}
+        <div className="grid grid-cols-[80px_repeat(5,1fr)] relative">
+          <div className="border-r border-border/50">
+            {HOURS.map(hour => (
+              <div
+                key={hour}
+                className="h-[45px] px-3 py-2 text-xs text-muted-foreground border-b border-border/20 flex items-center"
+              >
+                {hour}
+              </div>
+            ))}
+          </div>
+
+          {DAYS.map(day => {
+            const dayData = schedule.find(d => d.day === day);
+            const todayCell = dayData && isToday(dayData.date);
+
+            return (
+              <div
+                key={day}
+                className={`border-r border-border/50 last:border-r-0 relative ${
+                  todayCell ? 'bg-primary/5' : ''
+                }`}
+              >
+                {HOURS.map(hour => (
+                  <div
+                    key={hour}
+                    className="h-[45px] border-b border-border/20"
+                  />
+                ))}
+
+                {dayData?.courses.map((course, idx) => {
+                  const height = calculateCourseHeight(course.debut, course.fin);
+                  const top = calculateTopOffset(course.debut);
+
+                  return (
+                    <div
+                      key={idx}
+                      className="absolute left-1 right-1 rounded-lg p-2 shadow-card border border-white/20 overflow-hidden"
+                      style={{
+                        top: `${top}px`,
+                        height: `${height - 4}px`,
+                        backgroundColor: course.color.bg,
+                        color: course.color.text,
+                      }}
+                    >
+                      <div className="text-xs font-semibold mb-1 line-clamp-1">{course.matiere}</div>
+                      <div className="text-[10px] space-y-0.5">
+                        <div className="truncate">{course.salle.startsWith("SALLE") ? "DISTANCIEL" : course.salle}</div>
+                        <div className="truncate">{course.prof}</div>
+                        <div className="font-medium">{course.debut} - {course.fin}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* --- Petit écran : Liste --- */}
+      <div className="block md:hidden p-4 space-y-4">
+        {schedule.map(dayData => {
+          const todayCell = isToday(dayData.date);
 
           return (
-            <div
-              key={day}
-              className={`border-r border-border/50 last:border-r-0 relative ${
-                todayCell ? 'bg-primary/5' : ''
-              }`}
-            >
-              {/* Lignes horaires */}
-              {HOURS.map(hour => (
-                <div
-                  key={hour}
-                  className="h-[45px] border-b border-border/20"
-                />
-              ))}
-
-              {/* Cours */}
-              {dayData?.courses.map((course, idx) => {
-                const height = calculateCourseHeight(course.debut, course.fin);
-                const top = calculateTopOffset(course.debut);
-
-                return (
+            <div key={dayData.day} className={`border rounded-lg p-3 ${todayCell ? 'bg-primary/5' : 'bg-card'}`}>
+              <div className="flex justify-between items-center mb-2">
+                <div className="font-semibold">{dayData.day}</div>
+                <div className="text-xs text-muted-foreground">{dayData.date}</div>
+              </div>
+              <div className="space-y-2">
+                {dayData.courses.map((course, idx) => (
                   <div
                     key={idx}
-                    className="absolute left-1 right-1 rounded-lg p-2 shadow-card border border-white/20 overflow-hidden"
+                    className="rounded-lg p-2 shadow-card border border-white/20 overflow-hidden"
                     style={{
-                      top: `${top}px`,
-                      height: `${height - 4}px`,
                       backgroundColor: course.color.bg,
                       color: course.color.text,
                     }}
                   >
-                    <div className="text-xs font-semibold mb-1 line-clamp-1">{course.matiere}</div>
-                    <div className="text-[10px] space-y-0.5">
-                      <div className="truncate">{course.salle.startsWith("SALLE") ? "DISTANCIEL" : course.salle}</div>
-                      <div className="truncate">{course.prof}</div>
-                      <div className="font-medium">{course.debut} - {course.fin}</div>
-                    </div>
+                    <div className="text-sm font-semibold">{course.matiere}</div>
+                    <div className="text-xs truncate">{course.salle.startsWith("SALLE") ? "DISTANCIEL" : course.salle}</div>
+                    <div className="text-xs truncate">{course.prof}</div>
+                    <div className="text-xs font-medium">{course.debut} - {course.fin}</div>
                   </div>
-                );
-              })}
+                ))}
+                {dayData.courses.length === 0 && (
+                  <div className="text-xs text-muted-foreground">Pas de cours</div>
+                )}
+              </div>
             </div>
           );
         })}

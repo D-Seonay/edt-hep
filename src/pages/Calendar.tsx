@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Footer from '@/components/ui/footer';
 
 const Calendar = () => {
   const navigate = useNavigate();
@@ -156,7 +157,7 @@ const Calendar = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Mon Emploi du Temps
+              EDT - Emploi du Temps C&D
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
               Connecté en tant que <span className="font-medium text-foreground">{username}</span>
@@ -165,13 +166,13 @@ const Calendar = () => {
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
+                {/* <Button
                   variant="outline"
-                  className="rounded-xl shadow-soft hover:shadow-card transition-all"
+                  className="rounded-xl shadow-soft hover:shadow-card transition-all duration-200"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Exporter
-                </Button>
+                </Button> */}
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={handleExportICS}>
@@ -271,6 +272,7 @@ const Calendar = () => {
           </main>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
