@@ -52,12 +52,9 @@ const assignColors = (schedule: Day[]): Day[] => {
 
 // --- 🆕 Calcul des jours de travail corrects ---
 function getWorkingDays(dateInput?: string | number | null): string[] {
-  const workingDays: Date[] = [];
-  let currentDate: Date;
+  let currentDate = new Date();
 
-  console.debug('[getWorkingDays] dateInput (raw):', dateInput);
-
-  // --- Déterminer le décalage en semaines ---
+  // --- Décalage en semaines (facultatif) ---
   let weeksToAdd = 0;
   if (typeof dateInput === 'string' && /^-?\d+$/.test(dateInput)) {
     weeksToAdd = parseInt(dateInput);
@@ -65,44 +62,26 @@ function getWorkingDays(dateInput?: string | number | null): string[] {
     weeksToAdd = dateInput;
   }
 
-  currentDate = new Date();
   if (weeksToAdd !== 0) {
     currentDate.setDate(currentDate.getDate() + weeksToAdd * 7);
-    console.debug(`[getWorkingDays] Adding ${weeksToAdd} week(s) ->`, currentDate);
-  } else {
-    console.debug('[getWorkingDays] using current system date');
   }
 
-  // --- Régler l'heure à midi pour éviter fuseau ---
-  currentDate.setHours(12, 0, 0, 0);
+  // --- Trouver le lundi de la semaine ---
+  const dayOfWeek = currentDate.getDay(); // 0 = dimanche, 1 = lundi, ...
+  const diffToMonday = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
+  const monday = new Date(currentDate);
+  monday.setDate(currentDate.getDate() + diffToMonday);
 
-  const dayOfWeek = currentDate.getDay();
-  const currentHour = currentDate.getHours();
-  const addDays = (d: Date, n: number) => {
-    const res = new Date(d);
-    res.setDate(res.getDate() + n);
-    return res;
-  };
-
-  // --- Calculer les 5 jours ouvrés selon le jour courant ---
-  switch (dayOfWeek) {
-    case 0: // dimanche
-      for (let i = 1; i <= 5; i++) workingDays.push(addDays(currentDate, i));
-      break;
-    case 6: // samedi
-      for (let i = 2; i <= 6; i++) workingDays.push(addDays(currentDate, i - 2));
-      break;
-    default: // lundi à vendredi
-      const startOffset = -dayOfWeek + 1; // décaler pour avoir lundi en premier
-      for (let i = 0; i < 5; i++) {
-        workingDays.push(addDays(currentDate, startOffset + i));
-      }
+  // --- Générer lundi → vendredi ---
+  const workingDays: Date[] = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    d.setHours(12, 0, 0, 0); // éviter fuseau
+    workingDays.push(d);
   }
 
-  const isoDays = workingDays.map(d => d.toISOString().split('T')[0]);
-  console.debug('[getWorkingDays] workingDays (ISO strings):', isoDays);
-
-  return isoDays;
+  return workingDays.map(d => d.toISOString().split('T')[0]);
 }
 
 
