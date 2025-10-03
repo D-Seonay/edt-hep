@@ -2,6 +2,7 @@
 
 **EDT Manager** est une application web responsive permettant de visualiser un emploi du temps étudiant de manière claire et interactive. Elle récupère les données depuis le site EDT officiel, les parse et les affiche sous forme de **grille pour desktop** ou **liste pour mobile**, avec gestion des couleurs par matière et détails enrichis.
 
+   ![Aperçu de l'application](public/preview.png)
 ---
 
 
