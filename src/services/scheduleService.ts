@@ -52,15 +52,19 @@ const assignColors = (schedule: Day[]): Day[] => {
 // Récupérer l'emploi du temps via l'API
 export const fetchSchedule = async (username: string, weekOffset: number = 0): Promise<Day[]> => {
   try {
-    const baseUrl = 'https://edtmobiliteng.wigorservices.net/api/edtBis.php';
+    const baseUrl = 'https://edtmobiliteng.wigorservices.net/WebPsDyn.aspx';
     const proxyUrl = 'https://corsproxy.io/?';
     
     // Calculer la date de la semaine demandée
     const today = new Date();
     today.setDate(today.getDate() + (weekOffset * 7));
-    const dateStr = today.toISOString().split('T')[0];
+    const dateStr = today.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
 
-    const url = `${proxyUrl}${encodeURIComponent(`${baseUrl}?tel=${username}&date=${dateStr}`)}`;
+    const url = `${proxyUrl}${encodeURIComponent(`${baseUrl}?Action=posETUD&serverid=C&tel=${username}&date=${dateStr} 8:00`)}`;
     
     const response = await axios.get(url);
     const data = response.data;

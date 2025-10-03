@@ -5,7 +5,7 @@ import { LogOut, Loader2 } from 'lucide-react';
 import { fetchSchedule, getUniqueSubjects, Day } from '@/services/scheduleService';
 import { toast } from '@/hooks/use-toast';
 import WeekNavigator from '@/components/schedule/WeekNavigator';
-import CourseBlock from '@/components/schedule/CourseBlock';
+import TimeGrid from '@/components/schedule/TimeGrid';
 import SubjectFilter from '@/components/schedule/SubjectFilter';
 
 const Calendar = () => {
@@ -149,26 +149,7 @@ const Calendar = () => {
                 <p className="text-muted-foreground">Aucun cours pour cette semaine</p>
               </div>
             ) : (
-              <div className="space-y-6">
-                {filteredSchedule.map((day, index) => (
-                  <div key={index} className="bg-card rounded-2xl shadow-card border border-border/50 p-6">
-                    <div className="mb-4 pb-3 border-b border-border">
-                      <h2 className="text-xl font-bold text-foreground">{day.day}</h2>
-                      <p className="text-sm text-muted-foreground mt-1">{day.date}</p>
-                    </div>
-
-                    {day.courses.length === 0 ? (
-                      <p className="text-sm text-muted-foreground py-4">Pas de cours ce jour</p>
-                    ) : (
-                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                        {day.courses.map((course, courseIndex) => (
-                          <CourseBlock key={courseIndex} course={course} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <TimeGrid schedule={filteredSchedule} />
             )}
           </main>
         </div>
