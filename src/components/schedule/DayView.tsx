@@ -1,5 +1,5 @@
-import { Day } from '@/services/scheduleService';
-import { Clock, MapPin, User } from 'lucide-react';
+import { Day } from "@/services/scheduleService";
+import { Clock, MapPin, User } from "lucide-react";
 
 interface DayViewProps {
   day: Day | null;
@@ -7,13 +7,24 @@ interface DayViewProps {
 }
 
 const HOURS = [
-  "8:00", "9:00", "10:00", "11:00", "12:00", "13:00",
-  "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"
+  "8:00",
+  "9:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+  "19:00",
+  "20:00",
 ];
 
 const convertHourToNumber = (hourString: string): number => {
   const [hours, minutes] = hourString.split(":").map(Number);
-  return hours + (minutes / 60);
+  return hours + minutes / 60;
 };
 
 const calculateCourseHeight = (debut: string, fin: string): number => {
@@ -71,24 +82,21 @@ const DayView = ({ day, isToday }: DayViewProps) => {
         <div className="relative">
           {/* Hour lines */}
           {HOURS.map((hour) => (
-            <div
-              key={hour}
-              className="h-[60px] border-b border-border/20"
-            />
+            <div key={hour} className="h-[60px] border-b border-border/20" />
           ))}
 
           {/* Courses positioned absolutely */}
           {day.courses.map((course, idx) => {
             const height = calculateCourseHeight(course.debut, course.fin);
             const top = calculateTopOffset(course.debut);
-            
+
             return (
               <div
                 key={idx}
                 className="absolute left-2 right-2 rounded-xl p-4 shadow-card border border-white/20 overflow-hidden hover:shadow-elevated transition-all cursor-pointer"
                 style={{
-                  top: `${top * 60 / 45}px`,
-                  height: `${height * 60 / 45 - 8}px`,
+                  top: `${(top * 60) / 45}px`,
+                  height: `${(height * 60) / 45 - 8}px`,
                   backgroundColor: course.color.bg,
                   color: course.color.text,
                 }}
@@ -100,7 +108,9 @@ const DayView = ({ day, isToday }: DayViewProps) => {
                     </h3>
                     <div className="flex items-center gap-1 text-xs bg-white/20 px-2 py-1 rounded-full whitespace-nowrap">
                       <Clock className="w-3 h-3" />
-                      <span>{course.debut} - {course.fin}</span>
+                      <span>
+                        {course.debut} - {course.fin}
+                      </span>
                     </div>
                   </div>
 
@@ -108,13 +118,17 @@ const DayView = ({ day, isToday }: DayViewProps) => {
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
-                        {course.salle.startsWith("SALLE") ? "DISTANCIEL" : course.salle}
+                        {course.salle.startsWith("SALLE")
+                          ? "DISTANCIEL"
+                          : course.salle}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{course.prof}</span>
-                    </div>
+                    {course.prof && course.prof.trim() !== "" && (
+                      <div className="flex items-center gap-2 mb-2 text-foreground/80 dark:text-gray-300">
+                        <User className="w-4 h-4" />
+                        <span>{course.prof}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

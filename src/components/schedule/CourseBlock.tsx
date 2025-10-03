@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { Course } from '@/services/scheduleService';
-import { Clock, MapPin, User, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useRef } from "react";
+import { Course } from "@/services/scheduleService";
+import { Clock, MapPin, User, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface CourseBlockProps {
   course: Course;
@@ -19,13 +20,16 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
     if (!isModalOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         closeModal();
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isModalOpen]);
 
   // --- Fermer la modale sur touche Échap ---
@@ -33,24 +37,29 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
     if (!isModalOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeModal();
+      if (event.key === "Escape") closeModal();
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isModalOpen]);
 
   return (
     <>
       {/* --- Bloc du cours --- */}
-      <div
+      <motion.div
         onClick={openModal}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(0,0,0,0.15)" }}
+        whileTap={{ scale: 0.97 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         className={cn(
-          "p-3 rounded-xl shadow-card hover:shadow-elevated transition-all cursor-pointer border border-white/20 backdrop-blur-sm",
-          "dark:border-gray-700"
+          "relative p-4 rounded-2xl cursor-pointer transition-all",
+          "border border-white/20 backdrop-blur-sm overflow-hidden"
         )}
         style={{
-          backgroundColor: course.color.bg,
+          background: course.color.bg,
           color: course.color.text,
         }}
       >
@@ -64,7 +73,11 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
           <div className="space-y-1 text-xs text-foreground/80 dark:text-gray-300">
             <div className="flex items-center gap-1.5">
               <MapPin className="w-3 h-3 flex-shrink-0" />
-              <span className="truncate">{course.salle.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.salle}</span>
+              <span className="truncate">
+                {course.salle.startsWith("SALLE")
+                  ? "DISTANCIEL 🏠"
+                  : course.salle}
+              </span>
             </div>
             {course.prof && course.prof.trim() !== "" && (
               <div className="flex items-center gap-2 mb-2">
@@ -74,7 +87,7 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* --- Modale --- */}
       {isModalOpen && (
@@ -91,16 +104,24 @@ const CourseBlock = ({ course }: CourseBlockProps) => {
               <X className="w-5 h-5" />
             </button>
 
-            <h2 className="text-lg font-bold mb-4 text-foreground dark:text-white">{course.matiere}</h2>
+            <h2 className="text-lg font-bold mb-4 text-foreground dark:text-white">
+              {course.matiere}
+            </h2>
 
             <div className="flex items-center gap-2 mb-2 text-foreground/80 dark:text-gray-300">
               <Clock className="w-4 h-4" />
-              <span>{course.debut} - {course.fin}</span>
+              <span>
+                {course.debut} - {course.fin}
+              </span>
             </div>
 
             <div className="flex items-center gap-2 mb-2 text-foreground/80 dark:text-gray-300">
               <MapPin className="w-4 h-4" />
-              <span>{course.salle.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.salle}</span>
+              <span>
+                {course.salle.startsWith("SALLE")
+                  ? "DISTANCIEL 🏠"
+                  : course.salle}
+              </span>
             </div>
 
             {course.prof && course.prof.trim() !== "" && (
