@@ -62,7 +62,7 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 240 10% 8%;
+    --background: 240 20% 8%;
     --foreground: 240 5% 96%;
 
     --card: 240 10% 10%;

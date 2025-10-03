@@ -1,18 +1,18 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { LogOut, Loader2, LayoutGrid, CalendarDays } from 'lucide-react';
-import { fetchSchedule, getUniqueSubjects, Day } from '@/services/scheduleService';
-import { toast } from '@/hooks/use-toast';
-import WeekNavigator from '@/components/schedule/WeekNavigator';
-import TimeGrid from '@/components/schedule/TimeGrid';
-import DayView from '@/components/schedule/DayView';
-import SubjectFilter from '@/components/schedule/SubjectFilter';
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { LogOut, Loader2, LayoutGrid, CalendarDays, Sun, Moon } from "lucide-react";
 import {
-  Tabs,
-  TabsList,
-  TabsTrigger
-} from "@/components/ui/tabs";
+  fetchSchedule,
+  getUniqueSubjects,
+  Day,
+} from "@/services/scheduleService";
+import { toast } from "@/hooks/use-toast";
+import WeekNavigator from "@/components/schedule/WeekNavigator";
+import TimeGrid from "@/components/schedule/TimeGrid";
+import DayView from "@/components/schedule/DayView";
+import SubjectFilter from "@/components/schedule/SubjectFilter";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -20,25 +20,59 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Footer from '@/components/ui/footer';
+import Footer from "@/components/ui/footer";
+
+import { motion, AnimatePresence } from "framer-motion";
 
 const Calendar = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   const [schedule, setSchedule] = useState<Day[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
-  const [selectedSubjects, setSelectedSubjects] = useState<Set<string>>(new Set());
+  const [selectedSubjects, setSelectedSubjects] = useState<Set<string>>(
+    new Set()
+  );
   const [filterDistanciel, setFilterDistanciel] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
-  const [selectedDay, setSelectedDay] = useState<string>('Lundi');
+  const [viewMode, setViewMode] = useState<"week" | "day">("week");
+  const [selectedDay, setSelectedDay] = useState<string>("Lundi");
+
+  // --- Dark mode ---
+
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleTheme = () => {
+    const newMode = !darkMode;
+
+    setDarkMode(newMode);
+
+    if (newMode) {
+      document.documentElement.classList.add("dark");
+
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+
+      localStorage.setItem("theme", "light");
+    }
+  };
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme === "dark") {
+      setDarkMode(true);
+
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
 
   // --- Load username & schedule ---
   useEffect(() => {
-    const storedUsername = localStorage.getItem('username');
+    const storedUsername = localStorage.getItem("username");
     if (!storedUsername) {
-      navigate('/');
+      navigate("/");
       return;
     }
     setUsername(storedUsername);
@@ -67,20 +101,21 @@ const Calendar = () => {
 
   // --- Filtres appliqués ---
   const filteredSchedule = useMemo(() => {
-    return schedule.map(day => ({
+    return schedule.map((day) => ({
       ...day,
-      courses: day.courses.filter(course => {
+      courses: day.courses.filter((course) => {
         const matchSubject = selectedSubjects.has(course.matiere);
-        const matchDistanciel = !filterDistanciel || course.salle.startsWith("SALLE");
+        const matchDistanciel =
+          !filterDistanciel || course.salle.startsWith("SALLE");
         return matchSubject && matchDistanciel;
-      })
+      }),
     }));
   }, [schedule, selectedSubjects, filterDistanciel]);
 
   useEffect(() => {
-    if (viewMode === 'day') {
+    if (viewMode === "day") {
       const today = new Date();
-      const dayOfWeek = today.toLocaleDateString('fr-FR', { weekday: 'long' });
+      const dayOfWeek = today.toLocaleDateString("fr-FR", { weekday: "long" });
       setSelectedDay(dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1));
     }
   }, [viewMode]);
@@ -104,47 +139,109 @@ const Calendar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('username');
-    navigate('/');
+    localStorage.removeItem("username");
+    navigate("/");
   };
 
-  const getCurrentDay = (): Day | null => filteredSchedule.find(d => d.day === selectedDay) || null;
+  const getCurrentDay = (): Day | null =>
+    filteredSchedule.find((d) => d.day === selectedDay) || null;
   const isCurrentDayToday = (): boolean => {
     const today = new Date();
-    const dayOfWeek = today.toLocaleDateString('fr-FR', { weekday: 'long' });
-    const capitalizedDay = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
+    const dayOfWeek = today.toLocaleDateString("fr-FR", { weekday: "long" });
+    const capitalizedDay =
+      dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
     return selectedDay === capitalizedDay && currentWeek === 0;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+      className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 dark:from-black dark:via-black-800 dark:to-black-900 transition-colors duration-300"
+    >
       {/* Header */}
-      <header className="border-b border-border/50 bg-card/50 dark:bg-gray-800 backdrop-blur-sm sticky top-0 z-10 shadow-soft transition-colors duration-300">
+      <motion.header
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="border-b border-border/50 bg-card/50 dark:bg-black-800 backdrop-blur-sm sticky top-0 z-10 shadow-soft transition-colors duration-300"
+      >
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
+          <motion.div
+            initial={{ x: -30, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              <span className="hidden sm:inline">Emploi du temps - </span><span className="sm:hidden">EDT </span>C&D
+              <span className="hidden sm:inline">Emploi du temps - </span>
+              <span className="sm:hidden">EDT </span>C&D
             </h1>
             <p className="text-sm text-muted-foreground mt-1 dark:text-muted-foreground/70">
-              Connecté en tant que <span className="font-medium text-foreground dark:text-white">{username}</span>
+              Connecté en tant que{" "}
+              <span className="font-medium text-foreground dark:text-white">
+                {username}
+              </span>
             </p>
-          </div>
-          <div className="flex items-center gap-2">
+          </motion.div>
+          <motion.div
+            initial={{ x: 30, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="flex items-center gap-2"
+          >
+            {/* Theme toggle & Logout */}
+            <Button
+              variant="outline"
+              onClick={toggleTheme}
+              className="rounded-xl shadow-soft hover:shadow-card transition-all flex items-center gap-2"
+              asChild
+            >
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {darkMode ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+
+                <span className="hidden sm:inline">
+                  {darkMode ? "Clair" : "Sombre"}
+                </span>
+              </motion.span>
+            </Button> 
+
+            {/* Deconnexion */}
             <Button
               variant="outline"
               onClick={handleLogout}
               className="rounded-xl shadow-soft hover:shadow-card transition-all flex items-center gap-2"
+              asChild
             >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Déconnexion</span>
+              <motion.span
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Déconnexion</span>
+              </motion.span>
             </Button>
-          </div>
+          </motion.div>
         </div>
-      </header>
+      </motion.header>
 
       <div className="container mx-auto px-4 py-6">
         {/* Navigation & View Toggle */}
-        <div className="mb-6 space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mb-6 space-y-4"
+        >
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <WeekNavigator
               currentWeek={currentWeek}
@@ -153,23 +250,34 @@ const Calendar = () => {
               onToday={handleToday}
             />
 
-            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'week' | 'day')} className="w-auto">
+            <Tabs
+              value={viewMode}
+              onValueChange={(v) => setViewMode(v as "week" | "day")}
+              className="w-auto"
+            >
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="week" className="flex items-center gap-2">
-                  <LayoutGrid className="w-4 h-4" />
-                  Semaine
-                </TabsTrigger>
                 <TabsTrigger value="day" className="flex items-center gap-2">
                   <CalendarDays className="w-4 h-4" />
                   Jour
+                </TabsTrigger>
+                <TabsTrigger value="week" className="flex items-center gap-2">
+                  <LayoutGrid className="w-4 h-4" />
+                  Semaine
                 </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
 
-          {viewMode === 'day' && (
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-muted-foreground dark:text-muted-foreground/70">Sélectionner un jour:</span>
+          {viewMode === "day" && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center gap-3"
+            >
+              <span className="text-sm text-muted-foreground dark:text-muted-foreground/70">
+                Sélectionner un jour:
+              </span>
               <Select value={selectedDay} onValueChange={setSelectedDay}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue />
@@ -180,48 +288,89 @@ const Calendar = () => {
                   <SelectItem value="Mercredi">Mercredi</SelectItem>
                   <SelectItem value="Jeudi">Jeudi</SelectItem>
                   <SelectItem value="Vendredi">Vendredi</SelectItem>
-                  <SelectItem value="Samedi">Samedi</SelectItem>
-                  <SelectItem value="Dimanche">Dimanche</SelectItem>
+                  {/* <SelectItem value="Samedi">Samedi</SelectItem> */}
+                  {/* <SelectItem value="Dimanche">Dimanche</SelectItem> */}
                 </SelectContent>
               </Select>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
 
         {/* Content */}
         <div className="grid lg:grid-cols-[300px_1fr] gap-6">
-          <aside className="space-y-4">
+          <motion.aside
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+            className="space-y-4"
+          >
             {!isLoading && subjects.length > 0 && (
               <SubjectFilter
                 subjects={subjects}
                 selectedSubjects={selectedSubjects}
                 onToggle={handleSubjectToggle}
                 filterDistanciel={filterDistanciel}
-                onToggleDistanciel={() => setFilterDistanciel(v => !v)}
+                onToggleDistanciel={() => setFilterDistanciel((v) => !v)}
               />
             )}
-          </aside>
+          </motion.aside>
 
           <main>
             {isLoading ? (
-              <div className="flex items-center justify-center h-96">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center justify-center h-96"
+              >
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              </div>
+              </motion.div>
             ) : filteredSchedule.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground dark:text-muted-foreground/70">Aucun cours pour cette semaine</p>
-              </div>
-            ) : viewMode === 'week' ? (
-              <TimeGrid schedule={filteredSchedule} currentDate={new Date()} />
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-12"
+              >
+                <p className="text-muted-foreground dark:text-muted-foreground/70">
+                  Aucun cours pour cette semaine
+                </p>
+              </motion.div>
             ) : (
-              <DayView day={getCurrentDay()} isToday={isCurrentDayToday()} />
+              <AnimatePresence mode="wait">
+                {viewMode === "week" ? (
+                  <motion.div
+                    key="week"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <TimeGrid
+                      schedule={filteredSchedule}
+                      currentDate={new Date()}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="day"
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 50 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <DayView
+                      day={getCurrentDay()}
+                      isToday={isCurrentDayToday()}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             )}
           </main>
         </div>
       </div>
 
       <Footer />
-    </div>
+    </motion.div>
   );
 };
 

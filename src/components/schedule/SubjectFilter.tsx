@@ -1,7 +1,7 @@
-import { useId, useState } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Filter, ChevronDown, Laptop } from 'lucide-react';
+import { useId, useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Filter, ChevronDown, Laptop } from "lucide-react";
 
 interface SubjectFilterProps {
   subjects: string[];
@@ -25,7 +25,7 @@ const SubjectFilter = ({
   const allSelected = selectedSubjects.size === subjects.length;
 
   const handleSelectAll = () => {
-    subjects.forEach(subject => {
+    subjects.forEach((subject) => {
       if (!allSelected && !selectedSubjects.has(subject)) {
         onToggle(subject);
       } else if (allSelected && selectedSubjects.has(subject)) {
@@ -45,14 +45,16 @@ const SubjectFilter = ({
 
           <button
             name="toggle-button"
-            aria-expanded={isOpen ? 'true' : 'false'}
+            aria-expanded={isOpen ? "true" : "false"}
             aria-controls={isOpen ? contentId : undefined}
-            onClick={() => setIsOpen(s => !s)}
+            onClick={() => setIsOpen((s) => !s)}
             className="p-1 rounded hover:bg-muted transition-transform"
-            title={isOpen ? 'Fermer les filtres' : 'Ouvrir les filtres'}
+            title={isOpen ? "Fermer les filtres" : "Ouvrir les filtres"}
           >
             <ChevronDown
-              className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : 'rotate-0'}`}
+              className={`w-5 h-5 transition-transform ${
+                isOpen ? "rotate-180" : "rotate-0"
+              }`}
             />
           </button>
         </label>
