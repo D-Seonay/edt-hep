@@ -13,9 +13,12 @@ const CourseBlock = ({ course, onClick }: CourseBlockProps) => {
       onClick={onClick}
       className={cn(
         "p-3 rounded-xl shadow-card hover:shadow-elevated transition-all cursor-pointer",
-        "border border-white/20 backdrop-blur-sm",
-        `bg-${course.color}`
+        "border border-white/20 backdrop-blur-sm"
       )}
+      style={{
+        backgroundColor: course.color.bg,
+        color: course.color.text,
+      }}
     >
       <div className="space-y-2">
         <div className="flex items-start justify-between gap-2">

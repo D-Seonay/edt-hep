@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut, Loader2 } from 'lucide-react';
+import { LogOut, Loader2, Download, Calendar as CalendarIcon } from 'lucide-react';
 import { fetchSchedule, getUniqueSubjects, Day } from '@/services/scheduleService';
 import { toast } from '@/hooks/use-toast';
 import WeekNavigator from '@/components/schedule/WeekNavigator';
 import TimeGrid from '@/components/schedule/TimeGrid';
 import SubjectFilter from '@/components/schedule/SubjectFilter';
+import { exportToICS } from '@/utils/googleCalendar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Calendar = () => {
   const navigate = useNavigate();
@@ -90,6 +97,14 @@ const Calendar = () => {
     navigate('/');
   };
 
+  const handleExportICS = () => {
+    exportToICS(filteredSchedule, `edt-semaine-${currentWeek}.ics`);
+    toast({
+      title: "Export réussi",
+      description: "L'emploi du temps a été téléchargé au format ICS",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
@@ -103,14 +118,34 @@ const Calendar = () => {
               Connecté en tant que <span className="font-medium text-foreground">{username}</span>
             </p>
           </div>
-          <Button
-            variant="outline"
-            onClick={handleLogout}
-            className="rounded-xl shadow-soft hover:shadow-card transition-all"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Déconnexion
-          </Button>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="rounded-xl shadow-soft hover:shadow-card transition-all"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Exporter
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleExportICS}>
+                  <CalendarIcon className="w-4 h-4 mr-2" />
+                  Format ICS (Google Calendar, Outlook...)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              className="rounded-xl shadow-soft hover:shadow-card transition-all"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Déconnexion
+            </Button>
+          </div>
         </div>
       </header>
 

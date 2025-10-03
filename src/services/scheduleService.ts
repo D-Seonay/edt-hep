@@ -6,7 +6,7 @@ export interface Course {
   matiere: string;
   salle: string;
   prof: string;
-  color: string;
+  color: { bg: string; text: string };
 }
 
 export interface Day {
@@ -16,13 +16,13 @@ export interface Day {
 }
 
 const COLORS = [
-  'course-blue',
-  'course-purple',
-  'course-pink',
-  'course-orange',
-  'course-cyan',
-  'course-yellow',
-  'course-green',
+  { bg: 'hsl(var(--course-blue))', text: 'hsl(var(--foreground))' },
+  { bg: 'hsl(var(--course-purple))', text: 'hsl(var(--foreground))' },
+  { bg: 'hsl(var(--course-pink))', text: 'hsl(var(--foreground))' },
+  { bg: 'hsl(var(--course-orange))', text: 'hsl(var(--foreground))' },
+  { bg: 'hsl(var(--course-cyan))', text: 'hsl(var(--foreground))' },
+  { bg: 'hsl(var(--course-yellow))', text: 'hsl(var(--foreground))' },
+  { bg: 'hsl(var(--course-green))', text: 'hsl(var(--foreground))' },
 ];
 
 // Fonction pour valider le format prenom.nom
@@ -33,7 +33,7 @@ export const isStringDotString = (input: string): boolean => {
 
 // Assigner une couleur unique à chaque matière
 const assignColors = (schedule: Day[]): Day[] => {
-  const matiereColors = new Map<string, string>();
+  const matiereColors = new Map<string, { bg: string; text: string }>();
   let colorIndex = 0;
 
   schedule.forEach(day => {
@@ -66,8 +66,10 @@ export const fetchSchedule = async (username: string, weekOffset: number = 0): P
 
     const url = `${proxyUrl}${encodeURIComponent(`${baseUrl}?Action=posETUD&serverid=C&tel=${username}&date=${dateStr} 8:00`)}`;
     
+    console.log('Fetching schedule from:', url);
     const response = await axios.get(url);
     const data = response.data;
+    console.log('API Response:', data);
 
     // Transformer les données de l'API en format utilisable
     const schedule: Day[] = [];
@@ -87,7 +89,7 @@ export const fetchSchedule = async (username: string, weekOffset: number = 0): P
             matiere: course.matiere || course.subject,
             salle: course.salle || course.room,
             prof: course.prof || course.teacher,
-            color: ''
+            color: { bg: '', text: '' }
           }));
         }
 

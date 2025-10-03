@@ -87,10 +87,12 @@ const TimeGrid = ({ schedule }: TimeGridProps) => {
                 return (
                   <div
                     key={idx}
-                    className={`absolute left-1 right-1 rounded-lg p-2 shadow-card border border-white/20 overflow-hidden bg-${course.color}`}
+                    className="absolute left-1 right-1 rounded-lg p-2 shadow-card border border-white/20 overflow-hidden"
                     style={{
                       top: `${top}px`,
                       height: `${height - 4}px`,
+                      backgroundColor: course.color.bg,
+                      color: course.color.text,
                     }}
                   >
                     <div className="text-xs font-semibold text-foreground mb-1 line-clamp-1">
