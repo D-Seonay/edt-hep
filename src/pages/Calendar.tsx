@@ -24,6 +24,8 @@ import Footer from "@/components/ui/footer";
 
 import { motion, AnimatePresence } from "framer-motion";
 import CalendarSkeleton from "@/components/schedule/CalendarSkeleton";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Calendar as DatePicker } from "@/components/ui/calendar";
 
 const Calendar = () => {
   const navigate = useNavigate();
@@ -38,6 +40,8 @@ const Calendar = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"week" | "day">("week");
   const [selectedDay, setSelectedDay] = useState<string>("Lundi");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // --- Dark mode ---
   const [darkMode, setDarkMode] = useState(false);
@@ -125,6 +129,34 @@ const Calendar = () => {
     loadSchedule(username, 0);
   };
 
+  const getStartOfWeek = (date: Date) => {
+    const d = new Date(date);
+    // Conserver l'heure à minuit
+    d.setHours(0, 0, 0, 0);
+    // JS: 0 = dimanche, 1 = lundi ... On veut que la semaine commence lundi
+    const day = d.getDay();
+    const diff = (day + 6) % 7; // nombre de jours à retrancher pour arriver au lundi
+    d.setDate(d.getDate() - diff);
+    return d;
+  };
+
+  const getWeekOffset = (date: Date) => {
+    const startSelected = getStartOfWeek(date).getTime();
+    const startToday = getStartOfWeek(new Date()).getTime();
+    const diffMs = startSelected - startToday;
+    return Math.round(diffMs / (7 * 24 * 60 * 60 * 1000));
+  };
+
+  const handleDateSelect = (date: Date | undefined | null) => {
+    if (!date) return;
+    setSelectedDate(date);
+    const offset = getWeekOffset(date);
+    setCurrentWeek(offset);
+    // si le username est déjà chargé, on recharge le planning
+    if (username) loadSchedule(username, offset);
+    setPickerOpen(false);
+  };
+
   const handleSubjectToggle = (subject: string) => {
     const newSelected = new Set(selectedSubjects);
     if (newSelected.has(subject)) newSelected.delete(subject);
@@ -201,13 +233,31 @@ const Calendar = () => {
       <div className="container mx-auto px-4 py-6">
         {/* Navigation & View Toggle */}
         <div className="mb-6 space-y-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <WeekNavigator
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <WeekNavigator
               currentWeek={currentWeek}
               onPrevious={() => handleWeekChange(-1)}
               onNext={() => handleWeekChange(1)}
               onToday={handleToday}
-            />
+              />
+
+              {/* Datepicker */}
+              <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="rounded-xl shadow-soft hover:shadow-card">
+                    {selectedDate.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <DatePicker
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(d) => handleDateSelect(d as Date)}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
 
             <Tabs
               value={viewMode}

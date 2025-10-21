@@ -87,7 +87,8 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
                 {HOURS.map(hour => (
                   <div
                     key={hour}
-                    className="h-[45px] px-3 py-2 text-xs text-muted-foreground border-b border-border/20 flex items-center"
+                    // alignement en haut de la case et padding réduit pour coller à la ligne
+                    className="h-[45px] px-3 py-1 text-xs text-muted-foreground border-b border-border/20 flex items-start"
                   >
                     {hour}
                   </div>
