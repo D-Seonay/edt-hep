@@ -6,34 +6,43 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Calendar, AlertCircle } from 'lucide-react';
 import { isStringDotString } from '@/services/scheduleService';
 import { toast } from '@/hooks/use-toast';
+import { getProcessedUsername } from '@/services/usernameShortcuts';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!isStringDotString(username)) {
-      toast({
-        title: "Format invalide",
-        description: "Veuillez entrer votre nom au format prenom.nom",
-        variant: "destructive",
-      });
-      return;
-    }
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    setIsLoading(true);
-    
-    // Sauvegarder le username
-    localStorage.setItem('username', username);
-    
-    // Rediriger vers le calendrier
-    setTimeout(() => {
-      navigate('/calendar');
-    }, 500);
-  };
+  const processedUsername = getProcessedUsername(username);
+
+  if (!isStringDotString(processedUsername)) {
+    toast({
+      title: "Format invalide",
+      description: "Veuillez entrer votre nom au format prenom.nom",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  setIsLoading(true);
+  
+  // Sauvegarder le username traité
+  localStorage.setItem('username', processedUsername);
+
+  toast({
+    title: "Connexion réussie",
+    description: "Bonjour " + processedUsername + " ! Redirection vers votre planning...",
+    variant: "default",
+  });
+  
+  // Rediriger vers le calendrier
+  setTimeout(() => {
+    navigate('/calendar');
+  }, 500);
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
