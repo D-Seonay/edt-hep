@@ -11,7 +11,6 @@ interface WeekNavigatorProps {
 const WeekNavigator = ({ currentWeek, onPrevious, onNext, onToday }: WeekNavigatorProps) => {
   // Génère le libellé à afficher selon la semaine
   const getWeekLabel = () => {
-    console.log("[DEBUG] currentWeek:", currentWeek); // Log pour savoir quelle semaine est affichée
     if (currentWeek === 0) return "Cette semaine";
     if (currentWeek === 1) return "Semaine prochaine";
     if (currentWeek === -1) return "Semaine dernière";
@@ -26,7 +25,6 @@ const WeekNavigator = ({ currentWeek, onPrevious, onNext, onToday }: WeekNavigat
           variant="outline"
           size="icon"
           onClick={() => {
-            console.log("[DEBUG] Previous week clicked");
             onPrevious();
           }}
           className="h-10 w-10 rounded-xl shadow-soft hover:shadow-card transition-all"
@@ -45,7 +43,6 @@ const WeekNavigator = ({ currentWeek, onPrevious, onNext, onToday }: WeekNavigat
           variant="outline"
           size="icon"
           onClick={() => {
-            console.log("[DEBUG] Next week clicked");
             onNext();
           }}
           className="h-10 w-10 rounded-xl shadow-soft hover:shadow-card transition-all"
@@ -59,7 +56,6 @@ const WeekNavigator = ({ currentWeek, onPrevious, onNext, onToday }: WeekNavigat
         <Button
           variant="outline"
           onClick={() => {
-            console.log("[DEBUG] Today button clicked");
             onToday();
           }}
           className="h-10 px-4 rounded-xl shadow-soft hover:shadow-card transition-all"

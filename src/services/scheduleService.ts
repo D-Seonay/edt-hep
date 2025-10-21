@@ -113,14 +113,12 @@ const parseHtmlDay = (html: string): Course[] => {
     }
   });
 
-  console.log('[DEBUG] Parsed courses for day:', courses);
   return courses;
 };
 
 // --- 🆕 Récupérer le planning complet d'une semaine ---
 export const fetchSchedule = async (username: string, dateInput?: string | null): Promise<Day[]> => {
   if (!isStringDotString(username)) {
-    console.error('[DEBUG] Invalid username:', username);
     return [];
   }
 
@@ -131,7 +129,6 @@ export const fetchSchedule = async (username: string, dateInput?: string | null)
   for (let i = 0; i < workingDays.length; i++) {
     const dayDate = workingDays[i];
     const url = `https://corsproxy.io/?https://edtmobiliteng.wigorservices.net/WebPsDyn.aspx?Action=posETUD&serverid=C&tel=${username}&date=${encodeURIComponent(dayDate)}%208:00`;
-    console.log('[DEBUG] Fetching URL:', url);
 
     try {
       const response = await axios.get(url);
@@ -143,7 +140,6 @@ export const fetchSchedule = async (username: string, dateInput?: string | null)
         courses
       });
     } catch (error) {
-      console.error('[DEBUG] Error fetching day:', dayDate, error);
       schedule.push({ day: daysOfWeek[i], date: dayDate, courses: [] });
     }
   }
