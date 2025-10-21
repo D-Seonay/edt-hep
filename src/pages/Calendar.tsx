@@ -46,6 +46,86 @@ const Calendar = () => {
   // --- Dark mode ---
   const [darkMode, setDarkMode] = useState(false);
 
+  // --- Primary color picker ---
+  const [primaryColor, setPrimaryColor] = useState<string>("#7c3aed");
+
+  // helpers: hex <-> hsl
+  const hexToHsl = (H: string) => {
+    let hex = H.replace('#', '');
+    if (hex.length === 3) {
+      hex = hex.split('').map((c) => c + c).join('');
+    }
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h = h * 60;
+    }
+    return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
+  };
+
+  const hslToHex = (h: number, s: number, l: number) => {
+    s /= 100;
+    l /= 100;
+    const k = (n: number) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => {
+      const color = l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+      return Math.round(255 * color).toString(16).padStart(2, '0');
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+  };
+
+  const parseHslStringToHex = (s: string) => {
+    // expected format: "<h> <s>% <l>%"
+    const parts = s.trim().split(/\s+/);
+    if (parts.length >= 3) {
+      const h = parseFloat(parts[0]);
+      const sv = parts[1].replace('%', '');
+      const lv = parts[2].replace('%', '');
+      const sat = parseFloat(sv);
+      const lig = parseFloat(lv);
+      return hslToHex(h, sat, lig);
+    }
+    return undefined;
+  };
+
+  useEffect(() => {
+    // load saved primary color from localStorage or from CSS variable --primary
+    const saved = localStorage.getItem('primaryColor');
+    if (saved) {
+      setPrimaryColor(saved);
+      const { h, s, l } = hexToHsl(saved);
+      document.documentElement.style.setProperty('--primary', `${h} ${s}% ${l}%`);
+      document.documentElement.style.setProperty('--gradient-primary', `linear-gradient(135deg, ${saved} 0%, ${saved} 100%)`);
+      document.documentElement.style.setProperty('--accent', `${h + 10} ${s}% ${l}%`);
+    } else {
+      const computed = getComputedStyle(document.documentElement).getPropertyValue('--primary');
+      const val = computed && computed.trim();
+      if (val) {
+        const hex = parseHslStringToHex(val);
+        if (hex) setPrimaryColor(hex);
+      }
+    }
+  }, []);
+
+  const handlePrimaryColorChange = (color: string) => {
+    setPrimaryColor(color);
+    const { h, s, l } = hexToHsl(color);
+    document.documentElement.style.setProperty('--primary', `${h} ${s}% ${l}%`);
+    document.documentElement.style.setProperty('--gradient-primary', `linear-gradient(135deg, ${color} 0%, ${color} 100%)`);
+    localStorage.setItem('primaryColor', color);
+  };
+
   const toggleTheme = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
@@ -216,6 +296,44 @@ const Calendar = () => {
                 {darkMode ? "Clair" : "Sombre"}
               </span>
             </Button>
+
+            {/* Primary color picker */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="rounded-xl shadow-soft hover:shadow-card p-2">
+                  <span className="w-4 h-4 rounded-full" style={{ background: primaryColor, display: 'inline-block' }} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex flex-col items-center">
+                    <label htmlFor="primary-color-picker" className="sr-only">
+                      Choisir la couleur primaire
+                    </label>
+                    <input
+                      id="primary-color-picker"
+                      type="color"
+                      value={primaryColor}
+                      onChange={(e) => handlePrimaryColorChange(e.target.value)}
+                      className="w-10 h-10 p-0 border-0"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label htmlFor="primary-color-hex" className="text-sm text-muted-foreground">
+                      Couleur primaire
+                    </label>
+                    <input
+                      id="primary-color-hex"
+                      type="text"
+                      value={primaryColor}
+                      onChange={(e) => handlePrimaryColorChange(e.target.value)}
+                      className="border rounded px-2 py-1 w-40 dark:bg-black/10"
+                    />
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
 
             {/* Deconnexion */}
             <Button
