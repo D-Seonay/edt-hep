@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, LayoutGrid, CalendarDays, Sun, Moon } from "lucide-react";
+import { LogOut, LayoutGrid, CalendarDays, Sun, Moon, CalendarSearch } from "lucide-react";
 import {
   fetchSchedule,
   getUniqueSubjects,
@@ -234,7 +234,7 @@ const Calendar = () => {
         {/* Navigation & View Toggle */}
         <div className="mb-6 space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-col">
               <WeekNavigator
               currentWeek={currentWeek}
               onPrevious={() => handleWeekChange(-1)}
@@ -242,23 +242,9 @@ const Calendar = () => {
               onToday={handleToday}
               />
 
-              {/* Datepicker */}
-              <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="rounded-xl shadow-soft hover:shadow-card">
-                    {selectedDate.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <DatePicker
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(d) => handleDateSelect(d as Date)}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
 
+            </div>
+            <div className="flex items-center gap-4">
             <Tabs
               value={viewMode}
               onValueChange={(v) => setViewMode(v as "week" | "day")}
@@ -275,6 +261,22 @@ const Calendar = () => {
                 </TabsTrigger>
               </TabsList>
             </Tabs>
+              {/* Datepicker */}
+              <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="rounded-xl shadow-soft hover:shadow-card">
+                    {selectedDate.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <DatePicker
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(d) => handleDateSelect(d as Date)}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
 
           {viewMode === "day" && (

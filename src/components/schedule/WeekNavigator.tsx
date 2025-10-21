@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Ban } from 'lucide-react';
 
 interface WeekNavigatorProps {
   currentWeek: number; // Semaine affichée actuellement (0 = cette semaine)
@@ -64,8 +64,8 @@ const WeekNavigator = ({ currentWeek, onPrevious, onNext, onToday }: WeekNavigat
           }}
           className="h-10 px-4 rounded-xl shadow-soft hover:shadow-card transition-all"
         >
-          <Calendar className="h-4 w-4 mr-2" />
-          Aujourd'hui
+          <Ban className="h-4 w-4" />
+          <span className=" md:inline-block hidden ml-2">Aujourd'hui</span>
         </Button>
       )}
     </div>
