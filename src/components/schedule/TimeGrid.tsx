@@ -125,7 +125,8 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
                             height: `${height}px`,
                           }}
                         >
-                          <CourseBlock course={course} />
+                          {/* Passer la hauteur au composant enfant afin qu'il utilise 100% */}
+                          <CourseBlock course={course} style={{ height: '100%' }} />
                         </div>
                       );
                     })}
