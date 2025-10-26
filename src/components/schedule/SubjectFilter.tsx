@@ -75,7 +75,7 @@ const SubjectFilter = ({
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-1"
             >
               <Laptop className="w-4 h-4 text-primary" />
-              Cours en distanciel
+              Distanciel only
             </label>
           </div>
 
