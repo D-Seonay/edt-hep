@@ -3,6 +3,7 @@ export const usernameShortcuts: Record<string, string> = {
   "md": "matheo.delaunay",
   "mathéo.delaunay": "matheo.delaunay",
   "marius.bernard": "marius.bernard1",
+  "nl": "noa.laurvay",
 };
 
 export const getProcessedUsername = (input: string): string => {
