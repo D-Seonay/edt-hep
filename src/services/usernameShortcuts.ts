@@ -1,13 +1,7 @@
 
-export const usernameShortcuts: Record<string, string> = {
-  "md": "matheo.delaunay",
-  "mathéo.delaunay": "matheo.delaunay",
-  "marius.bernard": "marius.bernard1",
-  "nl": "noa.lauvray",
-  "tb": "theo.boutroux",
-};
+import shortcuts from "../data/usernameShortcuts.json";
 
 export const getProcessedUsername = (input: string): string => {
   const key = input.toLowerCase();
-  return usernameShortcuts[key] || input;
+  return (shortcuts as Record<string, string>)[key] || input;
 };
