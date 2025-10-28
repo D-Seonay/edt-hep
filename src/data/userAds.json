@@ -1,3 +1,69 @@
 {
-
+    "alban.mary": {
+    "ad": {
+        "title": "🔥 Viens à la salle !",
+        "description": "Je vais te retrouver si tu ne viens pas ! 💪",
+        "image": "/ads/basic-fit.png"
+    }
+    },
+    "terry.barillon": {
+    "ad": {
+        "title": "🔥 Découvre Basic-fit avec un bro !!!",
+        "description": "Va avec moi à la salle de sport Basic-fit ! 💪",
+        "image": "/ads/basic-fit.png"
+    }
+    },
+    "theo.boutroux": {
+    "ad": {
+        "title": "🎧 Nouvelle playlist RED dispo !",
+        "description": "Découvre les sons de Bz RED 🔊",
+        "image": "/ads/RED.png",
+        "link": "https://open.spotify.com/playlist/7dhmBfE7NuxtHqaMIAGjas?si=dd97f21a084d44a6"
+    }
+    },
+    "noa.lauvray": {
+    "ad": {
+        "title": "🚀 Gouter la monster white édition",
+        "description": "La nouvelle boisson énergisante est là ! ⚡",
+        "image": "/ads/monster.png"
+    }
+    },
+    "kevin.marie": {
+    "ad": {
+        "title": "🧐 Une nouvelle école primaire ouvre ses portes ! 🍕",
+        "description": "Viens découvrir notre école primaire innovante !",
+        "image": "/ads/ecole.png"
+    }
+    },
+    "paul.supiot": {
+        "ad": {
+            "title": "Solène en chaleur à 300m !",
+            "description": "ohohoho 🍑🔥",
+            "image": "https://media.licdn.com/dms/image/v2/D4E03AQGUzluGfq9t8g/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1705329195665?e=1762992000&v=beta&t=dWdcH9xof7IEiZMR6A3Py3lVgM6bsEKjxUKsxfSaA5M",
+            "link": "https://www.linkedin.com/in/sol%C3%A8ne-trivi%C3%A8re-a049021a8/"
+        }
+    },
+    "clement.jubilo": {
+        "ad": {
+            "title": "🤙🏿 Viens lethal MEC 😎",
+            "image": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1966720/capsule_616x353.jpg?t=1750273815",
+            "link": "https://discord.gg/xvQ86peK"
+        }
+    },
+    "claire.nguyen": {
+        "ad": {
+            "title": "🌸 Découvre la nouvelle collection printemps !",
+            "description": "Des vêtements frais et stylés pour la saison 🌷",
+            "image": "/ads/spring-collection.png",
+            "link": "https://www.fashionstore.com/spring-collection"
+        }
+    },
+    "eliazid.boulaamail": {
+        "ad": {
+            "title": "92i gothique géchar à prix cassé !",
+            "description": "Adopte une 92i gothique méga géchars avec 20% de réduc !",
+            "image": "https://meufdu16.com/wp-content/uploads/2025/08/92i_style_gothique_baka.png",
+            "link": "https://youtube.com/shorts/2JX8MO8IHF8?si=LlmFNdo8XEVdOpQE"
+        }
+    }
 }
