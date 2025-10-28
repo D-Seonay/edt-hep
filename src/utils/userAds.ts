@@ -3,8 +3,8 @@ import rules from "../data/userAds.json";
 export interface AdData {
   title: string;
   description?: string;
-  image: string;
-  link: string;
+  image?: string;
+  link?: string;
 }
 
 export interface UserRule {
