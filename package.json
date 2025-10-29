@@ -1,5 +1,5 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "edt-hep",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -81,7 +81,8 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vite": "^5.4.19",
-    "lovable-tagger": "^1.1.10"
+    "lovable-tagger": "^1.1.10",
+    "rollup": "4.22.5" 
 
   }
 }
