@@ -7,7 +7,7 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 3000,
+    port: 8080,
   },
   build: {
     chunkSizeWarningLimit: 1600, // augmente la limite à 1.6 MB
