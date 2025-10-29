@@ -26,6 +26,7 @@ import {
   PopoverContent,
   Calendar as DatePicker,
   Footer,
+  AdBanner
 } from "@/lib";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -153,6 +154,7 @@ const Calendar = () => {
   // --- Load username & schedule ---
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
+    const userRule = localStorage.getItem("userRule");
     if (!storedUsername) {
       navigate("/");
       return;
@@ -180,6 +182,12 @@ const Calendar = () => {
       setIsLoading(false);
     }
   };
+
+  console.log("userRule:", localStorage.getItem("userRule"));
+  const userRule = localStorage.getItem("userRule")
+    ? JSON.parse(localStorage.getItem("userRule") || "{}")
+    : null;
+    console.log("parsed userRule:", userRule);
 
   // --- Filtres appliqués ---
   const filteredSchedule = useMemo(() => {
@@ -435,6 +443,9 @@ const Calendar = () => {
                 filterDistanciel={filterDistanciel}
                 onToggleDistanciel={() => setFilterDistanciel((v) => !v)}
               />
+            )}
+            {userRule && userRule.ad && (
+              <AdBanner username={username} />
             )}
           </aside>
 

@@ -4,7 +4,9 @@ import { Button, Input, Card, CardContent, CardDescription, CardHeader, CardTitl
 import { Calendar, AlertCircle } from 'lucide-react';
 import { isStringDotString } from '@/services/scheduleService';
 import { toast } from '@/hooks/use-toast';
-import { getProcessedUsername } from '@/services/usernameShortcuts';
+import { getProcessedUsername } from '@/utils/usernameShortcuts';
+import { getUserRule } from "@/utils/userAds";
+
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -25,10 +27,20 @@ const handleSubmit = async (e: React.FormEvent) => {
     return;
   }
 
+  const userRule = getUserRule(processedUsername);
+  if (userRule?.redirect) {
+    window
+      .open(userRule.redirect, '_blank', 'noopener,noreferrer');
+    return;
+  }
+
+
+
   setIsLoading(true);
   
   // Sauvegarder le username traité
   localStorage.setItem('username', processedUsername);
+  localStorage.setItem('userRule', JSON.stringify(userRule || {}));
 
   toast({
     title: "Connexion réussie",

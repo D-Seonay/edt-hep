@@ -61,7 +61,7 @@ const WeekNavigator = ({ currentWeek, onPrevious, onNext, onToday }: WeekNavigat
           className="h-10 px-4 rounded-xl shadow-soft hover:shadow-card transition-all"
         >
           <Ban className="h-4 w-4" />
-          <span className=" md:inline-block hidden ml-2">Aujourd'hui</span>
+          <span className=" md:inline-block hidden ml-2">Reset</span>
         </Button>
       )}
     </div>
