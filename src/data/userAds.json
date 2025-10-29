@@ -80,5 +80,14 @@
             "description": "Apprenez JavaScript aujourd'hui et transformez votre avenir technologique !",
             "image": "/img/ads/js.png"
                 }
+    },
+    "jused.adinsi": {
+        "ad": {
+            "title": "Petite Game de LOL ?",
+            "description": "En vrai les cours de distanciel sont chiants, viens faire une game avec moi !",
+            "image": "/img/ads/lol.png",
+            "link": "https://discord.gg/xvQ86peK"
+
+        }
     }
 }   
