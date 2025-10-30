@@ -192,7 +192,7 @@ const Calendar = () => {
       courses: day.courses.filter((course) => {
         const matchSubject = selectedSubjects.has(course.matiere);
         const matchDistanciel =
-          !filterDistanciel || course.salle.startsWith("SALLE");
+          !filterDistanciel || course.salle === "Distanciel";
         return matchSubject && matchDistanciel;
       }),
     }));

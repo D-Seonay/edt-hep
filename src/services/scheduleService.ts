@@ -98,8 +98,13 @@ const parseHtmlDay = (html: string): Course[] => {
     const debut = (ligne.querySelector(".Debut")?.textContent || "").trim();
     const fin = (ligne.querySelector(".Fin")?.textContent || "").trim();
     const matiere = (ligne.querySelector(".Matiere")?.textContent || "").trim();
-    const salle = (ligne.querySelector(".Salle")?.textContent || "").trim();
+    let salle = (ligne.querySelector(".Salle")?.textContent || "").trim();
     const prof = (ligne.querySelector(".Prof")?.textContent || "").trim();
+
+    // 🆕 Si la salle ne commence pas par "N-", on considère que c'est du distanciel
+    if (salle && !salle.startsWith("N")) {
+      salle = "Distanciel";
+    }
 
     if (debut && fin && matiere) {
       courses.push({
@@ -108,13 +113,14 @@ const parseHtmlDay = (html: string): Course[] => {
         matiere,
         salle,
         prof,
-        color: { bg: '', text: '' }, // ajouté plus tard
+        color: { bg: '', text: '' },
       });
     }
   });
 
   return courses;
 };
+
 
 // --- 🆕 Récupérer le planning complet d'une semaine ---
 export const fetchSchedule = async (username: string, dateInput?: string | null): Promise<Day[]> => {

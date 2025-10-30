@@ -69,7 +69,7 @@ const CourseBlock = ({ course, viewMode = "week", style }: CourseBlockProps) => 
             </div>
             <div className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />{" "}
-              {course.salle.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.salle}
+              {course.salle === "Distanciel" ? "DISTANCIEL 🏠" : course.salle}
             </div>
             {course.prof && (
               <div className="flex items-center gap-1">
@@ -106,7 +106,7 @@ const CourseBlock = ({ course, viewMode = "week", style }: CourseBlockProps) => 
             <div className="flex items-center gap-2 mb-2 text-gray-600 dark:text-gray-300">
               <MapPin className="w-4 h-4" />
               <span>
-                {course.salle.startsWith("SALLE")
+                {course.salle === "Distanciel"
                   ? "DISTANCIEL 🏠"
                   : course.salle}
               </span>

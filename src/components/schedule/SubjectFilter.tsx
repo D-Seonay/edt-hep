@@ -60,10 +60,10 @@ const SubjectFilter = ({
         </label>
       </CardHeader>
 
-      {/* Collapsible content */}
+      {/* Contenu repliable */}
       {isOpen && (
         <CardContent id={contentId} className="space-y-3">
-          {/* Sélecteur distanciel */}
+          {/* Filtre distanciel */}
           <div className="flex items-center space-x-2 pb-2 border-b border-border">
             <Checkbox
               id="distanciel"
@@ -72,10 +72,10 @@ const SubjectFilter = ({
             />
             <label
               htmlFor="distanciel"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-1"
+              className="text-sm font-medium leading-none cursor-pointer flex items-center gap-1"
             >
               <Laptop className="w-4 h-4 text-primary" />
-              Distanciel only
+              Distanciel uniquement
             </label>
           </div>
 
@@ -88,7 +88,7 @@ const SubjectFilter = ({
             />
             <label
               htmlFor="select-all"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              className="text-sm font-medium leading-none cursor-pointer"
             >
               Tout sélectionner
             </label>
@@ -104,7 +104,7 @@ const SubjectFilter = ({
                 />
                 <label
                   htmlFor={subject}
-                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  className="text-sm leading-none cursor-pointer"
                 >
                   {subject}
                 </label>
