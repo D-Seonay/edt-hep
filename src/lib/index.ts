@@ -1,3 +1,5 @@
+import AdBanner from "@/components/AdBanner";
+
 export { Button, buttonVariants } from "../components/ui/button";
 export { Input } from "../components/ui/input";
 export * from "../components/ui/card";
@@ -19,4 +21,5 @@ export * from "../components/ui/dialog";
 export * from "../components/ui/switch";
 export * from "../components/ui/slider";
 export * from "../components/ui/toast";
+export { default as AdBanner } from "../components/AdBanner";
 export { useToast, toast as toastHook } from "../components/ui/use-toast";

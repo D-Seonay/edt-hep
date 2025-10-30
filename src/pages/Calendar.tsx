@@ -26,8 +26,8 @@ import {
   Calendar as DatePicker,
   Footer,
   Button,
+  AdBanner,
 } from "@/lib";
-import AdBanner from "@/components/AdBanner";
 
 import { motion, AnimatePresence } from "framer-motion";
 import CalendarSkeleton from "@/components/schedule/CalendarSkeleton";
