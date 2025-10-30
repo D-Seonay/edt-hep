@@ -1,6 +1,5 @@
 import { useId, useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox, Card, CardContent, CardHeader, CardTitle } from "@/lib";
 import { Filter, ChevronDown, Laptop } from "lucide-react";
 
 interface SubjectFilterProps {

@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button, Input, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/lib';
 import { Calendar, AlertCircle } from 'lucide-react';
 import { isStringDotString } from '@/services/scheduleService';
 import { toast } from '@/hooks/use-toast';

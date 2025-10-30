@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { Button } from '@/lib';
 import { ChevronLeft, ChevronRight, Ban } from 'lucide-react';
 
 interface WeekNavigatorProps {

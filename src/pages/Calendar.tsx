@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { LogOut, LayoutGrid, CalendarDays, Sun, Moon, CalendarSearch } from "lucide-react";
+import { LogOut, LayoutGrid, CalendarDays, Sun, Moon } from "lucide-react";
 import {
   fetchSchedule,
   getUniqueSubjects,
@@ -12,21 +11,26 @@ import WeekNavigator from "@/components/schedule/WeekNavigator";
 import TimeGrid from "@/components/schedule/TimeGrid";
 import DayView from "@/components/schedule/DayView";
 import SubjectFilter from "@/components/schedule/SubjectFilter";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import Footer from "@/components/ui/footer";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Calendar as DatePicker,
+  Footer,
+  Button,
+  AdBanner,
+} from "@/lib";
 
 import { motion, AnimatePresence } from "framer-motion";
 import CalendarSkeleton from "@/components/schedule/CalendarSkeleton";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Calendar as DatePicker } from "@/components/ui/calendar";
-import AdBanner from "@/components/AdBanner";
 
 const Calendar = () => {
   const navigate = useNavigate();
