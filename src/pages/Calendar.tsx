@@ -49,7 +49,7 @@ const Calendar = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   // Primary color (via hook)
-  const { primaryColor, setPrimaryColor } = usePrimaryColor("#7c3aed");
+  const { primaryColor, setPrimaryColor } = usePrimaryColor("#4169e1");
 
   const toggleTheme = () => {
     const newMode = !darkMode;

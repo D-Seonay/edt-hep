@@ -1,6 +1,3 @@
-// src/hooks/usePrimaryColor.ts
-// Hook pour gérer la couleur primaire: état, persistance et application CSS
-
 import { useEffect, useState } from "react";
 import { applyPrimaryCssVars, parseHslStringToHex } from "@/utils/colorUtils";
 
@@ -12,7 +9,7 @@ const STORAGE_KEY = "primaryColor";
  * - Applique les variables CSS à chaque changement
  * - Persiste dans localStorage
  */
-export const usePrimaryColor = (defaultHex: string = "#7c3aed") => {
+export const usePrimaryColor = (defaultHex: string = "#4169e1") => {
   const [primaryColor, setPrimaryColor] = useState<string>(defaultHex);
 
   // Initialisation: localStorage -> CSS var fallback
