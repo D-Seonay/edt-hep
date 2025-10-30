@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/lib";
-import { LogOut, LayoutGrid, CalendarDays, Sun, Moon, CalendarSearch } from "lucide-react";
+import { LogOut, LayoutGrid, CalendarDays, Sun, Moon } from "lucide-react";
 import {
   fetchSchedule,
   getUniqueSubjects,
@@ -26,8 +25,9 @@ import {
   PopoverContent,
   Calendar as DatePicker,
   Footer,
-  AdBanner
+  Button,
 } from "@/lib";
+import AdBanner from "@/components/AdBanner";
 
 import { motion, AnimatePresence } from "framer-motion";
 import CalendarSkeleton from "@/components/schedule/CalendarSkeleton";
