@@ -1,10 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { getUserRule } from "@/utils/userAds";
-
-interface AdBannerProps {
-  username: string;
-}
+import type { AdBannerProps } from "@/types/ui";
 
 const AdBanner: React.FC<AdBannerProps> = ({ username }) => {
   const rule = getUserRule(username);

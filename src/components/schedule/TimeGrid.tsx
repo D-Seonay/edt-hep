@@ -1,10 +1,5 @@
-import { Day } from '@/services/scheduleService';
 import CourseBlock from './CourseBlock'; // import du composant CourseBlock
-
-interface TimeGridProps {
-  schedule: Day[];
-  currentDate?: Date;
-}
+import type { TimeGridProps } from '@/types/schedule';
 
 const HOURS = [
   "8:00", "9:00", "10:00", "11:00", "12:00", "13:00",
