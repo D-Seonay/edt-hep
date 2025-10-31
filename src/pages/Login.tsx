@@ -1,8 +1,7 @@
-// src/pages/Login.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/lib';
-import { Calendar, AlertCircle, Lock } from 'lucide-react';
+import { Calendar, AlertCircle, Lock, Eye, EyeOff } from 'lucide-react';
 import { isStringDotString } from '@/services/scheduleService';
 import { toast } from '@/hooks/use-toast';
 import { getProcessedUsername } from '@/utils/usernameShortcuts';
@@ -13,7 +12,6 @@ const protectedUsersEnv = (import.meta as any).env?.VITE_PROTECTED_USERS || '';
 const protectedPinEnv = (import.meta as any).env?.VITE_PROTECTED_PIN || '';
 
 const getProtectedUsers = (): Set<string> => {
-  // Nettoyage: espace, lowercase
   return new Set(
     protectedUsersEnv
       .split(',')
@@ -32,6 +30,7 @@ const Login = () => {
   const [pin, setPin] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [needsPin, setNeedsPin] = useState(false);
+  const [showPin, setShowPin] = useState(false); // contrôle visibilité du PIN
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,10 +47,8 @@ const Login = () => {
       return;
     }
 
-    // Vérifie si l'user est dans la liste protégée via .env
     const protectedUser = isUserProtected(processedUsername);
 
-    // Si protégé, et qu'on n'a pas encore demandé le PIN, on active le champ PIN
     if (protectedUser && !needsPin) {
       setNeedsPin(true);
       toast({
@@ -62,7 +59,6 @@ const Login = () => {
       return;
     }
 
-    // Si protégé, valider le PIN
     if (protectedUser) {
       const expectedPin = protectedPinEnv;
       if (!pin || pin !== expectedPin) {
@@ -83,7 +79,6 @@ const Login = () => {
 
     setIsLoading(true);
 
-    // Sauvegarder le username traité et le statut 'protected'
     localStorage.setItem('username', processedUsername);
     localStorage.setItem('userRule', JSON.stringify(userRule || {}));
     localStorage.setItem('isProtectedUser', String(protectedUser));
@@ -127,9 +122,10 @@ const Login = () => {
                 value={username}
                 onChange={(e) => {
                   setUsername(e.target.value);
-                  // Si on change d'user, reset le besoin de PIN
+                  // Reset si on change d'utilisateur
                   if (needsPin) setNeedsPin(false);
                   setPin('');
+                  setShowPin(false);
                 }}
                 className="h-12 text-base"
                 autoComplete="off"
@@ -146,15 +142,28 @@ const Login = () => {
                 <label htmlFor="pin" className="text-sm font-medium text-foreground flex items-center gap-1">
                   <Lock className="w-3 h-3" /> Code PIN
                 </label>
-                <Input
-                  id="pin"
-                  type="password"
-                  placeholder="Votre code PIN"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  className="h-12 text-base"
-                  autoComplete="off"
-                />
+
+                {/* Champ PIN avec bouton afficher/masquer */}
+                <div className="relative">
+                  <Input
+                    id="pin"
+                    type={showPin ? 'text' : 'password'}
+                    placeholder="Votre code PIN"
+                    value={pin}
+                    onChange={(e) => setPin(e.target.value)}
+                    className="h-12 text-base pr-12"
+                    autoComplete="off"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPin((v) => !v)}
+                    aria-label={showPin ? 'Masquer le code' : 'Afficher le code'}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-md hover:bg-primary transition-colors"
+                  >
+                    {showPin ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+
                 <div className="text-xs text-muted-foreground">
                   Un contrôle supplémentaire est requis pour cet utilisateur.
                 </div>
