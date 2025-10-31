@@ -172,7 +172,6 @@ const Calendar = () => {
       setSubjects(allSubjects);
       setSelectedSubjects(new Set(allSubjects));
     } catch (error) {
-      console.error(error);
       toast({
         title: "Erreur",
         description: "Impossible de charger l'emploi du temps",
@@ -183,11 +182,9 @@ const Calendar = () => {
     }
   };
 
-  console.log("userRule:", localStorage.getItem("userRule"));
   const userRule = localStorage.getItem("userRule")
     ? JSON.parse(localStorage.getItem("userRule") || "{}")
     : null;
-    console.log("parsed userRule:", userRule);
 
   // --- Filtres appliqués ---
   const filteredSchedule = useMemo(() => {

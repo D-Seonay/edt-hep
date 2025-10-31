@@ -1,12 +1,6 @@
 import { Button } from '@/lib';
 import { ChevronLeft, ChevronRight, Ban } from 'lucide-react';
-
-interface WeekNavigatorProps {
-  currentWeek: number; // Semaine affichée actuellement (0 = cette semaine)
-  onPrevious: () => void; // Callback pour passer à la semaine précédente
-  onNext: () => void; // Callback pour passer à la semaine suivante
-  onToday: () => void; // Callback pour revenir à la semaine actuelle
-}
+import type { WeekNavigatorProps } from '@/types/schedule';
 
 const WeekNavigator = ({ currentWeek, onPrevious, onNext, onToday }: WeekNavigatorProps) => {
   // Génère le libellé à afficher selon la semaine

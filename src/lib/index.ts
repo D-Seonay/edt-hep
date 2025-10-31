@@ -1,4 +1,9 @@
-import AdBanner from "@/components/AdBanner";
+// Le fichier 'Barrel' ou 'baril' est un moyen de consolider les exportations de plusieurs modules 
+// en un seul module pratique qui peut être importé à l'aide d'une seule instruction d'importation.
+// voici une explication détaillée : https://flaming.codes/fr/posts/barrel-files-in-javascript
+// Je conseille cependant de ne l'utiliser que pour les composants UI génériques et réutilisables.
+// (ou alors d'utiliser { ... } pour n'exporter que ce qui est nécessaire de manière controlée).
+// Cela évite les dépendances circulaires et garde une architecture claire : https://tkdodo.eu/blog/please-stop-using-barrel-files
 
 export { Button, buttonVariants } from "../components/ui/button";
 export { Input } from "../components/ui/input";
@@ -21,5 +26,8 @@ export * from "../components/ui/dialog";
 export * from "../components/ui/switch";
 export * from "../components/ui/slider";
 export * from "../components/ui/toast";
-export { default as AdBanner } from "../components/AdBanner";
-export { useToast, toast as toastHook } from "../components/ui/use-toast";
+export { default as AdBanner } from "../components/ui/AdBanner";
+
+// export * exporte tout ce qui est exporté dans le fichier ciblé sauf les exports par défaut. donc toutes les fonctions, classes, types etc
+// export { ... } exporte uniquement ce qui est spécifié entre les accolades, y compris les exports par défaut si spécifiés explicitement.
+// "as" possède la même fonctionnalité que dans d'autres langages de programmation, permettant de renommer un export lors de son importation.

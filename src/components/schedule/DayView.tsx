@@ -1,10 +1,5 @@
-import { Day } from "@/services/scheduleService";
 import { Clock, MapPin, User } from "lucide-react";
-
-interface DayViewProps {
-  day: Day | null;
-  isToday?: boolean;
-}
+import type { DayViewProps } from '@/types/schedule';
 
 const HOURS = [
   "8:00",

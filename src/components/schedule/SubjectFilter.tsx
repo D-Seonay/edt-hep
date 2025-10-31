@@ -1,15 +1,7 @@
 import { useId, useState } from "react";
 import { Checkbox, Card, CardContent, CardHeader, CardTitle } from "@/lib";
 import { Filter, ChevronDown, Laptop } from "lucide-react";
-
-interface SubjectFilterProps {
-  subjects: string[];
-  selectedSubjects: Set<string>;
-  onToggle: (subject: string) => void;
-  filterDistanciel: boolean;
-  onToggleDistanciel: () => void;
-  defaultOpen?: boolean;
-}
+import type { SubjectFilterProps } from "@/types/schedule";
 
 const SubjectFilter = ({
   subjects,

@@ -1,14 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Course } from "@/services/scheduleService";
 import { Clock, MapPin, User, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-interface CourseBlockProps {
-  course: Course;
-  viewMode?: "day" | "week" | "month";
-  style?: React.CSSProperties;
-}
+import type { CourseBlockProps } from '@/types/schedule';
 
 export const CourseSkeleton = () => (
   <div className="animate-pulse bg-gray-200/20 rounded-xl h-16 w-full border border-white/10" />
