@@ -1,7 +1,18 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, LayoutGrid, CalendarDays, Sun, Moon } from "lucide-react";
-import { fetchSchedule, getUniqueSubjects, Day } from "@/services/scheduleService";
+import {
+  LogOut,
+  LayoutGrid,
+  CalendarDays,
+  Sun,
+  Moon,
+  Download,
+} from "lucide-react";
+import {
+  fetchSchedule,
+  getUniqueSubjects,
+  Day,
+} from "@/services/scheduleService";
 import { toast } from "@/hooks/use-toast";
 import WeekNavigator from "@/components/schedule/WeekNavigator";
 import TimeGrid from "@/components/schedule/TimeGrid";
@@ -30,13 +41,16 @@ import CalendarSkeleton from "@/components/schedule/CalendarSkeleton";
 
 // NEW: hook pour la couleur primaire
 import { usePrimaryColor } from "@/hooks/usePrimaryColor";
+import { useExportImage } from "@/hooks/useExportImage";
 
 const Calendar = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [schedule, setSchedule] = useState<Day[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
-  const [selectedSubjects, setSelectedSubjects] = useState<Set<string>>(new Set());
+  const [selectedSubjects, setSelectedSubjects] = useState<Set<string>>(
+    new Set()
+  );
   const [filterDistanciel, setFilterDistanciel] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,6 +84,29 @@ const Calendar = () => {
       document.documentElement.classList.add("dark");
     }
   }, []);
+
+  const captureRef = useRef<HTMLDivElement | null>(null);
+  const fileName = `emploi_du_temps_${username || "utilisateur"}.png`;
+
+  const { exportImage, isExporting } = useExportImage({
+    filename: fileName,
+    scale: 2,
+    backgroundColor: null,
+    onError: () => {
+      toast({
+        title: "Export échoué",
+        description: "Réessaie.",
+        variant: "destructive",
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Export réussi",
+        description: "Image téléchargée.",
+        variant: "default",
+      });
+    },
+  });
 
   // Load username & schedule
   useEffect(() => {
@@ -111,7 +148,8 @@ const Calendar = () => {
       ...day,
       courses: day.courses.filter((course) => {
         const matchSubject = selectedSubjects.has(course.matiere);
-        const matchDistanciel = !filterDistanciel || course.salle.startsWith("SALLE");
+        const matchDistanciel =
+          !filterDistanciel || course.salle.startsWith("SALLE");
         return matchSubject && matchDistanciel;
       }),
     }));
@@ -184,7 +222,8 @@ const Calendar = () => {
   const isCurrentDayToday = (): boolean => {
     const today = new Date();
     const dayOfWeek = today.toLocaleDateString("fr-FR", { weekday: "long" });
-    const capitalizedDay = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
+    const capitalizedDay =
+      dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
     return selectedDay === capitalizedDay && currentWeek === 0;
   };
 
@@ -213,16 +252,36 @@ const Calendar = () => {
               onClick={toggleTheme}
               className="rounded-xl shadow-soft hover:shadow-card transition-all flex items-center gap-2"
             >
-              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              <span className="hidden sm:inline">{darkMode ? "Clair" : "Sombre"}</span>
+              {darkMode ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
+              <span className="hidden sm:inline">
+                {darkMode ? "Clair" : "Sombre"}
+              </span>
+            </Button>
+            <Button
+              variant="outline"
+              disabled={isExporting}
+              onClick={() => exportImage(captureRef.current)}
+            >
+              <Download className="w-4 h-4" />
+              {isExporting ? "Export..." : "Exporter en image"}
             </Button>
 
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="rounded-xl shadow-soft hover:shadow-card p-2">
+                <Button
+                  variant="outline"
+                  className="rounded-xl shadow-soft hover:shadow-card p-2"
+                >
                   <span
                     className="w-4 h-4 rounded-full"
-                    style={{ background: primaryColor, display: "inline-block" }}
+                    style={{
+                      background: primaryColor,
+                      display: "inline-block",
+                    }}
                   />
                 </Button>
               </PopoverTrigger>
@@ -242,7 +301,10 @@ const Calendar = () => {
                   </div>
 
                   <div className="flex flex-col">
-                    <label htmlFor="primary-color-hex" className="text-sm text-muted-foreground">
+                    <label
+                      htmlFor="primary-color-hex"
+                      className="text-sm text-muted-foreground"
+                    >
                       Couleur primaire
                     </label>
                     <input
@@ -282,9 +344,12 @@ const Calendar = () => {
             />
 
             <div className="flex items-center gap-4">
-              <Tabs value={viewMode} onValueChange={(v) => {
-                setViewMode(v as "week" | "day");
-              }}>
+              <Tabs
+                value={viewMode}
+                onValueChange={(v) => {
+                  setViewMode(v as "week" | "day");
+                }}
+              >
                 <TabsList className="grid grid-cols-2">
                   <TabsTrigger value="day" className="flex items-center gap-2">
                     <CalendarDays className="w-4 h-4" /> Jour
@@ -296,9 +361,12 @@ const Calendar = () => {
               </Tabs>
 
               {/* DatePicker */}
-              <Popover open={pickerOpen} onOpenChange={(open) => {
-                setPickerOpen(open);
-              }}>
+              <Popover
+                open={pickerOpen}
+                onOpenChange={(open) => {
+                  setPickerOpen(open);
+                }}
+              >
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="rounded-xl shadow-soft">
                     {selectedDate.toLocaleDateString("fr-FR", {
@@ -321,21 +389,32 @@ const Calendar = () => {
 
           {viewMode === "day" && (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">Sélectionner un jour:</span>
-              <Select value={selectedDay} onValueChange={(value) => {
-                setSelectedDay(value);
-              }}>
+              <span className="text-sm text-muted-foreground">
+                Sélectionner un jour:
+              </span>
+              <Select
+                value={selectedDay}
+                onValueChange={(value) => {
+                  setSelectedDay(value);
+                }}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"].map(
-                    (d) => (
-                      <SelectItem key={d} value={d}>
-                        {d}
-                      </SelectItem>
-                    )
-                  )}
+                  {[
+                    "Lundi",
+                    "Mardi",
+                    "Mercredi",
+                    "Jeudi",
+                    "Vendredi",
+                    "Samedi",
+                    "Dimanche",
+                  ].map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -370,16 +449,22 @@ const Calendar = () => {
               <AnimatePresence mode="wait">
                 {viewMode === "week" ? (
                   <motion.div
+                    ref={captureRef}
                     key="week"
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -50 }}
                     transition={{ duration: 0.3 }}
                     onAnimationComplete={() => {
-                      const cssVar = getComputedStyle(document.documentElement).getPropertyValue("--primary").trim();
+                      const cssVar = getComputedStyle(document.documentElement)
+                        .getPropertyValue("--primary")
+                        .trim();
                     }}
                   >
-                    <TimeGrid schedule={filteredSchedule} currentDate={new Date()} />
+                    <TimeGrid
+                      schedule={filteredSchedule}
+                      currentDate={new Date()}
+                    />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -389,10 +474,15 @@ const Calendar = () => {
                     exit={{ opacity: 0, x: 50 }}
                     transition={{ duration: 0.3 }}
                     onAnimationComplete={() => {
-                      const cssVar = getComputedStyle(document.documentElement).getPropertyValue("--primary").trim();
+                      const cssVar = getComputedStyle(document.documentElement)
+                        .getPropertyValue("--primary")
+                        .trim();
                     }}
                   >
-                    <DayView day={getCurrentDay()} isToday={isCurrentDayToday()} />
+                    <DayView
+                      day={getCurrentDay()}
+                      isToday={isCurrentDayToday()}
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
