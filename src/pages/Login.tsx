@@ -1,58 +1,20 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// src/pages/Login.tsx
 import { Button, Input, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/lib';
-import { Calendar, AlertCircle } from 'lucide-react';
-import { isStringDotString } from '@/services/scheduleService';
-import { toast } from '@/hooks/use-toast';
-import { getProcessedUsername } from '@/utils/usernameShortcuts';
-import { getUserRule } from "@/utils/userAds";
-
+import { Calendar, AlertCircle, Lock, Eye, EyeOff } from 'lucide-react';
+import { useProtectedLogin } from '@/hooks/useProtectedLogin';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  const processedUsername = getProcessedUsername(username);
-
-  if (!isStringDotString(processedUsername)) {
-    toast({
-      title: "Format invalide",
-      description: "Veuillez entrer votre nom au format prenom.nom",
-      variant: "destructive",
-    });
-    return;
-  }
-
-  const userRule = getUserRule(processedUsername);
-  if (userRule?.redirect) {
-    window
-      .open(userRule.redirect, '_blank', 'noopener,noreferrer');
-    return;
-  }
-
-
-
-  setIsLoading(true);
-  
-  // Sauvegarder le username traité
-  localStorage.setItem('username', processedUsername);
-  localStorage.setItem('userRule', JSON.stringify(userRule || {}));
-
-  toast({
-    title: "Connexion réussie",
-    description: "Bonjour " + processedUsername + " ! Redirection vers votre planning...",
-    variant: "default",
-  });
-  
-  // Rediriger vers le calendrier
-  setTimeout(() => {
-    navigate('/calendar');
-  }, 500);
-};
+  const {
+    username,
+    pin,
+    needsPin,
+    showPin,
+    isLoading,
+    onChangeUsername,
+    onChangePin,
+    toggleShowPin,
+    handleSubmit,
+  } = useProtectedLogin();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
@@ -68,7 +30,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             Consultez votre planning en temps réel
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -80,7 +42,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 type="text"
                 placeholder="prenom.nom"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => onChangeUsername(e.target.value)}
                 className="h-12 text-base"
                 autoComplete="off"
                 autoFocus
@@ -91,12 +53,44 @@ const handleSubmit = async (e: React.FormEvent) => {
               </div>
             </div>
 
-            <Button 
-              type="submit" 
+            {needsPin && (
+              <div className="space-y-2">
+                <label htmlFor="pin" className="text-sm font-medium text-foreground flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> Code PIN
+                </label>
+
+                <div className="relative">
+                  <Input
+                    id="pin"
+                    type={showPin ? 'text' : 'password'}
+                    placeholder="Votre code PIN"
+                    value={pin}
+                    onChange={(e) => onChangePin(e.target.value)}
+                    className="h-12 text-base pr-12"
+                    autoComplete="off"
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleShowPin}
+                    aria-label={showPin ? 'Masquer le code' : 'Afficher le code'}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-md hover:bg-muted transition-colors"
+                  >
+                    {showPin ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+
+                <div className="text-xs text-muted-foreground">
+                  Un contrôle supplémentaire est requis pour cet utilisateur.
+                </div>
+              </div>
+            )}
+
+            <Button
+              type="submit"
               className="w-full h-12 text-base font-medium shadow-card hover:shadow-elevated transition-all"
               disabled={isLoading}
             >
-              {isLoading ? 'Connexion...' : 'Accéder à mon planning'}
+              {isLoading ? 'Connexion...' : (needsPin ? 'Valider' : 'Accéder à mon planning')}
             </Button>
           </form>
         </CardContent>
