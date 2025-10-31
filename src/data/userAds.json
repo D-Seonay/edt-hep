@@ -53,10 +53,9 @@
     },
     "claire.nguyen": {
         "ad": {
-            "title": "🌸 Découvre la nouvelle collection printemps !",
-            "description": "Des vêtements frais et stylés pour la saison 🌷",
-            "image": "/ads/spring-collection.png",
-            "link": "https://www.fashionstore.com/spring-collection"
+            "title": "Fan de laitage ? 🥛",
+            "description": "Découvrez notre sélection de produits laitiers frais et savoureux !",
+            "image": "/img/ads/milk.png"
         }
     },
     "eliazid.boulaamail": {
