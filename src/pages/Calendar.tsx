@@ -267,7 +267,9 @@ const Calendar = () => {
               onClick={() => exportImage(captureRef.current)}
             >
               <Download className="w-4 h-4" />
-              {isExporting ? "Export..." : "Exporter en image"}
+              <span className="hidden sm:inline ml-2">
+                {isExporting ? "Export..." : "Exporter en image"}
+              </span>
             </Button>
 
             <Popover>
