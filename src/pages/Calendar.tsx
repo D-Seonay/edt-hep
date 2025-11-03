@@ -227,6 +227,12 @@ const Calendar = () => {
     return selectedDay === capitalizedDay && currentWeek === 0;
   };
 
+  const hasAnyCourse = useMemo(() => {
+    return filteredSchedule.some(
+      (day) => Array.isArray(day.courses) && day.courses.length > 0
+    );
+  }, [filteredSchedule]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -263,8 +269,19 @@ const Calendar = () => {
             </Button>
             <Button
               variant="outline"
-              disabled={isExporting}
-              onClick={() => exportImage(captureRef.current)}
+              disabled={isExporting || !hasAnyCourse}
+              onClick={() => {
+                if (!hasAnyCourse) {
+                  toast({
+                    title: "Export indisponible",
+                    description:
+                      "Aucun cours à exporter pour cette semaine (ou vérifiez vos filtres).",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                exportImage(captureRef.current);
+              }}
             >
               <Download className="w-4 h-4" />
               <span className="hidden sm:inline ml-2">
