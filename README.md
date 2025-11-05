@@ -1,73 +1,108 @@
-# 📅 EDT Manager
+# 📅 **EDT Manager**
 
-**EDT Manager** est une application web responsive permettant de visualiser un emploi du temps étudiant de manière claire et interactive. Elle récupère les données depuis le site EDT officiel, les parse et les affiche sous forme de **grille pour desktop** ou **liste pour mobile**, avec gestion des couleurs par matière et détails enrichis.
+**EDT Manager** is a responsive web application that lets students visualize their timetable in a **clear, modern, and interactive way**.
+It automatically **fetches and parses data** from the official schedule website and displays it in a **grid view (desktop)** or **list view (mobile)**, with **color-coded subjects** and detailed course information.
 
-   ![Aperçu de l'application](public/preview.png)
----
+[![wakatime](https://wakatime.com/badge/user/018e9f6e-3f6e-41ca-8923-c1d7110b6f50/project/80e09c90-a778-4b9f-a5c2-114ebfe336d9.svg)](https://wakatime.com/badge/user/018e9f6e-3f6e-41ca-8923-c1d7110b6f50/project/80e09c90-a778-4b9f-a5c2-114ebfe336d9)
 
-
-## 🛠️ Tech Stack
-
-* **Frontend** : React + TypeScript + Vite
-* **Styles** : Tailwind CSS
-* **Icons** : lucide-react
-* **HTTP Requests** : Axios
-* **Parsing HTML** : DOMParser (pour transformer le HTML EDT en objets Course)
-* **Gestion des couleurs** : Map dynamique par matière
-* **Responsive** : Grid pour desktop, liste pour mobile
+![React.js](https://img.shields.io/badge/React-v18.2.0-61dafb?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-3178c6?logo=typescript)
+![Vite](https://img.shields.io/badge/Vite-5.4.19-646cff?logo=vite)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.1-38bdf8?logo=tailwindcss)
+![Axios](https://img.shields.io/badge/Axios-1.12.2-5a29e4?logo=axios)
+![Lucide React](https://img.shields.io/badge/Lucide-Icons-yellow?logo=lucide)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
 
-## ⚙️ Installation
+## 🖼️ **Preview**
 
-1. **Cloner le projet :**
+![App Preview](public/preview.png)
+
+---
+
+## ⚙️ **Tech Stack**
+
+| Category              | Technologies                                                   |
+| --------------------- | -------------------------------------------------------------- |
+| **Frontend**          | React + TypeScript + Vite                                      |
+| **Styling**           | Tailwind CSS                                                   |
+| **Icons**             | Lucide React                                                   |
+| **HTTP Requests**     | Axios                                                          |
+| **HTML Parsing**      | DOMParser (to transform the HTML schedule into Course objects) |
+| **Color Management**  | Dynamic color mapping by subject                               |
+| **Responsive Design** | Grid layout for desktop / list layout for mobile               |
+
+---
+
+## 🚀 **Installation**
+
+### 1. Clone the project
 
 ```bash
 git clone https://github.com/D-Seonay/edt-hep.git
 cd edt-hep
 ```
 
-2. **Installer les dépendances :**
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-3. **Lancer le projet :**
+### 3. Run the development server
 
 ```bash
 npm run dev
 ```
 
-4. **Accéder à l’application :**
-   Ouvre [http://localhost:8080](http://localhost:8080) dans ton navigateur.
+### 4. Open the app
+
+Visit 👉 [http://localhost:8080](http://localhost:8080)
 
 ---
 
-## 📁 Structure du projet
+## 🧩 **Project Structure**
 
 ```
 src/
  ├─ components/
- │   ├─ TimeGrid.tsx          # Grille / liste responsive
- │   ├─ CourseBlock.tsx       # Bloc de cours avec modale
+ │   ├─ TimeGrid.tsx          # Responsive grid / list display
+ │   ├─ CourseBlock.tsx       # Course block with modal details
  ├─ services/
- │   └─ scheduleService.ts    # Parsing HTML, fetch EDT, gestion couleurs, semaines
+ │   └─ scheduleService.ts    # HTML parsing, data fetching, color & week management
  ├─ lib/
- │   └─ utils.ts              # Fonctions utilitaires
+ │   └─ utils.ts              # Utility functions
  ├─ App.tsx
  └─ main.tsx
 ```
 
 ---
 
+## 🤝 **Contributing**
 
-## ❤️ Contribuer
+If you want to contribute:
 
-Si tu souhaites contribuer :
+1. **Fork** the repository
+2. Create your feature branch
 
-1. Fork le projet
-2. Crée une branche feature : `git checkout -b feature/nom-fonctionnalité`
-3. Commit tes modifications : `git commit -m "Ajout : nouvelle fonctionnalité"`
-4. Push : `git push origin feature/nom-fonctionnalité`
-5. Ouvre un Pull Request
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. Commit your changes
+
+   ```bash
+   git commit -m "Add: new feature"
+   ```
+4. Push your branch
+
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+5. Open a **Pull Request**
+
+---
+
+## 📜 **License**
+
+This project is licensed under the [MIT License](LICENSE).
