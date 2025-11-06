@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Calendar from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
-import { Analytics } from "@vercel/analytics/react"; // ✅ Correct import
+import { Analytics } from "@vercel/analytics/react";
 
 const queryClient = new QueryClient();
 
