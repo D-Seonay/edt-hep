@@ -30,6 +30,8 @@ export type UseProtectedLoginReturn = {
   needsPin: boolean;
   showPin: boolean;
   isLoading: boolean;
+  infoOpen: boolean;
+  setInfoOpen: (open: boolean) => void;
   onChangeUsername: (value: string) => void;
   onChangePin: (value: string) => void;
   toggleShowPin: () => void;
@@ -42,11 +44,11 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
   const [needsPin, setNeedsPin] = useState(false);
   const [showPin, setShowPin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const navigate = useNavigate();
 
   const onChangeUsername = useCallback((value: string) => {
     setUsername(value);
-    // Reset si on change d'utilisateur
     setNeedsPin(false);
     setPin('');
     setShowPin(false);
@@ -113,13 +115,12 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
 
     toast({
       title: 'Connexion réussie',
-      description: 'Bonjour ' + processedUsername + ' ! Redirection vers votre planning...',
+      description: 'Bonjour ' + processedUsername + ' !',
       variant: 'default',
     });
 
-    setTimeout(() => {
-      navigate('/calendar');
-    }, 500);
+    // Ouvre le modal d’information
+    setInfoOpen(true);
   }, [username, needsPin, pin, navigate]);
 
   return {
@@ -128,6 +129,8 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
     needsPin,
     showPin,
     isLoading,
+    infoOpen,
+    setInfoOpen,
     onChangeUsername,
     onChangePin,
     toggleShowPin,

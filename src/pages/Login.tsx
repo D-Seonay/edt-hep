@@ -1,23 +1,36 @@
-// src/pages/Login.tsx
-import { Button, Input, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/lib';
-import { Calendar, AlertCircle, Lock, Eye, EyeOff } from 'lucide-react';
+// src/pages/LoginPage.tsx
+import React from 'react';
 import { useProtectedLogin } from '@/hooks/useProtectedLogin';
+import { InfoModal } from '@/components/InfoModal';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input } from '@/lib';
+import { AlertCircle, Calendar, Eye, EyeOff, Lock } from 'lucide-react';
 
-const Login = () => {
+export default function LoginPage() {
   const {
     username,
     pin,
     needsPin,
     showPin,
     isLoading,
+    infoOpen,
+    setInfoOpen,
     onChangeUsername,
     onChangePin,
     toggleShowPin,
     handleSubmit,
   } = useProtectedLogin();
 
+  const onCloseInfo = () => {
+    setInfoOpen(false);
+    // Redirection après confirmation
+    // Laisser un léger délai pour laisser l’animation se terminer
+    setTimeout(() => {
+      window.location.href = '/calendar';
+    }, 150);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
+<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
       <Card className="w-full max-w-md shadow-elevated border-border/50">
         <CardHeader className="text-center space-y-3">
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center shadow-card">
@@ -95,8 +108,14 @@ const Login = () => {
           </form>
         </CardContent>
       </Card>
+
+      <InfoModal
+        open={infoOpen}
+        onClose={onCloseInfo}
+        title="Information"
+        description="Les données affichées sont issues d’un scrapping. Il peut y avoir des erreurs, notamment sur les noms de salles."
+        confirmLabel="Compris"
+      />
     </div>
   );
-};
-
-export default Login;
+}
