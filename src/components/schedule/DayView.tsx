@@ -1,25 +1,7 @@
 import { Clock, MapPin, User } from "lucide-react";
 import type { DayViewProps } from "@/types/schedule";
+import { HOURS, HOUR_HEIGHT_PX, DAY_START_MINUTES } from "@/constants/schedule";
 
-const HOURS = [
-  "08:00",
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-  "19:00",
-  "20:00",
-];
-
-// Échelle commune: 1h = 45px
-const HOUR_HEIGHT_PX = 45;
-const DAY_START_MINUTES = 8 * 60;
 
 // Helpers temps
 const parseHHmmToMinutes = (hhmm: string): number => {
