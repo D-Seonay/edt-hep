@@ -157,9 +157,16 @@ const Calendar = () => {
 
   useEffect(() => {
     if (viewMode === "day") {
-      const today = new Date();
-      const dayOfWeek = today.toLocaleDateString("fr-FR", { weekday: "long" });
-      setSelectedDay(dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1));
+      setSelectedDay((prev) => {
+        if (prev && prev.trim().length > 0) {
+          return prev;
+        }
+        const today = new Date();
+        const dayOfWeek = today
+          .toLocaleDateString("fr-FR", { weekday: "long" })
+          .replace(/^./, (c) => c.toUpperCase());
+        return dayOfWeek;
+      });
     }
   }, [viewMode]);
 
@@ -232,6 +239,37 @@ const Calendar = () => {
       (day) => Array.isArray(day.courses) && day.courses.length > 0
     );
   }, [filteredSchedule]);
+
+  // snippet patch in Calendar.tsx
+
+  const normalizeDay = (s: string) => s.normalize().trim();
+
+  const handleSelectDay = (dayName: string) => {
+    const normalized = normalizeDay(dayName);
+    setViewMode("day");
+    setSelectedDay(normalized);
+
+    const dayData = filteredSchedule.find(
+      (d) => normalizeDay(d.day) === normalized
+    );
+    if (dayData?.date) {
+      // Supports both "dd/mm/yyyy" and "yyyy-mm-dd"
+      let newDate: Date | null = null;
+      const val = dayData.date.trim();
+
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(val)) {
+        const [dd, mm, yyyy] = val.split("/").map(Number);
+        newDate = new Date(yyyy, mm - 1, dd);
+      } else if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+        const [yyyy, mm, dd] = val.split("-").map(Number);
+        newDate = new Date(yyyy, mm - 1, dd);
+      }
+
+      if (newDate && !isNaN(newDate.getTime())) {
+        setSelectedDate(newDate);
+      }
+    }
+  };
 
   return (
     <motion.div
@@ -483,6 +521,7 @@ const Calendar = () => {
                     <TimeGrid
                       schedule={filteredSchedule}
                       currentDate={new Date()}
+                      onSelectDay={handleSelectDay}
                     />
                   </motion.div>
                 ) : (

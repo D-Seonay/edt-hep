@@ -1,18 +1,10 @@
+// src/components/schedule/TimeGrid.tsx
+
 import CourseBlock from "./CourseBlock";
 import type { TimeGridProps } from "@/types/schedule";
+import { DAYS, HOURS, HOUR_HEIGHT_PX, DAY_START_MINUTES } from "@/constants/schedule";
 
-// Heures affichées
-const HOURS = [
-  "08:00", "09:00", "10:00", "11:00", "12:00", "13:00",
-  "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00",
-];
-
-const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
-
-// Echelle verticale: 1h = 45px (aligné avec ton code)
-const HOUR_HEIGHT_PX = 45;
-const DAY_START_MINUTES = 8 * 60; // 08:00
-const GRID_PADDING_X = 4; // marge horizontale interne par bloc
+const GRID_PADDING_X = 4;
 
 type PositionedCourse = {
   course: any;
@@ -26,22 +18,18 @@ function parseHHmmToMinutes(hhmm: string): number {
   const [h, m] = hhmm.split(":").map(Number);
   return h * 60 + (m || 0);
 }
-
 function minutesToTop(minutesSinceMidnight: number): number {
   const deltaMin = minutesSinceMidnight - DAY_START_MINUTES;
   return Math.max(0, (deltaMin / 60) * HOUR_HEIGHT_PX);
 }
-
 function durationToHeight(startMin: number, endMin: number): number {
   const durMin = Math.max(0, endMin - startMin);
   return (durMin / 60) * HOUR_HEIGHT_PX;
 }
-
 function isOverlap(aStart: number, aEnd: number, bStart: number, bEnd: number) {
   return aStart < bEnd && bStart < aEnd;
 }
 
-// Détection de colonnes pour éviter les chevauchements horizontaux
 function assignColumns(courses: any[]): PositionedCourse[] {
   const items = courses.map((c) => {
     const startMin = parseHHmmToMinutes(c.debut);
@@ -51,7 +39,7 @@ function assignColumns(courses: any[]): PositionedCourse[] {
       startMin,
       endMin,
       top: minutesToTop(startMin),
-      height: Math.max(durationToHeight(startMin, endMin), 36), // min-height
+      height: Math.max(durationToHeight(startMin, endMin), 36),
     };
   });
 
@@ -91,7 +79,6 @@ function assignColumns(courses: any[]): PositionedCourse[] {
     }
   }
 
-  // Calcul du nombre de colonnes simultanées maximal pour chaque bloc
   for (let i = 0; i < result.length; i++) {
     const aStart = parseHHmmToMinutes(result[i].course.debut);
     const aEnd = parseHHmmToMinutes(result[i].course.fin);
@@ -111,7 +98,7 @@ function assignColumns(courses: any[]): PositionedCourse[] {
   return result;
 }
 
-const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
+const TimeGrid = ({ schedule, currentDate = new Date(), onSelectDay }: TimeGridProps) => {
   const isToday = (dateStr: string): boolean => {
     const today = currentDate.toLocaleDateString("fr-FR", {
       day: "2-digit",
@@ -133,17 +120,20 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
         </div>
       ) : (
         <>
-          {/* Header */}
+          {/* Header cliquable */}
           <div className="hidden md:block">
             <div className="grid grid-cols-[80px_repeat(5,1fr)] border-b border-border/50 bg-muted/30">
-              <div className="p-4 border-r border-border/50"></div>
+              <div className="p-4 border-r border-border/50" />
               {DAYS.map((day) => {
                 const dayData = schedule.find((d) => d.day === day);
                 const todayCell = dayData && isToday(dayData.date);
+
                 return (
-                  <div
+                  <button
                     key={day}
-                    className={`p-4 text-center border-r border-border/50 last:border-r-0 ${
+                    type="button"
+                    onClick={() => onSelectDay?.(day)}
+                    className={`p-4 text-center border-r border-border/50 last:border-r-0 focus:outline-none hover:bg-muted/50 transition-colors ${
                       todayCell ? "bg-primary/10" : ""
                     }`}
                   >
@@ -156,14 +146,14 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
                         <span>{dayData.date}</span>
                       </div>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
 
             {/* Grille horaire */}
             <div className="grid grid-cols-[80px_repeat(5,1fr)] relative">
-              {/* Heures */}
+              {/* Colonne heures */}
               <div className="border-r border-border/50">
                 {HOURS.map((hour) => (
                   <div
@@ -175,75 +165,87 @@ const TimeGrid = ({ schedule, currentDate = new Date() }: TimeGridProps) => {
                 ))}
               </div>
 
-              {/* Jours */}
-              {DAYS.map((day) => {
-                const dayData = schedule.find((d) => d.day === day);
-                const todayCell = dayData && isToday(dayData?.date || "");
-                const positioned = dayData?.courses?.length
-                  ? assignColumns(dayData.courses)
-                  : [];
+              {/* Colonnes jours */}
+{DAYS.map((day) => {
+  const dayData = schedule.find((d) => d.day === day);
+  const todayCell = dayData && isToday(dayData?.date || "");
+  const positioned = dayData?.courses?.length ? assignColumns(dayData.courses) : [];
 
-                return (
-                  <div
-                    key={day}
-                    className={`border-r border-border/50 last:border-r-0 relative ${
-                      todayCell ? "bg-primary/5" : ""
-                    }`}
-                  >
-                    {HOURS.map((hour) => (
-                      <div key={hour} className="h-[45px] border-b border-border/20" />
-                    ))}
+  return (
+    <div
+      key={day}
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelectDay?.(day)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") onSelectDay?.(day);
+      }}
+      className={`border-r border-border/50 last:border-r-0 relative cursor-pointer hover:bg-muted/30 transition-colors ${
+        todayCell ? "bg-primary/5" : ""
+      }`}
+      aria-label={`Voir le jour ${day}`}
+    >
+      {/* Lignes horaires */}
+      {HOURS.map((hour) => (
+        <div key={hour} className="h-[45px] border-b border-border/20" />
+      ))}
 
-                    {positioned.map((pc, idx) => {
-                      const colGapPx = 6;
-                      const colCount = Math.max(pc.colCount, 1);
-                      const widthPercent = 100 / colCount;
-                      const leftPercent = widthPercent * pc.colIndex;
+      {/* Cours positionnés */}
+      {positioned.map((pc, idx) => {
+        const colGapPx = 6;
+        const colCount = Math.max(pc.colCount, 1);
+        const widthPercent = 100 / colCount;
+        const leftPercent = widthPercent * pc.colIndex;
 
-                      return (
-                        <div
-                          key={idx}
-                          className="absolute left-0 right-0"
-                          style={{
-                            top: `${pc.top}px`,
-                            height: `${pc.height}px`,
-                            left: `calc(${leftPercent}% + ${GRID_PADDING_X}px)`,
-                            width: `calc(${widthPercent}% - ${colGapPx}px - ${GRID_PADDING_X * 2}px)`,
-                          }}
-                        >
-                          <CourseBlock
-                            course={pc.course}
-                            viewMode="week"
-                            style={{
-                              height: "100%",
-                              overflow: "hidden",
-                              borderRadius: 10,
-                              display: "flex",
-                              flexDirection: "column",
-                            }}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+        return (
+          <div
+            key={idx}
+            className="absolute"
+            style={{
+              top: `${pc.top}px`,
+              height: `${pc.height}px`,
+              left: `calc(${leftPercent}% + ${GRID_PADDING_X}px)`,
+              width: `calc(${widthPercent}% - ${colGapPx}px - ${GRID_PADDING_X * 2}px)`,
+            }}
+          >
+            <CourseBlock
+              course={pc.course}
+              viewMode="week"
+              style={{
+                height: "100%",
+                overflow: "hidden",
+                borderRadius: 10,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+})}
             </div>
           </div>
 
-          {/* Mobile: liste */}
+          {/* Mobile */}
           <div className="block md:hidden p-4 space-y-4">
             {schedule.map((dayData) => {
               const todayCell = isToday(dayData.date);
+
               return (
                 <div
                   key={dayData.day}
                   className={`border rounded-lg p-3 ${todayCell ? "bg-primary/5" : "bg-card"}`}
                 >
-                  <div className="flex justify-between items-center mb-2">
+                  <div
+                    className="flex justify-between items-center mb-2 cursor-pointer hover:opacity-80"
+                    onClick={() => onSelectDay?.(dayData.day)}
+                  >
                     <div className="font-semibold">{dayData.day}</div>
                     <div className="text-xs text-muted-foreground">{dayData.date}</div>
                   </div>
+
                   <div className="space-y-2">
                     {dayData.courses.length > 0 ? (
                       dayData.courses
