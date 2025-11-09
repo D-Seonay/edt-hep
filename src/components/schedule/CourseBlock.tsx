@@ -1,5 +1,3 @@
-// src/components/schedule/CourseBlock.tsx
-
 import { useState, useEffect, useRef } from "react";
 import { Clock, MapPin, User, X } from "lucide-react";
 import { motion } from "framer-motion";

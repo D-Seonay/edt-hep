@@ -1,5 +1,3 @@
-// src/components/schedule/TimeGrid.tsx
-
 import CourseBlock from "./CourseBlock";
 import type { TimeGridProps } from "@/types/schedule";
 
