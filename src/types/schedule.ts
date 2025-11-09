@@ -17,10 +17,12 @@ export interface SubjectFilterProps {
   defaultOpen?: boolean;
 }
 
-export interface TimeGridProps {
+export type TimeGridProps = {
   schedule: Day[];
   currentDate?: Date;
-}
+  onSelectDay?: (dayName: string) => void;
+};
+
 
 export interface DayViewProps {
   day: Day | null;
