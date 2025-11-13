@@ -30,7 +30,7 @@ const CourseBlock = ({
   // New: delegate click up so DayView can open the modal
   onClick,
 }: CourseBlockProps & { onClick?: () => void }) => {
-  const { bg, border } = getCourseColors(course.matiere);
+  const { bg, border } = getCourseColors(course.subject);
 
   return (
     <>
@@ -53,27 +53,27 @@ const CourseBlock = ({
           border: `1px solid ${border}`,
         }}
       >
-        <h4 className="font-semibold text-foreground">{course.matiere}</h4>
+        <h4 className="font-semibold text-foreground">{course.subject}</h4>
 
         {viewMode !== "month" && (
           <div className="mt-1 space-y-1 text-xs text-muted-foreground">
             <div className="text-[11px] text-muted-foreground leading-tight">
               <span>
-                {course.debut} – {course.fin}
+                {course.start} – {course.end}
               </span>
-              {course.salle && (
+              {course.room && (
                 <>
                   {" • "}
                   <span className="truncate">
-                    {course.salle?.startsWith("SALLE") ? "🏠" : course.salle}
+                    {course.room?.startsWith("SALLE") ? "🏠" : course.room}
                   </span>
                 </>
               )}
             </div>
 
-            {course.prof && (
+            {course.teacher && (
               <div className="flex items-center gap-1">
-                <User className="w-3 h-3" /> {course.prof}
+                <User className="w-3 h-3" /> {course.teacher}
               </div>
             )}
           </div>

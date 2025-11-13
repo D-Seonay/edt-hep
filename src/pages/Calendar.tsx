@@ -11,7 +11,6 @@ import {
 import {
   fetchSchedule,
   getUniqueSubjects,
-  Day,
 } from "@/services/scheduleService";
 import { toast } from "@/hooks/use-toast";
 import WeekNavigator from "@/components/schedule/WeekNavigator";
@@ -38,10 +37,9 @@ import {
 
 import { motion, AnimatePresence } from "framer-motion";
 import CalendarSkeleton from "@/components/schedule/CalendarSkeleton";
-
-// NEW: hook pour la couleur primaire
 import { usePrimaryColor } from "@/hooks/usePrimaryColor";
 import { useExportImage } from "@/hooks/useExportImage";
+import { Day } from "@/types/schedule";
 
 const Calendar = () => {
   const navigate = useNavigate();
@@ -147,9 +145,9 @@ const Calendar = () => {
     return schedule.map((day) => ({
       ...day,
       courses: day.courses.filter((course) => {
-        const matchSubject = selectedSubjects.has(course.matiere);
+        const matchSubject = selectedSubjects.has(course.subject);
         const matchDistanciel =
-          !filterDistanciel || course.salle.startsWith("SALLE");
+          !filterDistanciel || course.room.startsWith("SALLE");
         return matchSubject && matchDistanciel;
       }),
     }));

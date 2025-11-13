@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Clock, MapPin, User, X } from "lucide-react";
+import { Course, CourseModalProps } from "@/types/schedule";
 
 // We duplicate the color util used by blocks to keep a consistent look.
 // If you already have a shared util, import it instead.
@@ -16,20 +17,6 @@ function getCourseColors(subject: string) {
   const border = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.95)`;
   return { bg, border };
 }
-
-export type Course = {
-  matiere: string;
-  debut: string; // "HH:mm"
-  fin: string;   // "HH:mm"
-  salle?: string | null;
-  prof?: string | null;
-};
-
-type CourseModalProps = {
-  course: Course | null;
-  isOpen: boolean;
-  onClose: () => void;
-};
 
 const CourseModal = ({ course, isOpen, onClose }: CourseModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -58,7 +45,7 @@ const CourseModal = ({ course, isOpen, onClose }: CourseModalProps) => {
 
   if (!isOpen || !course) return null;
 
-  const { bg, border } = getCourseColors(course.matiere);
+  const { bg, border } = getCourseColors(course.subject);
 
   return (
     <div
@@ -79,26 +66,26 @@ const CourseModal = ({ course, isOpen, onClose }: CourseModalProps) => {
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-bold mb-4 text-black">{course.matiere}</h2>
+        <h2 className="text-lg font-bold mb-4 text-black">{course.subject}</h2>
 
         <div className="flex items-center gap-2 mb-2 text-black hover:text-gray-900">
           <Clock className="w-4 h-4" />
           <span>
-            {course.debut} - {course.fin}
+            {course.start} - {course.end}
           </span>
         </div>
 
         <div className="flex items-center gap-2 mb-2 text-black">
           <MapPin className="w-4 h-4" />
           <span>
-            {course.salle?.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.salle}
+            {course.room?.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.room}
           </span>
         </div>
 
-        {course.prof && (
+        {course.teacher && (
           <div className="flex items-center gap-2 mb-2 text-black">
             <User className="w-4 h-4" />
-            <span>{course.prof}</span>
+            <span>{course.teacher}</span>
           </div>
         )}
       </div>
