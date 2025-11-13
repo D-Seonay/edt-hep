@@ -12,7 +12,7 @@ function getCourseColors(subject: string) {
   const hue = hashString(subject) % 360;
   const saturation = 100;
   const lightness = 50;
-  const bg = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.18)`;
+  const bg = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.60)`;
   const border = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.35)`;
   return { bg, border };
 }
@@ -73,22 +73,22 @@ const CourseModal = ({ course, isOpen, onClose }: CourseModalProps) => {
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-black dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+          className="absolute top-3 right-3 text-black hover:text-gray-900 dark:hover:text-gray-100"
           aria-label="Fermer"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-bold mb-4 text-foreground text-black dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100">{course.matiere}</h2>
+        <h2 className="text-lg font-bold mb-4 text-foreground text-black hover:text-gray-900">{course.matiere}</h2>
 
-        <div className="flex items-center gap-2 mb-2 text-muted-foreground text-black dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100">
+        <div className="flex items-center gap-2 mb-2 text-muted-foreground text-black hover:text-gray-900">
           <Clock className="w-4 h-4" />
           <span>
             {course.debut} - {course.fin}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 mb-2 text-muted-foreground text-black dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100">
+        <div className="flex items-center gap-2 mb-2 text-muted-foreground text-black hover:text-gray-900">
           <MapPin className="w-4 h-4" />
           <span>
             {course.salle?.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.salle}
@@ -96,7 +96,7 @@ const CourseModal = ({ course, isOpen, onClose }: CourseModalProps) => {
         </div>
 
         {course.prof && (
-          <div className="flex items-center gap-2 mb-2 text-muted-foreground text-black dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100">
+          <div className="flex items-center gap-2 mb-2 text-muted-foreground text-black hover:text-gray-900">
             <User className="w-4 h-4" />
             <span>{course.prof}</span>
           </div>
