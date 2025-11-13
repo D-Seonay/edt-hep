@@ -1,36 +1,71 @@
-import type { Day, Course } from "@/services/scheduleService";
 import type { CSSProperties } from "react";
 
-export interface WeekNavigatorProps {
-  currentWeek: number; // Semaine affichée actuellement (0 = cette semaine)
-  onPrevious: () => void; // Callback pour passer à la semaine précédente
-  onNext: () => void; // Callback pour passer à la semaine suivante
-  onToday: () => void; // Callback pour revenir à la semaine actuelle
+/* Day: (day, date, courses sont déjà en anglais) */
+export interface Day {
+  day: string;
+  date: string;
+  courses: Course[];
 }
 
+/* Course: champs traduits */
+export interface Course {
+  start: string;          // debut -> start (format "HH:mm")
+  end: string;            // fin -> end   (format "HH:mm")
+  subject: string;        // matiere -> subject
+  room: string;           // salle -> room
+  teacher: string;        // prof -> teacher (ou "instructor")
+  color: {
+    background: string;   // bg -> background
+    text: string;         // text -> text
+  };
+}
+
+/* WeekNavigatorProps: (clés déjà en anglais) */
+export interface WeekNavigatorProps {
+  currentWeek: number;
+  onPrevious: () => void;
+  onNext: () => void;
+  onToday: () => void;
+}
+
+/* SubjectFilterProps: distanciel -> remote/online */
 export interface SubjectFilterProps {
   subjects: string[];
   selectedSubjects: Set<string>;
   onToggle: (subject: string) => void;
-  filterDistanciel: boolean;
-  onToggleDistanciel: () => void;
+  remoteFilter: boolean;          // filterDistanciel -> remoteFilter (ou "onlineFilter")
+  onToggleRemote: () => void;     // onToggleDistanciel -> onToggleRemote
   defaultOpen?: boolean;
 }
 
+/* TimeGridProps: (clés déjà en anglais) */
 export type TimeGridProps = {
   schedule: Day[];
   currentDate?: Date;
   onSelectDay?: (dayName: string) => void;
 };
 
-
+/* DayViewProps: (clés déjà en anglais) */
 export interface DayViewProps {
   day: Day | null;
   isToday?: boolean;
 }
 
+/* CourseBlockProps: (clés déjà en anglais) */
 export interface CourseBlockProps {
   course: Course;
   viewMode?: "day" | "week" | "month";
   style?: CSSProperties;
+}
+
+export interface CourseModalProps {
+  course: {
+    subject: string;
+    start: string;
+    end: string;
+    room?: string | null;
+    teacher?: string | null;
+  } | null;
+  isOpen: boolean;
+  onClose: () => void;
 }

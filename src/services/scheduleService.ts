@@ -1,63 +1,35 @@
+import { COLORS } from "@/constants/schedule";
+import { Course, Day } from "@/types/schedule";
 import axios from "axios";
 
-export interface Course {
-  debut: string;
-  fin: string;
-  matiere: string;
-  salle: string;
-  prof: string;
-  color: { bg: string; text: string };
-}
-
-export interface Day {
-  day: string;
-  date: string;
-  courses: Course[];
-}
-
-const COLORS = [
-  { bg: "hsl(var(--course-blue))", text: "hsl(var(--foreground))" },
-  { bg: "hsl(var(--course-purple))", text: "hsl(var(--foreground))" },
-  { bg: "hsl(var(--course-pink))", text: "hsl(var(--foreground))" },
-  { bg: "hsl(var(--course-orange))", text: "hsl(var(--foreground))" },
-  { bg: "hsl(var(--course-cyan))", text: "hsl(var(--foreground))" },
-  { bg: "hsl(var(--course-yellow))", text: "hsl(var(--foreground))" },
-  { bg: "hsl(var(--course-green))", text: "hsl(var(--foreground))" },
-];
-
-// --- 🆕 Ajout : validation prenom.nom ---
 export const isStringDotString = (input: string): boolean => {
-  // accepte prenom.nom ou prenom.nom123 (chiffres optionnels à la fin)
   const regex = /^[a-zA-Z]+\.[a-zA-Z]+\d*$/;
   return regex.test(input);
 };
 
-// --- 🆕 Assignation des couleurs par matière ---
 const assignColors = (schedule: Day[]): Day[] => {
-  const matiereColors = new Map<string, { bg: string; text: string }>();
+  const subjectColors = new Map<string, { background: string; text: string }>();
   let colorIndex = 0;
 
   schedule.forEach((day) => {
     day.courses.forEach((course) => {
-      if (!matiereColors.has(course.matiere)) {
-        matiereColors.set(course.matiere, COLORS[colorIndex % COLORS.length]);
+      if (!subjectColors.has(course.subject)) {
+        subjectColors.set(course.subject, COLORS[colorIndex % COLORS.length]);
         colorIndex++;
-      }
-      course.color = matiereColors.get(course.matiere)!;
+      } 
+      course.color = subjectColors.get(course.subject)!;
     });
   });
 
   return schedule;
 };
 
-// --- 🆕 Calcul des jours de travail corrects ---
 function getWorkingDays(dateInput?: string | number | null): string[] {
   const currentDate = new Date();
 
-  // --- Décalage en semaines (facultatif) ---
   let weeksToAdd = 0;
   if (typeof dateInput === "string" && /^-?\d+$/.test(dateInput)) {
-    weeksToAdd = parseInt(dateInput);
+    weeksToAdd = parseInt(dateInput, 10);
   } else if (typeof dateInput === "number") {
     weeksToAdd = dateInput;
   }
@@ -66,45 +38,45 @@ function getWorkingDays(dateInput?: string | number | null): string[] {
     currentDate.setDate(currentDate.getDate() + weeksToAdd * 7);
   }
 
-  // --- Trouver le lundi de la semaine ---
-  const dayOfWeek = currentDate.getDay(); // 0 = dimanche, 1 = lundi, ...
+  const dayOfWeek = currentDate.getDay(); // 0 = dimanche
   const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
   const monday = new Date(currentDate);
   monday.setDate(currentDate.getDate() + diffToMonday);
 
-  // --- Générer lundi → vendredi ---
   const workingDays: Date[] = [];
   for (let i = 0; i < 5; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
-    d.setHours(12, 0, 0, 0); // éviter fuseau
+    d.setHours(12, 0, 0, 0);
     workingDays.push(d);
   }
 
   return workingDays.map((d) => d.toISOString().split("T")[0]);
 }
 
-// --- 🆕 Parser un seul jour depuis le HTML ---
 const parseHtmlDay = (html: string): Course[] => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
   const courses: Course[] = [];
   doc.querySelectorAll(".Ligne").forEach((ligne) => {
-    const debut = (ligne.querySelector(".Debut")?.textContent || "").trim();
-    const fin = (ligne.querySelector(".Fin")?.textContent || "").trim();
-    const matiere = (ligne.querySelector(".Matiere")?.textContent || "").trim();
-    const salle = (ligne.querySelector(".Salle")?.textContent || "").trim();
-    const prof = (ligne.querySelector(".Prof")?.textContent || "").trim();
+    const start = (ligne.querySelector(".Debut")?.textContent || "").trim();
+    const end = (ligne.querySelector(".Fin")?.textContent || "").trim();
+    const subject = (ligne.querySelector(".Matiere")?.textContent || "").trim();
+    const roomRaw = (ligne.querySelector(".Salle")?.textContent || "").trim();
+    const teacherRaw = (ligne.querySelector(".Prof")?.textContent || "").trim();
 
-    if (debut && fin && matiere) {
+    const room = roomRaw || "";
+    const teacher = teacherRaw || "";
+
+    if (start && end && subject) {
       courses.push({
-        debut,
-        fin,
-        matiere,
-        salle,
-        prof,
-        color: { bg: "", text: "" }, // ajouté plus tard
+        start,
+        end,
+        subject,
+        room,
+        teacher,
+        color: { background: "", text: "" }, // sera rempli par assignColors
       });
     }
   });
@@ -112,14 +84,13 @@ const parseHtmlDay = (html: string): Course[] => {
   return courses;
 };
 
-// --- 🆕 Récupérer le planning complet d'une semaine ---
 export const fetchSchedule = async (
   username: string,
   dateInput?: string | null
 ): Promise<Day[]> => {
   if (!isStringDotString(username)) return [];
 
-  const workingDays = getWorkingDays(dateInput);
+  const workingDays = getWorkingDays(dateInput ?? null);
   const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 
   const schedule = await Promise.all(
@@ -129,7 +100,7 @@ export const fetchSchedule = async (
       )}%208:00`;
 
       try {
-        const { data } = await axios.get(url);
+        const { data } = await axios.get<string>(url);
         return { day: daysOfWeek[i], date, courses: parseHtmlDay(data) };
       } catch {
         return { day: daysOfWeek[i], date, courses: [] };
@@ -140,11 +111,10 @@ export const fetchSchedule = async (
   return assignColors(schedule);
 };
 
-// --- Obtenir toutes les matières uniques ---
 export const getUniqueSubjects = (schedule: Day[]): string[] => {
   const subjects = new Set<string>();
   schedule.forEach((day) => {
-    day.courses.forEach((course) => subjects.add(course.matiere));
+    day.courses.forEach((course) => subjects.add(course.subject));
   });
   return Array.from(subjects);
 };

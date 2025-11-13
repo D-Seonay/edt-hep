@@ -40,13 +40,13 @@ const DayView = ({ day, isToday }: DayViewProps) => {
     return d.getHours() * 60 + d.getMinutes();
   });
 
-  // New: modal state handled here
+  // Modal state
   const [selectedCourse, setSelectedCourse] = useState<{
-    matiere: string;
-    debut: string;
-    fin: string;
-    salle?: string | null;
-    prof?: string | null;
+    subject: string;
+    start: string;
+    end: string;
+    room?: string | null;
+    teacher?: string | null;
   } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -56,7 +56,6 @@ const DayView = ({ day, isToday }: DayViewProps) => {
   };
   const closeCourse = () => {
     setIsModalOpen(false);
-    // Optional: keep selectedCourse, or clear it
     setSelectedCourse(null);
   };
 
@@ -77,7 +76,7 @@ const DayView = ({ day, isToday }: DayViewProps) => {
   }
 
   const coursesSorted = [...day.courses].sort(
-    (a, b) => parseHHmmToMinutes(a.debut) - parseHHmmToMinutes(b.debut)
+    (a, b) => parseHHmmToMinutes(a.start) - parseHHmmToMinutes(b.start)
   );
 
   const nowTop = minutesToTop(nowMinutes);
@@ -135,11 +134,11 @@ const DayView = ({ day, isToday }: DayViewProps) => {
 
           {/* Cours */}
           {coursesSorted.map((course, idx) => {
-            const startMin = parseHHmmToMinutes(course.debut);
-            const endMin = parseHHmmToMinutes(course.fin);
+            const startMin = parseHHmmToMinutes(course.start);
+            const endMin = parseHHmmToMinutes(course.end);
             const top = Math.round(minutesToTop(startMin));
             const height = Math.max(Math.round(durationToHeight(startMin, endMin)), 36);
-            const { bg, border } = getCourseColors(course.matiere);
+            const { bg, border } = getCourseColors(course.subject);
 
             let stateClass = "";
             if (isToday) {
@@ -165,12 +164,12 @@ const DayView = ({ day, isToday }: DayViewProps) => {
                 <div className="p-2.5 h-full flex flex-col">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-sm line-clamp-2 text-foreground">
-                      {course.matiere}
+                      {course.subject}
                     </h3>
                     <div className="flex items-center gap-1 text-[11px] text-muted-foreground bg-background/40 px-2 py-0.5 rounded-full whitespace-nowrap">
                       <Clock className="w-3 h-3" />
                       <span>
-                        {course.debut} - {course.fin}
+                        {course.start} - {course.end}
                       </span>
                     </div>
                   </div>
@@ -179,13 +178,13 @@ const DayView = ({ day, isToday }: DayViewProps) => {
                     <div className="flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
                       <span className="truncate">
-                        {course.salle?.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.salle}
+                        {course.room?.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.room}
                       </span>
                     </div>
-                    {course.prof && course.prof.trim() !== "" && (
+                    {course.teacher && course.teacher.trim() !== "" && (
                       <div className="flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5" />
-                        <span className="truncate">{course.prof}</span>
+                        <span className="truncate">{course.teacher}</span>
                       </div>
                     )}
                   </div>

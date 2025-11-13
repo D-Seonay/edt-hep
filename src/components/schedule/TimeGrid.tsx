@@ -1,19 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import CourseBlock from "./CourseBlock";
 import type { TimeGridProps } from "@/types/schedule";
 import { DAYS, HOURS, HOUR_HEIGHT_PX, DAY_START_MINUTES } from "@/constants/schedule";
 import { parseHHmmToDate, parseHHmmToMinutes } from "@/utils/dateHelpers";
+import { PositionedCourse } from "@/types/types";
 
 const GRID_PADDING_X = 4;
-
-type PositionedCourse = {
-  course: any;
-  top: number;
-  height: number;
-  colIndex: number;
-  colCount: number;
-};
-
 
 function minutesToTop(minutesSinceMidnight: number): number {
   const deltaMin = minutesSinceMidnight - DAY_START_MINUTES;
@@ -28,9 +20,10 @@ function isOverlap(aStart: number, aEnd: number, bStart: number, bEnd: number) {
 }
 
 function assignColumns(courses: any[]): PositionedCourse[] {
+  // FIX: use start/end (english keys) everywhere
   const items = courses.map((c) => {
-    const startMin = parseHHmmToMinutes(c.debut);
-    const endMin = parseHHmmToMinutes(c.fin);
+    const startMin = parseHHmmToMinutes(c.start);
+    const endMin = parseHHmmToMinutes(c.end);
     return {
       course: c,
       startMin,
@@ -77,14 +70,14 @@ function assignColumns(courses: any[]): PositionedCourse[] {
   }
 
   for (let i = 0; i < result.length; i++) {
-    const aStart = parseHHmmToMinutes(result[i].course.debut);
-    const aEnd = parseHHmmToMinutes(result[i].course.fin);
+    const aStart = parseHHmmToMinutes(result[i].course.start);
+    const aEnd = parseHHmmToMinutes(result[i].course.end);
     let maxCol = result[i].colIndex;
 
     for (let j = 0; j < result.length; j++) {
       if (i === j) continue;
-      const bStart = parseHHmmToMinutes(result[j].course.debut);
-      const bEnd = parseHHmmToMinutes(result[j].course.fin);
+      const bStart = parseHHmmToMinutes(result[j].course.start);
+      const bEnd = parseHHmmToMinutes(result[j].course.end);
       if (isOverlap(aStart, aEnd, bStart, bEnd)) {
         maxCol = Math.max(maxCol, result[j].colIndex);
       }
@@ -320,7 +313,7 @@ const TimeGrid = ({ schedule, currentDate = new Date(), onSelectDay }: TimeGridP
                         .slice()
                         .sort(
                           (a, b) =>
-                            parseHHmmToMinutes(a.debut) - parseHHmmToMinutes(b.debut)
+                            parseHHmmToMinutes(a.start) - parseHHmmToMinutes(b.start)
                         )
                         .map((course, idx) => {
                           const isPast = dayData?.date ? parseHHmmToDate(course, dayData.date, now) : false;

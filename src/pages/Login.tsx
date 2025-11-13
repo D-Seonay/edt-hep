@@ -1,5 +1,3 @@
-// src/pages/LoginPage.tsx
-import React from 'react';
 import { motion } from 'framer-motion';
 import { useProtectedLogin } from '@/hooks/useProtectedLogin';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, InfoModal } from '@/lib';

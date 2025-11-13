@@ -8,15 +8,15 @@ export function parseHHmmToMinutes(hhmm: string): number {
 }
 
 export function parseHHmmToDate(
-  course: { debut: string; fin: string },
+  course: { start: string; end: string },
   dayDateStr: string,
   now: Date
 ): boolean {
   const [yyyy, mm, dd] = extractYMD(dayDateStr);
   if (!yyyy) return false;
 
-  const startMin = parseHHmmToMinutes(course.debut);
-  const endMin = parseHHmmToMinutes(course.fin);
+  const startMin = parseHHmmToMinutes(course.start);
+  const endMin = parseHHmmToMinutes(course.end);
 
   const endDate = new Date(yyyy, mm - 1, dd, Math.floor(endMin / 60), endMin % 60);
   return now.getTime() > endDate.getTime();
