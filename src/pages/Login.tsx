@@ -1,7 +1,8 @@
+// src/pages/LoginPage.tsx
 import { motion } from 'framer-motion';
 import { useProtectedLogin } from '@/hooks/useProtectedLogin';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, InfoModal } from '@/lib';
-import { AlertCircle, Calendar, Eye, EyeOff, Lock } from 'lucide-react';
+import { AlertCircle, Calendar, Eye, EyeOff, Lock, History, Trash2 } from 'lucide-react';
 
 export default function LoginPage() {
   const {
@@ -16,6 +17,10 @@ export default function LoginPage() {
     onChangePin,
     toggleShowPin,
     handleSubmit,
+    recent,
+    selectRecent,
+    loginWithRecent, // NEW
+    deleteRecent, // NEW: action de suppression
   } = useProtectedLogin();
 
   const onCloseInfo = () => {
@@ -33,7 +38,6 @@ export default function LoginPage() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       >
-        {/* Tilt/parallax léger au survol */}
         <motion.div whileHover={{ rotateX: 1.5, rotateY: -1.5 }} transition={{ type: 'spring', stiffness: 120, damping: 12 }} style={{ transformStyle: 'preserve-3d' }}>
           <Card className="w-full shadow-elevated border-border/40 backdrop-blur-sm bg-card/70">
             <CardHeader className="text-center space-y-3">
@@ -71,6 +75,40 @@ export default function LoginPage() {
                     <span>Format attendu : prenom.nom (exemple : jean.dupont)</span>
                   </div>
                 </div>
+
+                {recent.length > 0 && (
+                  <div className="space-y-2 mt-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <History className="w-4 h-4" />
+                      <span>Dernières connexions</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {recent.map((r) => (
+                        <div
+                          key={r.value}
+                          className="flex items-center gap-1 bg-muted rounded-full pl-3 pr-1 py-1.5"
+                          title={new Date(r.lastUsedAt).toLocaleString()}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => loginWithRecent(r.value)}
+                            className="text-sm text-foreground hover:cursor-pointer"
+                          >
+                            {r.value}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteRecent(r.value)}
+                            aria-label={`Supprimer ${r.value}`}
+                            className="p-1 rounded-full hover:bg-muted/70 text-muted-foreground"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600 hover:text-red-700" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {needsPin && (
                   <div className="space-y-2">
