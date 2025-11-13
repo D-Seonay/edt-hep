@@ -1,5 +1,4 @@
-// src/hooks/useProtectedLogin.ts
-import { useState, useCallback, useEffect } from 'react';
+  import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { isStringDotString } from '@/services/scheduleService';
@@ -21,6 +20,7 @@ export type UseProtectedLoginReturn = {
   toggleShowPin: () => void;
   selectRecent: (value: string) => void;
   deleteRecent: (value: string) => void;
+  loginWithRecent: (value: string) => Promise<void>;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
 };
 
@@ -53,7 +53,7 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
     setShowPin(prev => !prev);
   }, []);
 
-  // Sélection d’un username récent
+  // Sélection d’un username récent (pré-remplit sans connecter)
   const selectRecent = useCallback((value: string) => {
     setUsername(value);
     setNeedsPin(false);
@@ -66,6 +66,83 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
     removeRecentUsername(value);
     setRecent(getRecentUsernames());
   }, []);
+
+  // Connexion directe au clic sur un identifiant récent
+  const loginWithRecent = useCallback(async (value: string) => {
+    setUsername(value);
+    setIsLoading(true);
+
+    const processedUsername = getProcessedUsername(value);
+
+    if (!isStringDotString(processedUsername)) {
+      setIsLoading(false);
+      toast({
+        title: 'Format invalide',
+        description: 'Identifiant récent invalide (prenom.nom requis).',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Vérifie si l’utilisateur est protégé (PIN requis)
+    const usersEnv = (import.meta as any).env?.VITE_PROTECTED_USERS || '';
+    const protectedSet = new Set(
+      usersEnv.split(',').map((s: string) => s.trim().toLowerCase()).filter(Boolean)
+    );
+    const isProtected = protectedSet.has(processedUsername.toLowerCase());
+
+    if (isProtected && !pin) {
+      // Demande le PIN et stoppe la connexion auto
+      setNeedsPin(true);
+      setIsLoading(false);
+      toast({
+        title: 'Vérification supplémentaire',
+        description: 'Veuillez saisir votre code PIN pour cet utilisateur.',
+        variant: 'default',
+      });
+      return;
+    }
+
+    if (isProtected) {
+      const expectedPin = (import.meta as any).env?.VITE_PROTECTED_PIN || '';
+      if (pin !== expectedPin) {
+        setIsLoading(false);
+        toast({
+          title: 'PIN incorrect',
+          description: 'Le code PIN saisi est invalide.',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
+    const userRule = getUserRule(processedUsername);
+    if (userRule?.redirect) {
+      window.open(userRule.redirect, '_blank', 'noopener,noreferrer');
+      addRecentUsername(processedUsername);
+      setRecent(getRecentUsernames());
+      setIsLoading(false);
+      return;
+    }
+
+    // Sauvegardes locales
+    localStorage.setItem('username', processedUsername);
+    localStorage.setItem('userRule', JSON.stringify(userRule || {}));
+    localStorage.setItem('isProtectedUser', String(isProtected));
+
+    // Historique des connexions
+    addRecentUsername(processedUsername);
+    setRecent(getRecentUsernames());
+
+    toast({
+      title: 'Connexion réussie',
+      description: 'Bonjour ' + processedUsername + ' !',
+      variant: 'default',
+    });
+
+    setInfoOpen(true);
+    setIsLoading(false);
+  }, [pin]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,6 +224,7 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
     toggleShowPin,
     selectRecent,
     deleteRecent,
+    loginWithRecent,
     handleSubmit,
   };
 };

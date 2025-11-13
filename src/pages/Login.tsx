@@ -19,6 +19,7 @@ export default function LoginPage() {
     handleSubmit,
     recent,
     selectRecent,
+    loginWithRecent, // NEW
     deleteRecent, // NEW: action de suppression
   } = useProtectedLogin();
 
@@ -90,7 +91,7 @@ export default function LoginPage() {
                         >
                           <button
                             type="button"
-                            onClick={() => selectRecent(r.value)}
+                            onClick={() => loginWithRecent(r.value)}
                             className="text-sm text-foreground hover:cursor-pointer"
                           >
                             {r.value}
