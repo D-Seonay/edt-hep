@@ -130,3 +130,5 @@ export const InfoModal: React.FC<InfoModalProps> = ({
     </AnimatePresence>
   );
 };
+
+export default InfoModal

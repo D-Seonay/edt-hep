@@ -27,6 +27,7 @@ export * from "../components/ui/switch";
 export * from "../components/ui/slider";
 export * from "../components/ui/toast";
 export { default as AdBanner } from "../components/ui/AdBanner";
+export { default as InfoModal } from "../components/InfoModal";
 
 // export * exporte tout ce qui est exporté dans le fichier ciblé sauf les exports par défaut. donc toutes les fonctions, classes, types etc
 // export { ... } exporte uniquement ce qui est spécifié entre les accolades, y compris les exports par défaut si spécifiés explicitement.

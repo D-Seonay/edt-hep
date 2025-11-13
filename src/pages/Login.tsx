@@ -2,8 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useProtectedLogin } from '@/hooks/useProtectedLogin';
-import { InfoModal } from '@/components/InfoModal';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input } from '@/lib';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, InfoModal } from '@/lib';
 import { AlertCircle, Calendar, Eye, EyeOff, Lock } from 'lucide-react';
 
 export default function LoginPage() {
