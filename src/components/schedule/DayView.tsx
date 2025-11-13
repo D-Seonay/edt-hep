@@ -1,7 +1,9 @@
+// components/schedule/DayView.tsx
+import { useEffect, useState } from "react";
 import { Clock, MapPin, User } from "lucide-react";
 import type { DayViewProps } from "@/types/schedule";
 import { HOURS, HOUR_HEIGHT_PX, DAY_START_MINUTES } from "@/constants/schedule";
-
+import CourseModal from "@/components/schedule/CourseModal";
 
 // Helpers temps
 const parseHHmmToMinutes = (hhmm: string): number => {
@@ -17,7 +19,7 @@ const durationToHeight = (startMin: number, endMin: number): number => {
   return (durMin / 60) * HOUR_HEIGHT_PX;
 };
 
-// Couleurs stables par matière (fond transparent + bordure douce)
+// Couleurs stables
 function hashString(str: string): number {
   let h = 0;
   for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
@@ -33,6 +35,39 @@ function getCourseColors(subject: string) {
 }
 
 const DayView = ({ day, isToday }: DayViewProps) => {
+  const [nowMinutes, setNowMinutes] = useState(() => {
+    const d = new Date();
+    return d.getHours() * 60 + d.getMinutes();
+  });
+
+  // New: modal state handled here
+  const [selectedCourse, setSelectedCourse] = useState<{
+    matiere: string;
+    debut: string;
+    fin: string;
+    salle?: string | null;
+    prof?: string | null;
+  } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openCourse = (course: typeof selectedCourse) => {
+    setSelectedCourse(course);
+    setIsModalOpen(true);
+  };
+  const closeCourse = () => {
+    setIsModalOpen(false);
+    // Optional: keep selectedCourse, or clear it
+    setSelectedCourse(null);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const d = new Date();
+      setNowMinutes(d.getHours() * 60 + d.getMinutes());
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (!day) {
     return (
       <div className="bg-card rounded-2xl shadow-card border border-border/50 p-8 text-center">
@@ -41,10 +76,11 @@ const DayView = ({ day, isToday }: DayViewProps) => {
     );
   }
 
-  // Tri des cours par heure de début
   const coursesSorted = [...day.courses].sort(
     (a, b) => parseHHmmToMinutes(a.debut) - parseHHmmToMinutes(b.debut)
   );
+
+  const nowTop = minutesToTop(nowMinutes);
 
   return (
     <div className="bg-card rounded-2xl shadow-card border border-border/50 overflow-hidden">
@@ -63,7 +99,7 @@ const DayView = ({ day, isToday }: DayViewProps) => {
         </div>
       </div>
 
-      {/* Grille des heures + cours positionnés (échelle 45px/h) */}
+      {/* Grille */}
       <div className="grid grid-cols-[100px_1fr] relative">
         {/* Heures */}
         <div className="border-r border-border/50">
@@ -79,12 +115,25 @@ const DayView = ({ day, isToday }: DayViewProps) => {
 
         {/* Colonne des cours */}
         <div className="relative">
-          {/* Lignes horaires */}
           {HOURS.map((hour) => (
             <div key={hour} className="h-[45px] border-b border-border/20" />
           ))}
 
-          {/* Cours en position absolue (pas de chevauchement vertical car un seul jour) */}
+          {/* Ligne maintenant */}
+          {isToday && nowTop >= 0 && (
+            <div
+              className="absolute left-0 right-0 z-20 pointer-events-none"
+              style={{ top: `${nowTop}px` }}
+            >
+              <div className="h-px bg-red-500 dark:bg-red-400 w-full" />
+              <div className="mt-[-4px] ml-1 px-1.5 py-0.5 text-[10px] rounded bg-red-500/20 text-red-600 dark:text-red-300 inline-block">
+                {String(Math.floor(nowMinutes / 60)).padStart(2, "0")}:
+                {String(nowMinutes % 60).padStart(2, "0")}
+              </div>
+            </div>
+          )}
+
+          {/* Cours */}
           {coursesSorted.map((course, idx) => {
             const startMin = parseHHmmToMinutes(course.debut);
             const endMin = parseHHmmToMinutes(course.fin);
@@ -92,19 +141,28 @@ const DayView = ({ day, isToday }: DayViewProps) => {
             const height = Math.max(Math.round(durationToHeight(startMin, endMin)), 36);
             const { bg, border } = getCourseColors(course.matiere);
 
+            let stateClass = "";
+            if (isToday) {
+              if (endMin <= nowMinutes) {
+                stateClass = "opacity-55 saturate-75";
+              } else if (startMin <= nowMinutes && nowMinutes < endMin) {
+                stateClass = "ring-2 ring-primary/40";
+              }
+            }
+
             return (
               <div
                 key={idx}
-                className="absolute left-2 right-2 rounded-xl backdrop-blur-md shadow-sm overflow-hidden transition-all cursor-pointer"
+                className={`absolute left-2 right-2 rounded-xl backdrop-blur-md shadow-sm overflow-hidden transition-all cursor-pointer ${stateClass}`}
                 style={{
                   top: `${top}px`,
                   height: `${height}px`,
                   background: bg,
                   border: `1px solid ${border}`,
                 }}
+                onClick={() => openCourse(course)}
               >
                 <div className="p-2.5 h-full flex flex-col">
-                  {/* Titre + badge heure */}
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-sm line-clamp-2 text-foreground">
                       {course.matiere}
@@ -117,7 +175,6 @@ const DayView = ({ day, isToday }: DayViewProps) => {
                     </div>
                   </div>
 
-                  {/* Infos */}
                   <div className="mt-1 space-y-1 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
@@ -133,7 +190,6 @@ const DayView = ({ day, isToday }: DayViewProps) => {
                     )}
                   </div>
 
-                  {/* Remplissage pour éviter débordement vertical si contenu long */}
                   <div className="mt-auto" />
                 </div>
               </div>
@@ -141,6 +197,9 @@ const DayView = ({ day, isToday }: DayViewProps) => {
           })}
         </div>
       </div>
+
+      {/* Modal controlled here */}
+      <CourseModal course={selectedCourse} isOpen={isModalOpen} onClose={closeCourse} />
     </div>
   );
 };
