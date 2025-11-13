@@ -1,28 +1,11 @@
 // src/hooks/useProtectedLogin.ts
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { isStringDotString } from '@/services/scheduleService';
 import { getProcessedUsername } from '@/utils/usernameShortcuts';
 import { getUserRule } from '@/utils/userAds';
-
-// Lire les variables d'environnement (Vite)
-const protectedUsersEnv = (import.meta as any).env?.VITE_PROTECTED_USERS || '';
-const protectedPinEnv = (import.meta as any).env?.VITE_PROTECTED_PIN || '';
-
-const getProtectedUsers = (): Set<string> => {
-  return new Set(
-    protectedUsersEnv
-      .split(',')
-      .map(s => s.trim().toLowerCase())
-      .filter(Boolean)
-  );
-};
-
-const isUserProtected = (processedUsername: string): boolean => {
-  const users = getProtectedUsers();
-  return users.has(processedUsername.toLowerCase());
-};
+import { getRecentUsernames, addRecentUsername } from '@/utils/recentUsernames';
 
 export type UseProtectedLoginReturn = {
   username: string;
@@ -31,10 +14,12 @@ export type UseProtectedLoginReturn = {
   showPin: boolean;
   isLoading: boolean;
   infoOpen: boolean;
+  recent: { value: string; lastUsedAt: number }[]; // NEW
   setInfoOpen: (open: boolean) => void;
   onChangeUsername: (value: string) => void;
   onChangePin: (value: string) => void;
   toggleShowPin: () => void;
+  selectRecent: (value: string) => void;           // NEW
   handleSubmit: (e: React.FormEvent) => Promise<void>;
 };
 
@@ -45,7 +30,13 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
   const [showPin, setShowPin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [recent, setRecent] = useState(getRecentUsernames()); // NEW
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Recharge l’historique au montage
+    setRecent(getRecentUsernames());
+  }, []);
 
   const onChangeUsername = useCallback((value: string) => {
     setUsername(value);
@@ -62,6 +53,14 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
     setShowPin(prev => !prev);
   }, []);
 
+  // Sélection d’un username récent
+  const selectRecent = useCallback((value: string) => {
+    setUsername(value);    // pré-remplit le champ
+    setNeedsPin(false);    // reset étape PIN; la logique décidera plus loin si nécessaire
+    setPin('');
+    setShowPin(false);
+  }, []);
+
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -76,7 +75,10 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
       return;
     }
 
-    const protectedUser = isUserProtected(processedUsername);
+    // Vérifie protection utilisateur (ta fonction existante)
+    const users = (import.meta as any).env?.VITE_PROTECTED_USERS || '';
+    const protectedSet = new Set(users.split(',').map((s: string) => s.trim().toLowerCase()).filter(Boolean));
+    const protectedUser = protectedSet.has(processedUsername.toLowerCase());
 
     if (protectedUser && !needsPin) {
       setNeedsPin(true);
@@ -89,7 +91,7 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
     }
 
     if (protectedUser) {
-      const expectedPin = protectedPinEnv;
+      const expectedPin = (import.meta as any).env?.VITE_PROTECTED_PIN || '';
       if (!pin || pin !== expectedPin) {
         toast({
           title: 'PIN incorrect',
@@ -103,6 +105,9 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
     const userRule = getUserRule(processedUsername);
     if (userRule?.redirect) {
       window.open(userRule.redirect, '_blank', 'noopener,noreferrer');
+      // Note: on loggue quand même le récent
+      addRecentUsername(processedUsername);
+      setRecent(getRecentUsernames());
       return;
     }
 
@@ -113,13 +118,16 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
     localStorage.setItem('userRule', JSON.stringify(userRule || {}));
     localStorage.setItem('isProtectedUser', String(protectedUser));
 
+    // Enregistre dans l’historique “dernières connexions”
+    addRecentUsername(processedUsername);
+    setRecent(getRecentUsernames());
+
     toast({
       title: 'Connexion réussie',
       description: 'Bonjour ' + processedUsername + ' !',
       variant: 'default',
     });
 
-    // Ouvre le modal d’information
     setInfoOpen(true);
   }, [username, needsPin, pin, navigate]);
 
@@ -130,10 +138,12 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
     showPin,
     isLoading,
     infoOpen,
+    recent,
     setInfoOpen,
     onChangeUsername,
     onChangePin,
     toggleShowPin,
+    selectRecent,
     handleSubmit,
   };
 };
