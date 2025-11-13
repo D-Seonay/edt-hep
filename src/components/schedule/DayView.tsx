@@ -1,7 +1,9 @@
+// components/schedule/DayView.tsx
 import { useEffect, useState } from "react";
 import { Clock, MapPin, User } from "lucide-react";
 import type { DayViewProps } from "@/types/schedule";
 import { HOURS, HOUR_HEIGHT_PX, DAY_START_MINUTES } from "@/constants/schedule";
+import CourseModal from "@/components/schedule/CourseModal";
 
 // Helpers temps
 const parseHHmmToMinutes = (hhmm: string): number => {
@@ -37,6 +39,26 @@ const DayView = ({ day, isToday }: DayViewProps) => {
     const d = new Date();
     return d.getHours() * 60 + d.getMinutes();
   });
+
+  // New: modal state handled here
+  const [selectedCourse, setSelectedCourse] = useState<{
+    matiere: string;
+    debut: string;
+    fin: string;
+    salle?: string | null;
+    prof?: string | null;
+  } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openCourse = (course: typeof selectedCourse) => {
+    setSelectedCourse(course);
+    setIsModalOpen(true);
+  };
+  const closeCourse = () => {
+    setIsModalOpen(false);
+    // Optional: keep selectedCourse, or clear it
+    setSelectedCourse(null);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -138,6 +160,7 @@ const DayView = ({ day, isToday }: DayViewProps) => {
                   background: bg,
                   border: `1px solid ${border}`,
                 }}
+                onClick={() => openCourse(course)}
               >
                 <div className="p-2.5 h-full flex flex-col">
                   <div className="flex items-start justify-between gap-2">
@@ -174,6 +197,9 @@ const DayView = ({ day, isToday }: DayViewProps) => {
           })}
         </div>
       </div>
+
+      {/* Modal controlled here */}
+      <CourseModal course={selectedCourse} isOpen={isModalOpen} onClose={closeCourse} />
     </div>
   );
 };
