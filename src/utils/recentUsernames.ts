@@ -1,17 +1,15 @@
 // src/utils/recentUsernames.ts
 const STORAGE_KEY = "recentUsernames";
-const MAX_ITEMS = 3;
 
 export type RecentUsername = {
-  value: string;        // processedUsername: "prenom.nom"
-  lastUsedAt: number;   // epoch ms
+  value: string;
+  lastUsedAt: number;
 };
 
 export function getRecentUsernames(): RecentUsername[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    const list = raw ? JSON.parse(raw) as RecentUsername[] : [];
-    // Tri décroissant par dernière utilisation
+    const list = raw ? (JSON.parse(raw) as RecentUsername[]) : [];
     return list.sort((a, b) => b.lastUsedAt - a.lastUsedAt);
   } catch {
     return [];
@@ -21,13 +19,8 @@ export function getRecentUsernames(): RecentUsername[] {
 export function addRecentUsername(value: string) {
   const now = Date.now();
   const list = getRecentUsernames();
-
-  // Dédoublonnage: retire l’existant
   const filtered = list.filter(u => u.value.toLowerCase() !== value.toLowerCase());
-
-  // Ajoute en tête
-  const updated = [{ value, lastUsedAt: now }, ...filtered].slice(0, MAX_ITEMS);
-
+  const updated = [{ value, lastUsedAt: now }, ...filtered].slice(0, 5);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
 }
 

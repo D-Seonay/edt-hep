@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion';
 import { useProtectedLogin } from '@/hooks/useProtectedLogin';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, InfoModal } from '@/lib';
-import { AlertCircle, Calendar, Eye, EyeOff, Lock, RotateCw, History } from 'lucide-react';
+import { AlertCircle, Calendar, Eye, EyeOff, Lock, History, Trash2 } from 'lucide-react';
 
 export default function LoginPage() {
   const {
@@ -19,6 +19,7 @@ export default function LoginPage() {
     handleSubmit,
     recent,
     selectRecent,
+    deleteRecent, // NEW: action de suppression
   } = useProtectedLogin();
 
   const onCloseInfo = () => {
@@ -30,11 +31,22 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-background">
-      <motion.div className="p-4 w-full max-w-md" initial={{ opacity: 0, y: 12, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+      <motion.div
+        className="p-4 w-full max-w-md"
+        initial={{ opacity: 0, y: 12, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
         <motion.div whileHover={{ rotateX: 1.5, rotateY: -1.5 }} transition={{ type: 'spring', stiffness: 120, damping: 12 }} style={{ transformStyle: 'preserve-3d' }}>
           <Card className="w-full shadow-elevated border-border/40 backdrop-blur-sm bg-card/70">
             <CardHeader className="text-center space-y-3">
-              <motion.div className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center shadow-card" style={{ backgroundImage: 'var(--gradient-primary)' }} initial={{ opacity: 0, scale: 0.9, rotate: -6 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}>
+              <motion.div
+                className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center shadow-card"
+                style={{ backgroundImage: 'var(--gradient-primary)' }}
+                initial={{ opacity: 0, scale: 0.9, rotate: -6 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              >
                 <Calendar className="w-8 h-8 text-primary-foreground" />
               </motion.div>
               <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -63,25 +75,35 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                {/* Dernières connexions */}
                 {recent.length > 0 && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 mt-2">
                     <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                       <History className="w-4 h-4" />
                       <span>Dernières connexions</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {recent.map((r) => (
-                        <button
+                        <div
                           key={r.value}
-                          type="button"
-                          onClick={() => selectRecent(r.value)}
-                          className="px-3 py-1.5 rounded-full text-sm bg-muted hover:bg-muted/70 text-foreground transition-colors"
-                          aria-label={`Réutiliser ${r.value}`}
+                          className="flex items-center gap-1 bg-muted rounded-full pl-3 pr-1 py-1.5"
                           title={new Date(r.lastUsedAt).toLocaleString()}
                         >
-                          {r.value}
-                        </button>
+                          <button
+                            type="button"
+                            onClick={() => selectRecent(r.value)}
+                            className="text-sm text-foreground hover:cursor-pointer"
+                          >
+                            {r.value}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => deleteRecent(r.value)}
+                            aria-label={`Supprimer ${r.value}`}
+                            className="p-1 rounded-full hover:bg-muted/70 text-muted-foreground"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600 hover:text-red-700" />
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -128,10 +150,7 @@ export default function LoginPage() {
 
       <InfoModal
         open={infoOpen}
-        onClose={() => {
-          setInfoOpen(false);
-          setTimeout(() => { window.location.href = '/calendar'; }, 150);
-        }}
+        onClose={onCloseInfo}
         title="Information"
         description="Les données affichées sont issues d’un scrapping. Il peut y avoir des erreurs, notamment sur les noms de salles."
         confirmLabel="Compris"
