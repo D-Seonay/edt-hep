@@ -7,3 +7,13 @@ export type PositionedCourse = {
   colIndex: number;
   colCount: number;
 };
+
+
+export type InfoModalProps = {
+  open: boolean;
+  onClose: () => void;
+  title?: string;
+  description?: string;
+  confirmLabel?: string;
+  storageKey?: string;
+};

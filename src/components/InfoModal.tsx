@@ -1,14 +1,6 @@
-// src/components/InfoModal.tsx
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-type InfoModalProps = {
-  open: boolean;
-  onClose: () => void;
-  title?: string;
-  description?: string;
-  confirmLabel?: string;
-};
+import { InfoModalProps } from '@/types/types';
 
 export const InfoModal: React.FC<InfoModalProps> = ({
   open,
@@ -16,32 +8,56 @@ export const InfoModal: React.FC<InfoModalProps> = ({
   title = 'Information',
   description = "Les données affichées proviennent d'un scrapping. Il peut y avoir des erreurs, notamment sur les noms de salles.",
   confirmLabel = 'OK',
+  storageKey = 'infoModal:hidden',
 }) => {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const [doNotShowAgain, setDoNotShowAgain] = useState<boolean>(false);
 
-  // Focus sur le bouton à l’ouverture pour l’accessibilité
   useEffect(() => {
-    if (open) {
+    try {
+      const saved = typeof window !== 'undefined' ? window.localStorage.getItem(storageKey) : null;
+      setDoNotShowAgain(saved === 'true');
+    } catch {
+    }
+  }, [storageKey]);
+
+  useEffect(() => {
+    if (open && doNotShowAgain) {
+      onClose();
+    }
+  }, [open, doNotShowAgain, onClose]);
+
+  useEffect(() => {
+    if (open && !doNotShowAgain) {
       const id = setTimeout(() => {
         closeBtnRef.current?.focus();
       }, 50);
       return () => clearTimeout(id);
     }
-  }, [open]);
+  }, [open, doNotShowAgain]);
 
   const onBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Ferme si clic en dehors du contenu
     onClose();
   };
 
   const onContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Empêche la propagation pour ne pas fermer en cliquant dans le contenu
     e.stopPropagation();
+  };
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    setDoNotShowAgain(checked);
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(storageKey, checked ? 'true' : 'false');
+      }
+    } catch {
+    }
   };
 
   return (
     <AnimatePresence>
-      {open && (
+      {open && !doNotShowAgain && (
         <motion.div
           key="backdrop"
           className="fixed inset-0 z-[1000] flex items-center justify-center"
@@ -93,6 +109,18 @@ export const InfoModal: React.FC<InfoModalProps> = ({
                 {description}
               </p>
 
+              {/* Option "Ne plus afficher" */}
+              <label className="mt-4 flex items-center gap-2 text-sm select-none">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border border-white/40 dark:border-white/20 bg-white/30 dark:bg-white/10"
+                  checked={doNotShowAgain}
+                  onChange={handleCheckboxChange}
+                  aria-label="Ne plus afficher ce message"
+                />
+                <span>Ne plus afficher ce message</span>
+              </label>
+
               <div className="mt-5 flex items-center justify-end gap-3">
                 <button
                   ref={closeBtnRef}
@@ -131,4 +159,4 @@ export const InfoModal: React.FC<InfoModalProps> = ({
   );
 };
 
-export default InfoModal
+export default InfoModal;
