@@ -1,19 +1,46 @@
 <!doctype html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EDT C&D</title>
-    <meta name="description" content="Consultez votre emploi du temps étudiant en temps réel avec une interface moderne et intuitive" />
-    <meta name="author" content="Mathéo DELAUNAY" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
 
-    <meta property="og:title" content="EDT C&D" />
-    <meta property="og:description" content="Consultez votre emploi du temps étudiant en temps réel avec une interface moderne et intuitive" />
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EDT C&D</title>
+  <meta name="description"
+    content="Consultez votre emploi du temps étudiant en temps réel avec une interface moderne et intuitive" />
+  <meta name="author" content="Mathéo DELAUNAY" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.png" />
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  <meta property="og:title" content="EDT C&D" />
+  <meta property="og:description"
+    content="Consultez votre emploi du temps étudiant en temps réel avec une interface moderne et intuitive" />
+
+<link rel="preconnect" href="https://edt-hep.matheodelaunay.studio" crossorigin>
+<link rel="dns-prefetch" href="https://edt-hep.matheodelaunay.studio">
+
+<link rel="preload" as="image" href="/preview.png" imagesrcset="/preview.png" fetchpriority="high">
+
+<!-- Preload du CSS principal (selon build Vite) -->
+<link rel="preload" as="style" href="/assets/index.css">
+
+<!-- Canonical -->
+<link rel="canonical" href="https://edt-hep.matheodelaunay.studio/">
+
+<!-- Meta description déjà présente via README; ajouter si manquante -->
+<meta name="description" content="EDT HEP : affiche ton emploi du temps EPSI, WIS, IFAG, SUP’DE COM. Vue claire, couleurs par matière, détails du cours, responsive.">
+
+<!-- OG/Twitter (si non déjà ajoutés) -->
+<meta property="og:title" content="EDT HEP clair et interactif">
+<meta property="og:description" content="Visualise ton emploi du temps en un clic, sur mobile et desktop.">
+<meta property="og:image" content="/preview.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
