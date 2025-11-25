@@ -14,14 +14,27 @@
   <meta property="og:description"
     content="Consultez votre emploi du temps étudiant en temps réel avec une interface moderne et intuitive" />
 
-  <meta name="description"
-    content="EDT HEP : affiche ton emploi du temps EPSI, WIS, IFAG, IFAG, SUP’DE COM. Vue claire, couleurs par matière, détails du cours, responsive.">
-  <meta property="og:title" content="EDT HEP clair et interactif">
-  <meta property="og:description" content="Visualise ton emploi du temps en un clic, sur mobile et desktop.">
-  <meta property="og:image" content="/img/preview.jpg">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://edt-hep.matheodelaunay.studio/">
+<link rel="preconnect" href="https://edt-hep.matheodelaunay.studio" crossorigin>
+<link rel="dns-prefetch" href="https://edt-hep.matheodelaunay.studio">
+
+<link rel="preload" as="image" href="/preview.png" imagesrcset="/preview.png" fetchpriority="high">
+
+<!-- Preload du CSS principal (selon build Vite) -->
+<link rel="preload" as="style" href="/assets/index.css">
+
+<!-- Canonical -->
+<link rel="canonical" href="https://edt-hep.matheodelaunay.studio/">
+
+<!-- Meta description déjà présente via README; ajouter si manquante -->
+<meta name="description" content="EDT HEP : affiche ton emploi du temps EPSI, WIS, IFAG, SUP’DE COM. Vue claire, couleurs par matière, détails du cours, responsive.">
+
+<!-- OG/Twitter (si non déjà ajoutés) -->
+<meta property="og:title" content="EDT HEP clair et interactif">
+<meta property="og:description" content="Visualise ton emploi du temps en un clic, sur mobile et desktop.">
+<meta property="og:image" content="/preview.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
 
 </head>
 
