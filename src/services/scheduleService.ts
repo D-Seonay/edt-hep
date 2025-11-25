@@ -1,4 +1,3 @@
-// src/services/scheduleService.ts
 import { COLORS } from "@/constants/schedule";
 import { Course, Day } from "@/types/schedule";
 import axios from "axios";
@@ -17,7 +16,7 @@ const assignColors = (schedule: Day[]): Day[] => {
       if (!subjectColors.has(course.subject)) {
         subjectColors.set(course.subject, COLORS[colorIndex % COLORS.length]);
         colorIndex++;
-      }
+      } 
       course.color = subjectColors.get(course.subject)!;
     });
   });
@@ -77,7 +76,7 @@ const parseHtmlDay = (html: string): Course[] => {
         subject,
         room,
         teacher,
-        color: { background: "", text: "" },
+        color: { background: "", text: "" }, // sera rempli par assignColors
       });
     }
   });
@@ -96,12 +95,12 @@ export const fetchSchedule = async (
 
   const schedule = await Promise.all(
     workingDays.map(async (date, i) => {
-      const url = `/api/wigor-proxy?tel=${encodeURIComponent(
-        username
-      )}&date=${encodeURIComponent(date)}&time=${encodeURIComponent("8:00")}`;
+      const url = `https://corsproxy.io/?https://edtmobiliteng.wigorservices.net/WebPsDyn.aspx?Action=posETUD&serverid=C&tel=${username}&date=${encodeURIComponent(
+        date
+      )}%208:00`;
 
       try {
-        const { data } = await axios.get<string>(url, { responseType: "text" });
+        const { data } = await axios.get<string>(url);
         return { day: daysOfWeek[i], date, courses: parseHtmlDay(data) };
       } catch {
         return { day: daysOfWeek[i], date, courses: [] };
