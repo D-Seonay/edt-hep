@@ -1,15 +1,7 @@
-// src/components/LandingPage.tsx
 import { motion, AnimatePresence, useScroll, useTransform, MotionConfig } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { CheckCircle, Smartphone, Grid3x3, Palette, Clock, Shield, ChevronDown } from "lucide-react";
 
-/**
- * Patch Lighthouse:
- * - Performance: hero image fetchpriority=high, explicit width/height, sizes/srcSet, reduced expensive animations above the fold.
- * - Accessibility: MotionConfig reducedMotion="user", ARIA roles/labels, focus-visible styles.
- * - Best Practices: decoding="async", lazy loading, responsive images for logos, improved throttled scroll handler.
- * - SEO: minor structural enhancements (nav landmarks).
- */
 
 export default function LandingPage() {
   return (
@@ -141,10 +133,6 @@ function Hero() {
         initial={{ backgroundPosition: "0% 0%" }}
         animate={{ backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"] }}
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          backgroundImage:
-            "radial-gradient(600px 200px at 10% 60%, rgba(37,99,235,0.10), transparent), radial-gradient(600px 200px at 90% 80%, rgba(59,130,246,0.08), transparent)",
-        }}
       />
       <div className="max-w-6xl mx-auto px-4 pt-12 pb-16 md:pt-20 md:pb-24">
         <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center">
