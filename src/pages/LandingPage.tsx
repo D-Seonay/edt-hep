@@ -3,20 +3,14 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import { useEffect, useState, useRef } from "react";
 import { CheckCircle, Smartphone, Grid3x3, Palette, Clock, Shield, ChevronDown } from "lucide-react";
 
-/**
- * Landing page "EDT Manager HEP" avec animations Framer Motion enrichies:
- * - Parallax léger sur le Hero
- * - Gradient animé en background
- * - Stagger reveal au scroll pour les sections
- * - Hover/tap spring sur les cartes et CTA
- * - FAQ accordéon fluide
- */
-
 export default function LandingPage() {
   return (
     <div className="bg-white text-gray-900">
       <Header />
       <Hero />
+      <SectionWrapper id="schools" title="Écoles supportées" subtitle="EPSI, WIS, IFAG, SUP'DE COM, IET, 3A, IDRAK, et bien d'autres">
+        <Schools />
+      </SectionWrapper>
       <SectionWrapper id="benefits" title="Pourquoi c’est plus simple" subtitle="Fini les pages d’EDT compliquées : récupère automatiquement ton emploi du temps et profite d’une présentation claire et moderne.">
         <Benefits />
       </SectionWrapper>
@@ -34,26 +28,20 @@ export default function LandingPage() {
   );
 }
 
-/* Variants utilitaires */
+/* Variants */
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
-
 const staggerContainer = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { delayChildren: 0.05, staggerChildren: 0.06 },
-  },
+  visible: { opacity: 1, transition: { delayChildren: 0.05, staggerChildren: 0.06 } },
 };
-
 const cardVariant = {
   hidden: { opacity: 0, y: 18, scale: 0.98 },
   visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 140, damping: 16 } },
 };
 
-/* Header avec fade/blur au mount et shadow après scroll */
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -72,30 +60,31 @@ function Header() {
     >
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <motion.div
-            layout
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 180, damping: 14 }}
-            className="w-8 h-8 rounded-lg bg-blue-600"
-          />
           <span className="font-semibold">EDT Manager HEP</span>
         </div>
         <nav className="hidden md:flex items-center gap-6 text-sm">
-          {["benefits", "how", "features", "faq"].map((id) => (
+          {["schools", "benefits", "how", "features", "faq"].map((id) => (
             <motion.a
               key={id}
               href={`#${id}`}
               whileHover={{ y: -2 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="hover:text-blue-600"
+              className="hover:text-blue-600" 
             >
-              {id === "benefits" ? "Pourquoi" : id === "how" ? "Comment" : id === "features" ? "Fonctionnalités" : "FAQ"}
+              {id === "schools"
+                ? "Écoles"
+                : id === "benefits"
+                ? "Pourquoi"
+                : id === "how"
+                ? "Comment"
+                : id === "features"
+                ? "Fonctionnalités"
+                : "FAQ"}
             </motion.a>
           ))}
         </nav>
         <motion.a
-          href="#cta"
+          href="https://edt-hep.matheodelaunay.studio/"
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           className="inline-flex items-center rounded-md bg-blue-600 text-white px-3 py-2 text-sm font-medium shadow hover:bg-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -107,7 +96,6 @@ function Header() {
   );
 }
 
-/* Hero avec gradient animé + parallax subtile */
 function Hero() {
   const ref = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -117,7 +105,6 @@ function Hero() {
 
   return (
     <section ref={ref} className="relative overflow-hidden">
-      {/* Gradient animé en arrière-plan */}
       <motion.div
         aria-hidden
         className="absolute inset-0 -z-10"
@@ -131,11 +118,7 @@ function Hero() {
       />
       <div className="max-w-6xl mx-auto px-4 pt-12 pb-16 md:pt-20 md:pb-24">
         <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center">
-          <motion.h1
-            variants={fadeUp}
-            style={{ y: yTitle }}
-            className="text-3xl md:text-5xl font-bold tracking-tight"
-          >
+          <motion.h1 variants={fadeUp} style={{ y: yTitle }} className="text-3xl md:text-5xl font-bold tracking-tight">
             Emploi du temps HEP clair, moderne et interactif
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-4 md:mt-6 text-gray-600 max-w-2xl mx-auto">
@@ -169,22 +152,13 @@ function Hero() {
             className="mt-8 md:mt-12"
           >
             <div className="relative rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <img
-                src="/preview.png"
-                alt="Aperçu de l'application EDT Manager"
-                className="w-full max-h-[480px] object-cover"
-                loading="lazy"
-              />
-              {/* Glow animé subtil au survol */}
+              <img src="/preview.png" alt="Aperçu de l'application EDT Manager" className="w-full object-cover" loading="lazy" />
               <motion.div
                 aria-hidden
                 initial={{ opacity: 0 }}
                 whileHover={{ opacity: 1 }}
                 className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(400px 180px at 80% 20%, rgba(59,130,246,0.12), transparent)",
-                }}
+                style={{ background: "radial-gradient(400px 180px at 80% 20%, rgba(59,130,246,0.12), transparent)" }}
               />
             </div>
           </motion.div>
@@ -198,7 +172,6 @@ function Hero() {
   );
 }
 
-/* Wrapper de section avec reveal au scroll et titres animés */
 function SectionWrapper({
   id,
   title,
@@ -226,6 +199,74 @@ function SectionWrapper({
         </motion.div>
       </div>
     </section>
+  );
+}
+
+function Schools() {
+  const schools = [
+    { name: "3A", src: "/logos/3A.png" },
+    { name: "IFAG", src: "/logos/IFAG.png" },
+    { name: "IDRAC", src: "/logos/IDRAC.png" },
+    { name: "EPSI", src: "/logos/EPSI.png" },
+    { name: "WIS", src: "/logos/WIS.png" },
+    { name: "SUP'DE COM", src: "/logos/SUPDECOM.png" },
+    { name: "IET", src: "/logos/IET.png" },
+    { name: "ICL", src: "/logos/ICL.png" },
+    { name: "IEFT", src: "/logos/IEFT.png" },
+    { name: "IGEFI", src: "/logos/IGEFI.png" },
+    { name: "IHEDREA", src: "/logos/IHEDREA.png" },
+    { name: "ILERI", src: "/logos/ILERI.png" },
+    { name: "VIVA MUNDI", src: "/logos/VIVA_MUNDI.png" },
+    { name: "ESAIL", src: "/logos/ESAIL.png" },
+    { name: "FIGS", src: "/logos/FIGS.png" },
+  ];
+
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={{
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.05 } },
+      }}
+      className="relative"
+    >
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <div className="mx-auto max-w-6xl h-full bg-gradient-to-r from-blue-50 via-white to-blue-50 opacity-60 rounded-xl" />
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        {schools.map((s) => (
+          <motion.div
+            key={s.name}
+            variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }}
+            whileHover={{ y: -2, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white p-4"
+          >
+            <img
+              src={s.src}
+              alt={`Logo ${s.name}`}
+              className="h-10 md:h-12 object-contain"
+              loading="lazy"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+            />
+            <span className="mt-2 text-sm text-gray-700">{s.name}</span>
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div aria-hidden className="mt-6 hidden md:block overflow-hidden" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+        <motion.div animate={{ x: ["0%", "-50%"] }} transition={{ duration: 18, repeat: Infinity, ease: "linear" }} className="flex gap-8">
+          {schools.concat(schools).map((s, i) => (
+            <img key={`${s.name}-${i}`} src={s.src} alt="" className="h-8 opacity-60 hover:opacity-90 transition" loading="lazy" />
+          ))}
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -265,19 +306,8 @@ function HowItWorks() {
   return (
     <motion.div className="grid md:grid-cols-3 gap-6" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
       {steps.map(({ step, title, desc }) => (
-        <motion.div
-          key={title}
-          variants={cardVariant}
-          whileHover={{ translateY: -4, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
-          className="p-5 rounded-lg bg-white border border-gray-200"
-        >
-          <motion.div
-            layout
-            initial={{ scale: 0.95 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200, damping: 16 }}
-            className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold"
-          >
+        <motion.div key={title} variants={cardVariant} whileHover={{ translateY: -4, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }} className="p-5 rounded-lg bg-white border border-gray-200">
+          <motion.div layout initial={{ scale: 0.95 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, damping: 16 }} className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
             {step}
           </motion.div>
           <h3 className="mt-3 font-semibold">{title}</h3>
@@ -297,12 +327,7 @@ function Features() {
   return (
     <motion.div className="grid md:grid-cols-3 gap-6" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
       {features.map(({ icon: Icon, title, desc }) => (
-        <motion.div
-          key={title}
-          variants={cardVariant}
-          whileHover={{ translateY: -4, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}
-          className="p-5 rounded-lg border border-gray-200 bg-white"
-        >
+        <motion.div key={title} variants={cardVariant} whileHover={{ translateY: -4, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }} className="p-5 rounded-lg border border-gray-200 bg-white">
           <div className="flex items-center gap-3">
             <Icon className="w-6 h-6 text-blue-600" />
             <h3 className="font-semibold">{title}</h3>
@@ -316,22 +341,10 @@ function Features() {
 
 function FAQ() {
   const items = [
-    {
-      q: "Quelles écoles HEP sont supportées ?",
-      a: "EPSI, WIS, IFAG, SUP’DE COM, etc. Les données proviennent du site officiel.",
-    },
-    {
-      q: "Est-ce mis à jour automatiquement ?",
-      a: "Oui, l’EDT est récupéré et normalisé pour afficher les changements dès leur publication.",
-    },
-    {
-      q: "Est-ce compatible sur mobile ?",
-      a: "Complètement. La vue liste est optimisée pour smartphone, la vue grille pour desktop.",
-    },
-    {
-      q: "Mes données sont-elles protégées ?",
-      a: "Nous ne stockons pas d’informations personnelles sans consentement et utilisons HTTPS.",
-    },
+    { q: "Quelles écoles HEP sont supportées ?", a: "EPSI, WIS, IFAG, SUP’DE COM, etc. Les données proviennent du site officiel." },
+    { q: "Est-ce mis à jour automatiquement ?", a: "Oui, l’EDT est récupéré et normalisé pour afficher les changements dès leur publication." },
+    { q: "Est-ce compatible sur mobile ?", a: "Complètement. La vue liste est optimisée pour smartphone, la vue grille pour desktop." },
+    { q: "Mes données sont-elles protégées ?", a: "Nous ne stockons pas d’informations personnelles sans consentement et utilisons HTTPS." },
   ];
   return (
     <div className="space-y-3">
@@ -345,23 +358,10 @@ function FAQ() {
 function FAQItem({ item, delay }: { item: { q: string; a: string }; delay: number }) {
   const [open, setOpen] = useState(false);
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay }}
-      className="rounded-lg border border-gray-200 bg-white"
-    >
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="w-full px-4 py-3 flex items-center justify-between text-left"
-      >
+    <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay }} className="rounded-lg border border-gray-200 bg-white">
+      <button type="button" onClick={() => setOpen((o) => !o)} className="w-full px-4 py-3 flex items-center justify-between text-left">
         <span className="font-medium">{item.q}</span>
-        <motion.span
-          animate={{ rotate: open ? 180 : 0, scale: open ? 1.05 : 1 }}
-          transition={{ duration: 0.2 }}
-        >
+        <motion.span animate={{ rotate: open ? 180 : 0, scale: open ? 1.05 : 1 }} transition={{ duration: 0.2 }}>
           <ChevronDown className="w-5 h-5 text-gray-500" />
         </motion.span>
       </button>
@@ -393,13 +393,7 @@ function Footer() {
               { href: "https://edt-hep.matheodelaunay.studio/", label: "Application" },
               { href: "https://github.com/D-Seonay/edt-hep", label: "Repository" },
             ].map((l) => (
-              <motion.a
-                key={l.href}
-                href={l.href}
-                whileHover={{ color: "#2563EB", y: -1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 24 }}
-                className="hover:text-blue-600"
-              >
+              <motion.a key={l.href} href={l.href} whileHover={{ color: "#2563EB", y: -1 }} transition={{ type: "spring", stiffness: 300, damping: 24 }} className="hover:text-blue-600">
                 {l.label}
               </motion.a>
             ))}
