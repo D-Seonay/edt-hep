@@ -25,7 +25,7 @@ It automatically **fetches and parses data** from the official schedule website 
 | ---------- | ---------------------------------------------------------------------- | ---------- |
 | 3A         | <img alt="3A" src="public/logos/3A.png" height="40" />                 | À tester   |
 | IFAG       | <img alt="IFAG" src="public/logos/IFAG.png" height="40" />             | **Validé** |
-| IDRAC      | <img alt="IDRAC" src="public/logos/IDRAC.png" height="40" />           | À tester   |
+| IDRAC      | <img alt="IDRAC" src="public/logos/IDRAC.png" height="40" />           | **Validé** |
 | EPSI       | <img alt="EPSI" src="public/logos/EPSI.png" height="40" />             | **Validé** |
 | WIS        | <img alt="WIS" src="public/logos/WIS.png" height="40" />               | **Validé** |
 | SUP'DE COM | <img alt="SUP'DE COM" src="public/logos/SUPDECOM.png" height="40" />   | À tester   |
