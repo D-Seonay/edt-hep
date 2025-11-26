@@ -13,8 +13,8 @@ function getCourseColors(subject: string) {
   const hue = hashString(subject) % 360;
   const saturation = 100;
   const lightness = 50;
-  const bg = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.90)`;
-  const border = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.95)`;
+  const bg = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.30)`;
+  const border = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.5)`;
   return { bg, border };
 }
 
@@ -49,7 +49,7 @@ const CourseModal = ({ course, isOpen, onClose }: CourseModalProps) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-white/70 p-4"
       aria-modal="true"
       role="dialog"
     >
