@@ -1,21 +1,29 @@
 import { useEffect, useRef } from "react";
-import { Clock, MapPin, User, X } from "lucide-react";
-import { Course, CourseModalProps } from "@/types/schedule";
+import { Clock, User, X } from "lucide-react"; // MapPin retiré, remplacé par la logique emoji
+import { CourseModalProps } from "@/types/schedule";
+import { cn } from "@/lib/utils";
+import getRoomInfo from "@/utils/scheduleUtils";
 
-// We duplicate the color util used by blocks to keep a consistent look.
-// If you already have a shared util, import it instead.
+
 function hashString(str: string): number {
   let h = 0;
   for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
   return h;
 }
+
 function getCourseColors(subject: string) {
   const hue = hashString(subject) % 360;
-  const saturation = 100;
+  // Saturation/Lightness ajustées pour être lisibles en fond de modale
+  const saturation = 70; 
   const lightness = 50;
-  const bg = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.30)`;
-  const border = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.5)`;
-  return { bg, border };
+  
+  // Fond plus opaque pour la modale pour la lisibilité (0.95 vs 0.18)
+  // Utilisation de variables CSS pour adapter au thème si besoin, 
+  // mais ici on force une teinte légère basée sur la couleur.
+  const bg = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.45)`;
+  const border = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.3)`;
+  
+  return { bg, border, hue };
 }
 
 const CourseModal = ({ course, isOpen, onClose }: CourseModalProps) => {
@@ -46,48 +54,97 @@ const CourseModal = ({ course, isOpen, onClose }: CourseModalProps) => {
   if (!isOpen || !course) return null;
 
   const { bg, border } = getCourseColors(course.subject);
+  const roomInfo = getRoomInfo(course.room);
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white/70 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-all"
       aria-modal="true"
       role="dialog"
     >
       <div
         ref={modalRef}
-        className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg max-w-md w-full p-6 relative"
-        style={{ background: bg, border: `1px solid ${border}` }}
+        className="relative w-full max-w-md rounded-2xl shadow-2xl overflow-hidden bg-background dark:bg-card"
+        style={{ 
+            // On applique la bordure colorée, mais on garde le fond 'en dur' (bg-background) 
+            // mélangé avec une légère teinte pour la lisibilité du texte
+            backgroundColor: 'var(--background)', // Fallback
+            backgroundImage: `linear-gradient(to bottom right, ${bg}, ${bg})`,
+            border: `1px solid ${border}`,
+            boxShadow: `0 0 40px -10px ${border}` // Glow effect sympa
+        }}
       >
+        {/* Bouton fermer */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-black hover:text-gray-900"
+          className="absolute top-4 right-4 p-1 rounded-full text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
           aria-label="Fermer"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-bold mb-4 text-black">{course.subject}</h2>
+        <div className="p-6">
+          {/* Titre */}
+          <h2 className="text-xl font-bold mb-6 text-foreground pr-8 leading-tight">
+            {course.subject}
+          </h2>
 
-        <div className="flex items-center gap-2 mb-2 text-black hover:text-gray-900">
-          <Clock className="w-4 h-4" />
-          <span>
-            {course.start} - {course.end}
-          </span>
-        </div>
+          <div className="space-y-4">
+            {/* Horaire */}
+            <div className="flex items-center gap-3 text-foreground/80">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <Clock className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Horaire</p>
+                <p className="font-semibold text-sm">
+                    {course.start} - {course.end}
+                </p>
+              </div>
+            </div>
 
-        <div className="flex items-center gap-2 mb-2 text-black">
-          <MapPin className="w-4 h-4" />
-          <span>
-            {course.room?.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.room}
-          </span>
-        </div>
+            {/* Salle (Avec logique d'erreur) */}
+            <div className="flex items-center gap-3 text-foreground/80">
+              <div className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center text-lg shadow-sm",
+                  roomInfo.isError ? "bg-red-100 dark:bg-red-900/30" : "bg-background dark:bg-white/5"
+              )}>
+                {roomInfo.icon}
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Lieu</p>
+                <p className={cn(
+                    "font-semibold text-sm",
+                    roomInfo.isError ? "text-red-600 dark:text-red-400" : ""
+                )}>
+                  {roomInfo.text}
+                </p>
+              </div>
+            </div>
 
-        {course.teacher && (
-          <div className="flex items-center gap-2 mb-2 text-black">
-            <User className="w-4 h-4" />
-            <span>{course.teacher}</span>
+            {/* Professeur */}
+            {course.teacher && (
+              <div className="flex items-center gap-3 text-foreground/80">
+                 <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                    <User className="w-4 h-4" />
+                </div>
+                <div>
+                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Enseignant</p>
+                    <p className="font-semibold text-sm">{course.teacher}</p>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Footer décoratif ou info supplémentaire */}
+        <div className="px-6 py-3 bg-muted/30 border-t border-border/10 text-xs text-muted-foreground flex justify-between">
+            {roomInfo.isError && (
+                <span className="flex items-center gap-1 text-red-500">
+                    ⚠️ Donnée incomplète
+                </span>
+            )}
+        </div>
       </div>
     </div>
   );

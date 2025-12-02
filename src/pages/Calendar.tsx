@@ -40,6 +40,7 @@ import CalendarSkeleton from "@/components/schedule/CalendarSkeleton";
 import { usePrimaryColor } from "@/hooks/usePrimaryColor";
 import { useExportImage } from "@/hooks/useExportImage";
 import { Day } from "@/types/schedule";
+import Legend from "@/components/Legend";
 
 const Calendar = () => {
   const navigate = useNavigate();
@@ -491,6 +492,7 @@ const Calendar = () => {
               />
             )}
             {userRule && userRule.ad && <AdBanner username={username} />}
+            <Legend />
           </aside>
 
           <main>

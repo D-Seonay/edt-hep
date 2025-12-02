@@ -1,30 +1,35 @@
 // components/schedule/DayView.tsx
 import { useEffect, useState } from "react";
-import { Clock, MapPin, User } from "lucide-react";
+import { Clock, User } from "lucide-react"; // MapPin supprimé car remplacé par les emojis
 import type { DayViewProps } from "@/types/schedule";
 import { HOURS, HOUR_HEIGHT_PX, DAY_START_MINUTES } from "@/constants/schedule";
 import CourseModal from "@/components/schedule/CourseModal";
+import { cn } from "@/lib/utils";
+import getRoomInfo from "@/utils/scheduleUtils";
 
-// Helpers temps
+// --- Helpers de Temps ---
 const parseHHmmToMinutes = (hhmm: string): number => {
   const [h, m] = hhmm.split(":").map(Number);
   return h * 60 + (m || 0);
 };
+
 const minutesToTop = (minutesSinceMidnight: number): number => {
   const deltaMin = minutesSinceMidnight - DAY_START_MINUTES;
   return Math.max(0, (deltaMin / 60) * HOUR_HEIGHT_PX);
 };
+
 const durationToHeight = (startMin: number, endMin: number): number => {
   const durMin = Math.max(0, endMin - startMin);
   return (durMin / 60) * HOUR_HEIGHT_PX;
 };
 
-// Couleurs stables
+// --- Helpers de Couleurs ---
 function hashString(str: string): number {
   let h = 0;
   for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
   return h;
 }
+
 function getCourseColors(subject: string) {
   const hue = hashString(subject) % 360;
   const saturation = 70;
@@ -34,31 +39,29 @@ function getCourseColors(subject: string) {
   return { bg, border };
 }
 
+// --- Composant Principal ---
 const DayView = ({ day, isToday }: DayViewProps) => {
+  // Gestion de l'heure actuelle
   const [nowMinutes, setNowMinutes] = useState(() => {
     const d = new Date();
     return d.getHours() * 60 + d.getMinutes();
   });
 
-  // Modal state
-  const [selectedCourse, setSelectedCourse] = useState<{
-    subject: string;
-    start: string;
-    end: string;
-    room?: string | null;
-    teacher?: string | null;
-  } | null>(null);
+  // Gestion de la modale
+  const [selectedCourse, setSelectedCourse] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const openCourse = (course: typeof selectedCourse) => {
+  const openCourse = (course: any) => {
     setSelectedCourse(course);
     setIsModalOpen(true);
   };
+
   const closeCourse = () => {
     setIsModalOpen(false);
     setSelectedCourse(null);
   };
 
+  // Mise à jour de l'heure toutes les 30 sec
   useEffect(() => {
     const interval = setInterval(() => {
       const d = new Date();
@@ -75,6 +78,7 @@ const DayView = ({ day, isToday }: DayViewProps) => {
     );
   }
 
+  // Tri des cours
   const coursesSorted = [...day.courses].sort(
     (a, b) => parseHHmmToMinutes(a.start) - parseHHmmToMinutes(b.start)
   );
@@ -83,7 +87,7 @@ const DayView = ({ day, isToday }: DayViewProps) => {
 
   return (
     <div className="bg-card rounded-2xl shadow-card border border-border/50 overflow-hidden">
-      {/* Header */}
+      {/* Header du jour */}
       <div className="border-b border-border/50 bg-muted/30 p-4">
         <div className="flex items-center justify-between">
           <div>
@@ -100,7 +104,7 @@ const DayView = ({ day, isToday }: DayViewProps) => {
 
       {/* Grille */}
       <div className="grid grid-cols-[100px_1fr] relative">
-        {/* Heures */}
+        {/* Colonne des heures */}
         <div className="border-r border-border/50">
           {HOURS.map((hour) => (
             <div
@@ -114,11 +118,12 @@ const DayView = ({ day, isToday }: DayViewProps) => {
 
         {/* Colonne des cours */}
         <div className="relative">
+          {/* Lignes horizontales */}
           {HOURS.map((hour) => (
             <div key={hour} className="h-[45px] border-b border-border/20" />
           ))}
 
-          {/* Ligne maintenant */}
+          {/* Indicateur "Maintenant" (Ligne rouge) */}
           {isToday && nowTop >= 0 && (
             <div
               className="absolute left-0 right-0 z-20 pointer-events-none"
@@ -132,7 +137,7 @@ const DayView = ({ day, isToday }: DayViewProps) => {
             </div>
           )}
 
-          {/* Cours */}
+          {/* Affichage des blocs de cours */}
           {coursesSorted.map((course, idx) => {
             const startMin = parseHHmmToMinutes(course.start);
             const endMin = parseHHmmToMinutes(course.end);
@@ -140,19 +145,23 @@ const DayView = ({ day, isToday }: DayViewProps) => {
             const height = Math.max(Math.round(durationToHeight(startMin, endMin)), 36);
             const { bg, border } = getCourseColors(course.subject);
 
+            // Récupération des infos de la salle
+            const roomInfo = getRoomInfo(course.room);
+
+            // Gestion de l'état passé/actuel
             let stateClass = "";
             if (isToday) {
               if (endMin <= nowMinutes) {
-                stateClass = "opacity-55 saturate-75";
+                stateClass = "opacity-55 saturate-75"; // Cours passé
               } else if (startMin <= nowMinutes && nowMinutes < endMin) {
-                stateClass = "ring-2 ring-primary/40";
+                stateClass = "ring-2 ring-primary/40"; // Cours actuel
               }
             }
 
             return (
               <div
                 key={idx}
-                className={`absolute left-2 right-2 rounded-xl backdrop-blur-md shadow-sm overflow-hidden transition-all cursor-pointer ${stateClass}`}
+                className={`absolute left-2 right-2 rounded-xl backdrop-blur-md shadow-sm overflow-hidden transition-all cursor-pointer hover:scale-[1.01] ${stateClass}`}
                 style={{
                   top: `${top}px`,
                   height: `${height}px`,
@@ -162,6 +171,7 @@ const DayView = ({ day, isToday }: DayViewProps) => {
                 onClick={() => openCourse(course)}
               >
                 <div className="p-2.5 h-full flex flex-col">
+                  {/* En-tête du bloc (Matière + Heure) */}
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-sm line-clamp-2 text-foreground">
                       {course.subject}
@@ -174,13 +184,23 @@ const DayView = ({ day, isToday }: DayViewProps) => {
                     </div>
                   </div>
 
+                  {/* Infos supplémentaires (Salle + Prof) */}
                   <div className="mt-1 space-y-1 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                    
+                    {/* Affichage Salle Dynamique avec styles d'erreur */}
+                    <div className={cn(
+                        "flex items-center gap-1.5 transition-colors", 
+                        roomInfo.isError ? "text-red-600 dark:text-red-400 font-medium" : ""
+                    )}>
+                      {/* Emoji */}
+                      <span className="text-base leading-none">{roomInfo.icon}</span>
+                      {/* Nom de la salle */}
                       <span className="truncate">
-                        {course.room?.startsWith("SALLE") ? "DISTANCIEL 🏠" : course.room}
+                         {roomInfo.text}
                       </span>
                     </div>
+
+                    {/* Professeur */}
                     {course.teacher && course.teacher.trim() !== "" && (
                       <div className="flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5" />
@@ -197,7 +217,7 @@ const DayView = ({ day, isToday }: DayViewProps) => {
         </div>
       </div>
 
-      {/* Modal controlled here */}
+      {/* Modale */}
       <CourseModal course={selectedCourse} isOpen={isModalOpen} onClose={closeCourse} />
     </div>
   );
