@@ -13,7 +13,10 @@ const getRoomInfo = (roomName: string | undefined | null) => {
   }
 
   // 2. Cas Salle Valide (Doit commencer par 'N')
-  if (r.startsWith("N")) {
+  if (
+    r.startsWith("N") ||
+    r.toUpperCase().includes("EPSI")
+  ){
     return { icon: "🚪", text: r, isError: false };
   }
 
