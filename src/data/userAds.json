@@ -2,16 +2,16 @@
 
     "alban.mary": {
     "ad": {
-        "title": "🔥 Viens à la salle !",
-        "description": "Je vais te retrouver si tu ne viens pas ! 💪",
-        "image": "/img/ads/basic-fit.png"
+        "title": "🔥 Cette semaine cette curry",
+        "description": "Curry de poulet au lait de coco et riz basmati ! 🍛",
+        "image": "/img/ads/curry.png"
     }
     },
     "terry.barillon": {
     "ad": {
         "title": "🔥 Découvre Basic-fit avec un bro !!!",
         "description": "Va avec moi à la salle de sport Basic-fit ! 💪",
-        "image": "/img/ads/basic-fit.png"
+        "image": "/img/ads/basic-fit.pn g"
     }
     },
     "theo.boutroux": {
@@ -24,9 +24,9 @@
     },
     "noa.lauvray": {
     "ad": {
-        "title": " Reviens à la salle BG",
-        "description": "Fréro, reviens à la salle, tu me manques 😢",
-        "image": "/img/ads/basic-fit.png"
+        "title": " Félicitations pour ton appartement 🎉",
+        "description": "Je vais devoir venir pour faire ton sapin de Noël 🎄",
+        "image": "/img/ads/sapin.png"
     }
     },
     "kevin.marie": {
@@ -53,23 +53,22 @@
     },
     "claire.nguyen": {
         "ad": {
-            "title": "Comment mentir pour les nuls !!?",
-            "description": "Dans notre nouveau livre, nous vous expliquerons comment réussir à tenir un mensonge plus de 4hh",
-            "image": "/img/ads/mensonge.jpg"
+            "title": "Bientôt le Japon, il n'y a pas une place dans ton sac ? 🇯🇵",
+            "description": "Je cherche un petit sac à dos pour partir au Japon, tu en aurais pas un qui traîne ?",
+            "image": "/img/ads/japon.png"
         }
     },
     "eliazid.boulaamail": {
         "ad": {
-            "title": "92i gothique géchar à prix cassé !",
-            "description": "Adopte une 92i gothique méga géchars avec 20% de réduc !",
-            "image": "https://meufdu16.com/wp-content/uploads/2025/08/92i_style_gothique_baka.png",
-            "link": "https://youtube.com/shorts/2JX8MO8IHF8?si=LlmFNdo8XEVdOpQE"
+            "title": "Tu as commit ??? 😱",
+            "description": "J'èspère que tu as commit aujourd'hui sinon tu vas le payer cher !",
+            "image": "/img/ads/angry.png"
         }
     },
     "mathieu.crosnier": {
         "ad": {
-            "title": " Louez un superbe appartement à Nantes ! 🏡",
-            "description": "Avec Ibis, trouvez l'appartement de vos rêves au cœur de Nantes. Confort, modernité et emplacement idéal garantis !",
+            "title": " Plus besoin de chercher un appart à Nantes ! 🏠",
+            "description": "Plus d'Ibis, maintenant tu as ton appart et du chauffage !",
             "image": "/img/ads/ibis.png"
         }
     },
