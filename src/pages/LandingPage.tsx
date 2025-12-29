@@ -105,7 +105,7 @@ function Header() {
           ))}
         </nav>
         <motion.a
-          href="https://edt-hep.matheodelaunay.studio/"
+          href="https://edt-hep.matheodelaunay.studio/login/"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="inline-flex items-center rounded-md bg-blue-600 text-white px-3 py-2 text-sm font-medium shadow hover:bg-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -151,7 +151,7 @@ function Hero() {
 
           <motion.div variants={fadeUp} id="cta" className="mt-6 md:mt-8 flex items-center justify-center gap-3">
             <motion.a
-              href="https://edt-hep.matheodelaunay.studio/"
+              href="https://edt-hep.matheodelaunay.studio/login/"
               whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}
               className="inline-flex items-center rounded-md bg-blue-600 text-white px-4 py-2.5 md:px-5 md:py-3 text-sm md:text-base font-medium shadow hover:bg-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -489,7 +489,7 @@ function Footer() {
           <div>© {new Date().getFullYear()} EDT Manager</div>
           <div className="flex items-center gap-4">
             {[
-              { href: "https://edt-hep.matheodelaunay.studio/", label: "Application" },
+              { href: "https://edt-hep.matheodelaunay.studio/login/", label: "Application" },
               { href: "https://github.com/D-Seonay/edt-hep", label: "Repository" },
             ].map((l) => (
               <motion.a
