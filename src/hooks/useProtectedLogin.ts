@@ -140,6 +140,7 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
       variant: 'default',
     });
 
+    localStorage.setItem('hasVisited', 'true');
     setInfoOpen(true);
     setIsLoading(false);
   }, [pin]);
@@ -207,6 +208,7 @@ export const useProtectedLogin = (): UseProtectedLoginReturn => {
       variant: 'default',
     });
 
+    localStorage.setItem('hasVisited', 'true');
     setInfoOpen(true);
   }, [username, needsPin, pin, navigate]);
 
