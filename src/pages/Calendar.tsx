@@ -112,7 +112,7 @@ const Calendar = () => {
     const storedUsername = localStorage.getItem("username");
     const userRule = localStorage.getItem("userRule");
     if (!storedUsername) {
-      navigate("/");
+      navigate("/login");
       return;
     }
     setUsername(storedUsername);
@@ -219,7 +219,7 @@ const Calendar = () => {
       variant: "default",
     });
     localStorage.removeItem("username");
-    navigate("/");
+    navigate("/login");
   };
 
   const getCurrentDay = (): Day | null =>
