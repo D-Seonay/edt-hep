@@ -1,4 +1,4 @@
-import { motion, AnimatePresence, useScroll, useTransform, MotionConfig } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform, MotionConfig, type Variants } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { CheckCircle, Smartphone, Grid3x3, Palette, Clock, Shield, ChevronDown } from "lucide-react";
 
@@ -41,15 +41,15 @@ export default function LandingPage() {
 }
 
 /* Variants */
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 }, // réduit l'amplitude pour limiter le coût
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { delayChildren: 0.05, staggerChildren: 0.06 } },
 };
-const cardVariant = {
+const cardVariant: Variants = {
   hidden: { opacity: 0, y: 12, scale: 0.99 },
   visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 160, damping: 18 } },
 };
@@ -184,7 +184,7 @@ function Hero() {
                 width={1600}
                 height={900}
                 loading="eager"
-                fetchpriority="high"
+                fetchPriority="high"
                 decoding="async"
                 className="w-full object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
@@ -434,24 +434,23 @@ function FAQ() {
     { q: "Mes données sont-elles protégées ?", a: "Nous ne stockons pas d’informations personnelles sans consentement et utilisons HTTPS." },
   ];
   return (
-    <div className="space-y-3" role="list">
+    <ul className="space-y-3">
       {items.map((item, i) => (
         <FAQItem key={item.q} item={item} delay={i * 0.03} />
       ))}
-    </div>
+    </ul>
   );
 }
 
 function FAQItem({ item, delay }: { item: { q: string; a: string }; delay: number }) {
   const [open, setOpen] = useState(false);
   return (
-    <motion.div
+    <motion.li
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay }}
       className="rounded-lg border border-gray-200 bg-white"
-      role="listitem"
     >
       <button
         type="button"
@@ -479,7 +478,7 @@ function FAQItem({ item, delay }: { item: { q: string; a: string }; delay: numbe
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </motion.li>
   );
 }
 
@@ -491,7 +490,7 @@ function Footer() {
           <div>© {new Date().getFullYear()} EDT Manager</div>
           <div className="flex items-center gap-4">
             {[
-              { href: "https://edt-hep.matheodelaunay.studio/login/", label: "Application" },
+              { href: "/login", label: "Application" },
               { href: "https://github.com/D-Seonay/edt-hep", label: "Repository" },
             ].map((l) => (
               <motion.a
