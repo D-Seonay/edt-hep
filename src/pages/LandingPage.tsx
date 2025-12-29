@@ -8,30 +8,32 @@ export default function LandingPage() {
     <MotionConfig reducedMotion="user">
       <div className="bg-white text-gray-900">
         <Header />
-        <Hero />
-        <SectionWrapper
-          id="schools"
-          title="Écoles supportées"
-          subtitle="EPSI, WIS, IFAG, SUP'DE COM, IET, 3A, IDRAC, ICL, IEFT, IGEFI, IHEDREA, ILERI, VIVA MUNDI, ESAIL, FIGS..."
-        >
-          <Schools />
-        </SectionWrapper>
-        <SectionWrapper
-          id="benefits"
-          title="Pourquoi c’est plus simple"
-          subtitle="Fini les pages d’EDT compliquées : récupère automatiquement ton emploi du temps et profite d’une présentation claire et moderne."
-        >
-          <Benefits />
-        </SectionWrapper>
-        <SectionWrapper id="how" title="Comment ça marche">
-          <HowItWorks />
-        </SectionWrapper>
-        <SectionWrapper id="features" title="Fonctionnalités">
-          <Features />
-        </SectionWrapper>
-        <SectionWrapper id="faq" title="FAQ">
-          <FAQ />
-        </SectionWrapper>
+        <main>
+          <Hero />
+          <SectionWrapper
+            id="schools"
+            title="Écoles supportées"
+            subtitle="EPSI, WIS, IFAG, SUP'DE COM, IET, 3A, IDRAC, ICL, IEFT, IGEFI, IHEDREA, ILERI, VIVA MUNDI, ESAIL, FIGS..."
+          >
+            <Schools />
+          </SectionWrapper>
+          <SectionWrapper
+            id="benefits"
+            title="Pourquoi c’est plus simple"
+            subtitle="Fini les pages d’EDT compliquées : récupère automatiquement ton emploi du temps et profite d’une présentation claire et moderne."
+          >
+            <Benefits />
+          </SectionWrapper>
+          <SectionWrapper id="how" title="Comment ça marche">
+            <HowItWorks />
+          </SectionWrapper>
+          <SectionWrapper id="features" title="Fonctionnalités">
+            <Features />
+          </SectionWrapper>
+          <SectionWrapper id="faq" title="FAQ">
+            <FAQ />
+          </SectionWrapper>
+        </main>
         <Footer />
       </div>
     </MotionConfig>
@@ -105,7 +107,7 @@ function Header() {
           ))}
         </nav>
         <motion.a
-          href="https://edt-hep.matheodelaunay.studio/login/"
+          href="/login"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="inline-flex items-center rounded-md bg-blue-600 text-white px-3 py-2 text-sm font-medium shadow hover:bg-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -151,7 +153,7 @@ function Hero() {
 
           <motion.div variants={fadeUp} id="cta" className="mt-6 md:mt-8 flex items-center justify-center gap-3">
             <motion.a
-              href="https://edt-hep.matheodelaunay.studio/login/"
+              href="/login"
               whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}
               className="inline-flex items-center rounded-md bg-blue-600 text-white px-4 py-2.5 md:px-5 md:py-3 text-sm md:text-base font-medium shadow hover:bg-blue-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
