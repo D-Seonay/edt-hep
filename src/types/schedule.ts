@@ -49,6 +49,8 @@ export type TimeGridProps = {
 export interface DayViewProps {
   day: Day | null;
   isToday?: boolean;
+  onPreviousDay?: () => void;
+  onNextDay?: () => void;
 }
 
 /* CourseBlockProps: (clés déjà en anglais) */

@@ -225,6 +225,39 @@ const Calendar = () => {
   const getCurrentDay = (): Day | null =>
     filteredSchedule.find((d) => d.day === selectedDay) || null;
 
+  const daysOfWeek = useMemo(
+    () => [
+      "Lundi",
+      "Mardi",
+      "Mercredi",
+      "Jeudi",
+      "Vendredi",
+      "Samedi",
+      "Dimanche",
+    ],
+    []
+  );
+
+  const handleNextDay = () => {
+    const currentIndex = daysOfWeek.indexOf(selectedDay);
+    if (currentIndex < daysOfWeek.length - 1) {
+      setSelectedDay(daysOfWeek[currentIndex + 1]);
+    } else {
+      handleWeekChange(1);
+      setSelectedDay(daysOfWeek[0]);
+    }
+  };
+
+  const handlePreviousDay = () => {
+    const currentIndex = daysOfWeek.indexOf(selectedDay);
+    if (currentIndex > 0) {
+      setSelectedDay(daysOfWeek[currentIndex - 1]);
+    } else {
+      handleWeekChange(-1);
+      setSelectedDay(daysOfWeek[daysOfWeek.length - 1]);
+    }
+  };
+
   const isCurrentDayToday = (): boolean => {
     const today = new Date();
     const dayOfWeek = today.toLocaleDateString("fr-FR", { weekday: "long" });
@@ -540,6 +573,8 @@ const Calendar = () => {
                     <DayView
                       day={getCurrentDay()}
                       isToday={isCurrentDayToday()}
+                      onNextDay={handleNextDay}
+                      onPreviousDay={handlePreviousDay}
                     />
                   </motion.div>
                 )}

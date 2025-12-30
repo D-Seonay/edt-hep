@@ -1,6 +1,6 @@
 // components/schedule/DayView.tsx
 import { useEffect, useState } from "react";
-import { Clock, User } from "lucide-react"; // MapPin supprimé car remplacé par les emojis
+import { Clock, User, ChevronLeft, ChevronRight } from "lucide-react"; // MapPin supprimé car remplacé par les emojis
 import type { DayViewProps } from "@/types/schedule";
 import { HOURS, HOUR_HEIGHT_PX, DAY_START_MINUTES } from "@/constants/schedule";
 import CourseModal from "@/components/schedule/CourseModal";
@@ -40,7 +40,7 @@ function getCourseColors(subject: string) {
 }
 
 // --- Composant Principal ---
-const DayView = ({ day, isToday }: DayViewProps) => {
+const DayView = ({ day, isToday, onPreviousDay, onNextDay }: DayViewProps) => {
   // Gestion de l'heure actuelle
   const [nowMinutes, setNowMinutes] = useState(() => {
     const d = new Date();
@@ -90,9 +90,27 @@ const DayView = ({ day, isToday }: DayViewProps) => {
       {/* Header du jour */}
       <div className="border-b border-border/50 bg-muted/30 p-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">{day.day}</h2>
-            <p className="text-sm text-muted-foreground mt-1">{day.date}</p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={onPreviousDay}
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              aria-label="Jour précédent"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-foreground">
+                {day.day}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">{day.date}</p>
+            </div>
+            <button
+              onClick={onNextDay}
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+              aria-label="Jour suivant"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
           {isToday && (
             <span className="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium">
