@@ -13,15 +13,14 @@ function hashString(str: string): number {
 
 function getCourseColors(subject: string) {
   const hue = hashString(subject) % 360;
-  // Saturation/Lightness ajustées pour être lisibles en fond de modale
   const saturation = 70; 
   const lightness = 50;
   
-  // Fond plus opaque pour la modale pour la lisibilité (0.95 vs 0.18)
-  // Utilisation de variables CSS pour adapter au thème si besoin, 
-  // mais ici on force une teinte légère basée sur la couleur.
-  const bg = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.45)`;
-  const border = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.3)`;
+  // La couleur de fond 'bg' n'est plus utilisée pour le fond de la modale,
+  // mais peut servir pour d'autres accents si besoin.
+  const bg = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.1)`;
+  // Bordure plus visible pour un meilleur accent visuel.
+  const border = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.5)`; 
   
   return { bg, border, hue };
 }
@@ -53,7 +52,7 @@ const CourseModal = ({ course, isOpen, onClose }: CourseModalProps) => {
 
   if (!isOpen || !course) return null;
 
-  const { bg, border } = getCourseColors(course.subject);
+  const { border } = getCourseColors(course.subject);
   const roomInfo = getRoomInfo(course.room);
 
   return (
@@ -66,12 +65,10 @@ const CourseModal = ({ course, isOpen, onClose }: CourseModalProps) => {
         ref={modalRef}
         className="relative w-full max-w-md rounded-2xl shadow-2xl overflow-hidden bg-background dark:bg-card"
         style={{ 
-            // On applique la bordure colorée, mais on garde le fond 'en dur' (bg-background) 
-            // mélangé avec une légère teinte pour la lisibilité du texte
-            backgroundColor: 'var(--background)', // Fallback
-            backgroundImage: `linear-gradient(to bottom right, ${bg}, ${bg})`,
+            // Le fond est maintenant géré par `bg-background dark:bg-card` pour une lisibilité maximale.
+            // On garde seulement la bordure et l'ombre colorées.
             border: `1px solid ${border}`,
-            boxShadow: `0 0 40px -10px ${border}` // Glow effect sympa
+            boxShadow: `0 0 40px -10px ${border}`
         }}
       >
         {/* Bouton fermer */}
