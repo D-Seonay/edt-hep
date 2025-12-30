@@ -4,9 +4,8 @@ import {
   LogOut,
   LayoutGrid,
   CalendarDays,
-  Sun,
-  Moon,
   Download,
+  Settings,
 } from "lucide-react";
 import {
   fetchSchedule,
@@ -40,10 +39,12 @@ import CalendarSkeleton from "@/components/schedule/CalendarSkeleton";
 import { usePrimaryColor } from "@/hooks/usePrimaryColor";
 import { useExportImage } from "@/hooks/useExportImage";
 import { Day } from "@/types/schedule";
+import { useTheme } from "@/context/ThemeContext";
 import Legend from "@/components/Legend";
 
 const Calendar = () => {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const [username, setUsername] = useState("");
   const [schedule, setSchedule] = useState<Day[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -58,31 +59,8 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [pickerOpen, setPickerOpen] = useState(false);
 
-  // Dark mode
-  const [darkMode, setDarkMode] = useState(false);
-
   // Primary color (via hook)
   const { primaryColor, setPrimaryColor } = usePrimaryColor("#4169e1");
-
-  const toggleTheme = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    if (newMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  };
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      setDarkMode(true);
-      document.documentElement.classList.add("dark");
-    }
-  }, []);
 
   const captureRef = useRef<HTMLDivElement | null>(null);
   const fileName = `emploi_du_temps_${username || "utilisateur"}.png`;
@@ -325,20 +303,6 @@ const Calendar = () => {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              onClick={toggleTheme}
-              className="rounded-xl shadow-soft hover:shadow-card transition-all flex items-center gap-2"
-            >
-              {darkMode ? (
-                <Sun className="w-4 h-4" />
-              ) : (
-                <Moon className="w-4 h-4" />
-              )}
-              <span className="hidden sm:inline">
-                {darkMode ? "Clair" : "Sombre"}
-              </span>
-            </Button>
-            <Button
-              variant="outline"
               disabled={isExporting || !hasAnyCourse}
               onClick={() => {
                 if (!hasAnyCourse) {
@@ -359,55 +323,14 @@ const Calendar = () => {
               </span>
             </Button>
 
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="rounded-xl shadow-soft hover:shadow-card p-2"
-                >
-                  <span
-                    className="w-4 h-4 rounded-full"
-                    style={{
-                      background: primaryColor,
-                      display: "inline-block",
-                    }}
-                  />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col items-center">
-                    <label htmlFor="primary-color-picker" className="sr-only">
-                      Choisir la couleur primaire
-                    </label>
-                    <input
-                      id="primary-color-picker"
-                      type="color"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className="w-10 h-10 p-0 border-0"
-                    />
-                  </div>
-
-                  <div className="flex flex-col">
-                    <label
-                      htmlFor="primary-color-hex"
-                      className="text-sm text-muted-foreground"
-                    >
-                      Couleur primaire
-                    </label>
-                    <input
-                      id="primary-color-hex"
-                      type="text"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className="border rounded px-2 py-1 w-40 dark:bg-black/10"
-                    />
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-
+            <Button
+              variant="outline"
+              onClick={() => navigate("/settings")}
+              className="rounded-xl shadow-soft hover:shadow-card transition-all flex items-center gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline">Paramètres</span>
+            </Button>
             <Button
               variant="outline"
               onClick={handleLogout}

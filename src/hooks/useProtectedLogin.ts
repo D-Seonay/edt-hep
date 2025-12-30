@@ -2,7 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { isStringDotString } from '@/services/scheduleService';
-import { getProcessedUsername } from '@/utils/usernameShortcuts';
+import { getProcessedUsername } from '@/utils/userShortcuts';
 import { getUserRule } from '@/utils/userAds';
 import { getRecentUsernames, addRecentUsername, removeRecentUsername } from '@/utils/recentUsernames';
 

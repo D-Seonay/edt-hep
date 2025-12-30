@@ -20,7 +20,6 @@ export default function LoginPage() {
     recent,
     selectRecent,
     loginWithRecent, // NEW
-    deleteRecent, // NEW: action de suppression
   } = useProtectedLogin();
 
   const onCloseInfo = () => {
@@ -86,7 +85,7 @@ export default function LoginPage() {
                       {recent.map((r) => (
                         <div
                           key={r.value}
-                          className="flex items-center gap-1 bg-muted rounded-full pl-3 pr-1 py-1.5"
+                          className="flex items-center gap-1 bg-muted rounded-full px-2 py-1 shadow-sm hover:bg-accent/50 transition-colors" 
                           title={new Date(r.lastUsedAt).toLocaleString()}
                         >
                           <button
@@ -95,14 +94,6 @@ export default function LoginPage() {
                             className="text-sm text-foreground hover:cursor-pointer"
                           >
                             {r.value}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => deleteRecent(r.value)}
-                            aria-label={`Supprimer ${r.value}`}
-                            className="p-1 rounded-full hover:bg-muted/70 text-muted-foreground"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-600 hover:text-red-700" />
                           </button>
                         </div>
                       ))}
