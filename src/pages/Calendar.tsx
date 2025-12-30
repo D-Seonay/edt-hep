@@ -4,8 +4,6 @@ import {
   LogOut,
   LayoutGrid,
   CalendarDays,
-  Sun,
-  Moon,
   Download,
   Settings,
 } from "lucide-react";
@@ -305,20 +303,6 @@ const Calendar = () => {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              onClick={toggleTheme}
-              className="rounded-xl shadow-soft hover:shadow-card transition-all flex items-center gap-2"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4" />
-              ) : (
-                <Moon className="w-4 h-4" />
-              )}
-              <span className="hidden sm:inline">
-                {theme === 'dark' ? "Clair" : "Sombre"}
-              </span>
-            </Button>
-            <Button
-              variant="outline"
               disabled={isExporting || !hasAnyCourse}
               onClick={() => {
                 if (!hasAnyCourse) {
@@ -338,55 +322,6 @@ const Calendar = () => {
                 {isExporting ? "Export..." : "Exporter en image"}
               </span>
             </Button>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="rounded-xl shadow-soft hover:shadow-card p-2"
-                >
-                  <span
-                    className="w-4 h-4 rounded-full"
-                    style={{
-                      background: primaryColor,
-                      display: "inline-block",
-                    }}
-                  />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col items-center">
-                    <label htmlFor="primary-color-picker" className="sr-only">
-                      Choisir la couleur primaire
-                    </label>
-                    <input
-                      id="primary-color-picker"
-                      type="color"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className="w-10 h-10 p-0 border-0"
-                    />
-                  </div>
-
-                  <div className="flex flex-col">
-                    <label
-                      htmlFor="primary-color-hex"
-                      className="text-sm text-muted-foreground"
-                    >
-                      Couleur primaire
-                    </label>
-                    <input
-                      id="primary-color-hex"
-                      type="text"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className="border rounded px-2 py-1 w-40 dark:bg-black/10"
-                    />
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
 
             <Button
               variant="outline"
