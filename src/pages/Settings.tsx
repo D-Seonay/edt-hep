@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState, useMemo } from "react";
-import { getShortcuts, saveShortcuts, getProcessedUsername } from "@/utils/userShortcuts";
+import { getCustomShortcuts, saveCustomShortcuts } from "@/utils/userShortcuts";
 import { getRecentUsernames, removeRecentUsername } from "@/utils/recentUsernames";
 import { Trash2, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -22,7 +22,7 @@ const Settings = () => {
   });
 
   // State for shortcuts
-  const [shortcuts, setShortcuts] = useState(getShortcuts());
+  const [shortcuts, setShortcuts] = useState(getCustomShortcuts());
   const [newShortcutKey, setNewShortcutKey] = useState("");
   const [newShortcutValue, setNewShortcutValue] = useState("");
 
@@ -49,17 +49,17 @@ const Settings = () => {
     }
     const updatedShortcuts = { ...shortcuts, [newShortcutKey.toLowerCase()]: newShortcutValue };
     setShortcuts(updatedShortcuts);
-    saveShortcuts(updatedShortcuts);
+    saveCustomShortcuts(updatedShortcuts);
     setNewShortcutKey("");
     setNewShortcutValue("");
-    toast({ title: "Succès", description: "Raccourci ajouté." });
+    toast({ title: "Succès", description: "Raccourci personnalisé ajouté." });
   };
 
   const handleRemoveShortcut = (key: string) => {
     const { [key]: _, ...remainingShortcuts } = shortcuts;
     setShortcuts(remainingShortcuts);
-    saveShortcuts(remainingShortcuts);
-    toast({ title: "Succès", description: "Raccourci supprimé." });
+    saveCustomShortcuts(remainingShortcuts);
+    toast({ title: "Succès", description: "Raccourci personnalisé supprimé." });
   };
 
   const handleRemoveRecent = (username: string) => {
@@ -69,8 +69,6 @@ const Settings = () => {
   };
 
   const handleClearAllRecent = () => {
-    // This assumes `removeRecentUsername` can clear all if called without args, or we can loop.
-    // Let's implement a clear all function.
     localStorage.removeItem('recentUsernames');
     setRecentUsernames([]);
     toast({ title: "Succès", description: "L'historique des utilisateurs récents a été effacé." });
