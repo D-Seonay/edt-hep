@@ -135,6 +135,15 @@ function dispatch(action: Action) {
 type Toast = Omit<ToasterToast, "id">;
 
 function toast({ ...props }: Toast) {
+  const showNotifications = localStorage.getItem('showNotifications');
+  if (showNotifications === 'false' && (!props.variant || props.variant === 'default')) {
+    return {
+      id: 'disabled',
+      dismiss: () => {},
+      update: (props: ToasterToast) => {},
+    };
+  }
+
   const id = genId();
 
   const update = (props: ToasterToast) =>

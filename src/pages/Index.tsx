@@ -6,12 +6,15 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisited');
-    const urlParams = new URLSearchParams(window.location.search);
-    const username = urlParams.get('username');
+    const showLandingPage = localStorage.getItem('showLandingPage');
+    const username = localStorage.getItem('username');
 
-    if (hasVisited === 'true' && !username) {
-      navigate('/calendar', { replace: true });
+    if (showLandingPage === 'false') {
+      if (username) {
+        navigate('/calendar', { replace: true });
+      } else {
+        navigate('/login', { replace: true });
+      }
     }
   }, [navigate]);
 
