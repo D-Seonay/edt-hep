@@ -27,7 +27,8 @@ const MonthView: React.FC<MonthViewProps> = ({
   const monthEnd = endOfMonth(currentDate);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  const startingDayOfWeek = getDay(monthStart); // 0 for Sunday, 1 for Monday...
+  // Adjust for week starting on Monday
+  const startingDayOfWeek = (getDay(monthStart) + 6) % 7;
   const daysFromPrevMonth = Array.from({ length: startingDayOfWeek }).map(
     (_, i) => null
   );
@@ -35,13 +36,12 @@ const MonthView: React.FC<MonthViewProps> = ({
   const coursesByDate = React.useMemo(() => {
     const map = new Map<string, Course[]>();
     schedule.forEach((day) => {
-      // The date format from the API is YYYY-MM-DD, which is what format(date, 'yyyy-MM-dd') will produce.
       map.set(day.date, day.courses);
     });
     return map;
   }, [schedule]);
 
-  const weekDays = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+  const weekDays = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
   return (
     <div className="p-4 border rounded-lg bg-card dark:bg-black-800">

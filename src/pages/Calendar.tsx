@@ -138,8 +138,6 @@ const Calendar = () => {
     setIsLoading(true);
     const monthStart = startOfMonth(date);
     const monthEnd = endOfMonth(date);
-    const today = new Date();
-    const startWeek = differenceInWeeks(startOfMonth(date), startOfMonth(today));
 
     const weeks = eachWeekOfInterval(
       { start: monthStart, end: monthEnd },
@@ -148,13 +146,19 @@ const Calendar = () => {
 
     try {
       const allWeeksData: Day[] = [];
-      for (let i = 0; i < weeks.length; i++) {
-        const weekOffset = startWeek + i;
+      for (const weekStart of weeks) {
+        const weekOffset = getWeekOffset(weekStart);
         const weeklyData = await fetchSchedule(user, weekOffset.toString());
         allWeeksData.push(...weeklyData);
       }
-      setSchedule(allWeeksData);
-      const allSubjects = getUniqueSubjects(allWeeksData);
+
+      const uniqueDays = allWeeksData.filter(
+        (day, index, self) =>
+          index === self.findIndex((d) => d.date === day.date)
+      );
+
+      setSchedule(uniqueDays);
+      const allSubjects = getUniqueSubjects(uniqueDays);
       setSubjects(allSubjects);
       setSelectedSubjects(new Set(allSubjects));
     } catch (error) {
