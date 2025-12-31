@@ -318,30 +318,38 @@ const Calendar = () => {
 
   const normalizeDay = (s: string) => s.normalize().trim();
 
-  const handleSelectDay = (dayName: string) => {
-    const normalized = normalizeDay(dayName);
-    setViewMode("day");
-    setSelectedDay(normalized);
+  const handleDayClick = (day: string | Date) => {
+    if (typeof day === "string") {
+      const normalized = normalizeDay(day);
+      setViewMode("day");
+      setSelectedDay(normalized);
 
-    const dayData = filteredSchedule.find(
-      (d) => normalizeDay(d.day) === normalized
-    );
-    if (dayData?.date) {
-      // Supports both "dd/mm/yyyy" and "yyyy-mm-dd"
-      let newDate: Date | null = null;
-      const val = dayData.date.trim();
+      const dayData = filteredSchedule.find(
+        (d) => normalizeDay(d.day) === normalized
+      );
+      if (dayData?.date) {
+        // Supports both "dd/mm/yyyy" and "yyyy-mm-dd"
+        let newDate: Date | null = null;
+        const val = dayData.date.trim();
 
-      if (/^\d{2}\/\d{2}\/\d{4}$/.test(val)) {
-        const [dd, mm, yyyy] = val.split("/").map(Number);
-        newDate = new Date(yyyy, mm - 1, dd);
-      } else if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-        const [yyyy, mm, dd] = val.split("-").map(Number);
-        newDate = new Date(yyyy, mm - 1, dd);
+        if (/^\d{2}\/\d{2}\/\d{4}$/.test(val)) {
+          const [dd, mm, yyyy] = val.split("/").map(Number);
+          newDate = new Date(yyyy, mm - 1, dd);
+        } else if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+          const [yyyy, mm, dd] = val.split("-").map(Number);
+          newDate = new Date(yyyy, mm - 1, dd);
+        }
+
+        if (newDate && !isNaN(newDate.getTime())) {
+          setSelectedDate(newDate);
+        }
       }
-
-      if (newDate && !isNaN(newDate.getTime())) {
-        setSelectedDate(newDate);
-      }
+    } else {
+      // Date object from MonthView
+      const offset = getWeekOffset(day);
+      setCurrentWeek(offset);
+      setSelectedDate(day);
+      setViewMode("week");
     }
   };
 
@@ -554,7 +562,7 @@ const Calendar = () => {
                     <MonthView
                       schedule={filteredSchedule}
                       currentDate={selectedDate}
-                      onSelectDay={handleSelectDay}
+                      onSelectDay={handleDayClick}
                     />
                   </motion.div>
                 ) : viewMode === "week" ? (
@@ -574,7 +582,7 @@ const Calendar = () => {
                     <TimeGrid
                       schedule={filteredSchedule}
                       currentDate={new Date()}
-                      onSelectDay={handleSelectDay}
+                      onSelectDay={handleDayClick}
                     />
                   </motion.div>
                 ) : (

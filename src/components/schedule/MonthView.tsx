@@ -15,7 +15,7 @@ import CourseBlock from "./CourseBlock";
 interface MonthViewProps {
   schedule: Day[];
   currentDate: Date;
-  onSelectDay: (dayName: string) => void;
+  onSelectDay: (day: Date) => void;
 }
 
 const MonthView: React.FC<MonthViewProps> = ({
@@ -65,7 +65,7 @@ const MonthView: React.FC<MonthViewProps> = ({
               } ${
                 !isSameMonth(day, currentDate) ? "text-muted-foreground" : ""
               }`}
-              onClick={() => onSelectDay(format(day, "EEEE", { locale: fr }))}
+              onClick={() => onSelectDay(day)}
             >
               <span
                 className={`text-sm font-semibold ${

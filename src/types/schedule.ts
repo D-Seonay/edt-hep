@@ -44,7 +44,7 @@ export interface SubjectFilterProps {
 export type TimeGridProps = {
   schedule: Day[];
   currentDate?: Date;
-  onSelectDay?: (dayName: string) => void;
+  onSelectDay?: (day: string | Date) => void;
 };
 
 /* DayViewProps: (clés déjà en anglais) */
