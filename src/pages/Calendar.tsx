@@ -4,7 +4,6 @@ import {
   LogOut,
   LayoutGrid,
   CalendarDays,
-  Calendar,
   Download,
   Settings,
 } from "lucide-react";
@@ -449,7 +448,7 @@ const Calendar = () => {
                     value="month"
                     className="flex items-center gap-2"
                   >
-                    <Calendar className="w-4 h-4" /> Mois
+                    <CalendarDays className="w-4 h-4" /> Mois
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
