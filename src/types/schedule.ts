@@ -26,6 +26,8 @@ export interface WeekNavigatorProps {
   onPrevious: () => void;
   onNext: () => void;
   onToday: () => void;
+  viewMode?: "week" | "day" | "month";
+  selectedDate?: Date;
 }
 
 /* SubjectFilterProps: distanciel -> remote/online */

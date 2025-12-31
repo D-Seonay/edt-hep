@@ -1,61 +1,67 @@
-import { Button } from '@/lib';
-import { ChevronLeft, ChevronRight, Ban } from 'lucide-react';
-import type { WeekNavigatorProps } from '@/types/schedule';
+import { Button } from "@/lib";
+import { ChevronLeft, ChevronRight, Ban } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import type { WeekNavigatorProps } from "@/types/schedule";
 
-const WeekNavigator = ({ currentWeek, onPrevious, onNext, onToday }: WeekNavigatorProps) => {
-  // Génère le libellé à afficher selon la semaine
-  const getWeekLabel = () => {
+const WeekNavigator = ({
+  currentWeek,
+  onPrevious,
+  onNext,
+  onToday,
+  viewMode = "week",
+  selectedDate = new Date(),
+}: WeekNavigatorProps) => {
+  // Génère le libellé à afficher
+  const getLabel = () => {
+    if (viewMode === "month") {
+      return format(selectedDate, "MMMM yyyy", { locale: fr });
+    }
     if (currentWeek === 0) return "Cette semaine";
     if (currentWeek === 1) return "Semaine prochaine";
     if (currentWeek === -1) return "Semaine dernière";
-    return currentWeek > 0 ? `Dans ${currentWeek} semaines` : `Il y a ${Math.abs(currentWeek)} semaines`;
+    return currentWeek > 0
+      ? `Dans ${currentWeek} semaines`
+      : `Il y a ${Math.abs(currentWeek)} semaines`;
   };
 
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap">
-      {/* Navigation précédente / suivante */}
+      {/* Navigation */}
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="icon"
-          onClick={() => {
-            onPrevious();
-          }}
+          onClick={onPrevious}
           className="h-10 w-10 rounded-xl shadow-soft hover:shadow-card transition-all"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
-        
-        {/* Label indiquant la semaine actuelle */}
+
         <div className="px-4 py-2 bg-card rounded-xl shadow-soft border border-border/50 min-w-[180px] text-center">
-          <span className="text-sm font-medium text-foreground">
-            {getWeekLabel()}
+          <span className="text-sm font-medium text-foreground capitalize">
+            {getLabel()}
           </span>
         </div>
-        
+
         <Button
           variant="outline"
           size="icon"
-          onClick={() => {
-            onNext();
-          }}
+          onClick={onNext}
           className="h-10 w-10 rounded-xl shadow-soft hover:shadow-card transition-all"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
 
-      {/* Bouton "Aujourd'hui" si on n'est pas sur la semaine actuelle */}
-      {currentWeek !== 0 && (
+      {currentWeek !== 0 && viewMode !== "month" && (
         <Button
           variant="outline"
-          onClick={() => {
-            onToday();
-          }}
+          onClick={onToday}
           className="h-10 px-4 rounded-xl shadow-soft hover:shadow-card transition-all"
         >
           <Ban className="h-4 w-4" />
-          <span className=" md:inline-block hidden ml-2">Reset</span>
+          <span className="md:inline-block hidden ml-2">Reset</span>
         </Button>
       )}
     </div>

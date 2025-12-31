@@ -4,6 +4,7 @@ import {
   LogOut,
   LayoutGrid,
   CalendarDays,
+  Calendar,
   Download,
   Settings,
 } from "lucide-react";
@@ -39,7 +40,16 @@ import CalendarSkeleton from "@/components/schedule/CalendarSkeleton";
 import { usePrimaryColor } from "@/hooks/usePrimaryColor";
 import { useExportImage } from "@/hooks/useExportImage";
 import { Day } from "@/types/schedule";
+import {
+  startOfMonth,
+  endOfMonth,
+  eachWeekOfInterval,
+  differenceInWeeks,
+  addMonths,
+  subMonths,
+} from "date-fns";
 import { useTheme } from "@/context/ThemeContext";
+import MonthView from "@/components/schedule/MonthView";
 import Legend from "@/components/Legend";
 
 const Calendar = () => {
@@ -54,7 +64,7 @@ const Calendar = () => {
   const [filterDistanciel, setFilterDistanciel] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<"week" | "day">("week");
+  const [viewMode, setViewMode] = useState<"week" | "day" | "month">("week");
   const [selectedDay, setSelectedDay] = useState<string>("Lundi");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -88,14 +98,22 @@ const Calendar = () => {
   // Load username & schedule
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
-    const userRule = localStorage.getItem("userRule");
     if (!storedUsername) {
       navigate("/login");
       return;
     }
     setUsername(storedUsername);
-    loadSchedule(storedUsername, 0);
   }, [navigate]);
+
+  useEffect(() => {
+    if (username) {
+      if (viewMode === "month") {
+        loadMonthSchedule(username, selectedDate);
+      } else {
+        loadSchedule(username, currentWeek);
+      }
+    }
+  }, [username, viewMode, selectedDate, currentWeek]);
 
   const loadSchedule = async (user: string, weekOffset: number) => {
     setIsLoading(true);
@@ -109,6 +127,40 @@ const Calendar = () => {
       toast({
         title: "Erreur",
         description: "Impossible de charger l'emploi du temps",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadMonthSchedule = async (user: string, date: Date) => {
+    setIsLoading(true);
+    const monthStart = startOfMonth(date);
+    const monthEnd = endOfMonth(date);
+    const today = new Date();
+    const startWeek = differenceInWeeks(startOfMonth(date), startOfMonth(today));
+
+    const weeks = eachWeekOfInterval(
+      { start: monthStart, end: monthEnd },
+      { weekStartsOn: 1 }
+    );
+
+    try {
+      const allWeeksData: Day[] = [];
+      for (let i = 0; i < weeks.length; i++) {
+        const weekOffset = startWeek + i;
+        const weeklyData = await fetchSchedule(user, weekOffset.toString());
+        allWeeksData.push(...weeklyData);
+      }
+      setSchedule(allWeeksData);
+      const allSubjects = getUniqueSubjects(allWeeksData);
+      setSubjects(allSubjects);
+      setSelectedSubjects(new Set(allSubjects));
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger l'emploi du temps du mois",
         variant: "destructive",
       });
     } finally {
@@ -155,7 +207,14 @@ const Calendar = () => {
 
   const handleToday = () => {
     setCurrentWeek(0);
-    loadSchedule(username, 0);
+    setSelectedDate(new Date());
+    if (username) {
+      if (viewMode === "month") {
+        loadMonthSchedule(username, new Date());
+      } else {
+        loadSchedule(username, 0);
+      }
+    }
   };
 
   const getStartOfWeek = (date: Date) => {
@@ -177,9 +236,11 @@ const Calendar = () => {
   const handleDateSelect = (date: Date | undefined | null) => {
     if (!date) return;
     setSelectedDate(date);
-    const offset = getWeekOffset(date);
-    setCurrentWeek(offset);
-    if (username) loadSchedule(username, offset);
+    if (viewMode !== 'month') {
+      const offset = getWeekOffset(date);
+      setCurrentWeek(offset);
+      if (username) loadSchedule(username, offset);
+    }
     setPickerOpen(false);
   };
 
@@ -348,26 +409,43 @@ const Calendar = () => {
         {/* Navigation */}
         <div className="mb-6 space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <WeekNavigator
-              currentWeek={currentWeek}
-              onPrevious={() => handleWeekChange(-1)}
-              onNext={() => handleWeekChange(1)}
-              onToday={handleToday}
-            />
-
+            <div className="flex-1">
+              <WeekNavigator
+                currentWeek={currentWeek}
+                onPrevious={() =>
+                  viewMode === "month"
+                    ? setSelectedDate(subMonths(selectedDate, 1))
+                    : handleWeekChange(-1)
+                }
+                onNext={() =>
+                  viewMode === "month"
+                    ? setSelectedDate(addMonths(selectedDate, 1))
+                    : handleWeekChange(1)
+                }
+                onToday={handleToday}
+                viewMode={viewMode}
+                selectedDate={selectedDate}
+              />
+            </div>
             <div className="flex items-center gap-4">
               <Tabs
                 value={viewMode}
                 onValueChange={(v) => {
-                  setViewMode(v as "week" | "day");
+                  setViewMode(v as "week" | "day" | "month");
                 }}
               >
-                <TabsList className="grid grid-cols-2">
+                <TabsList className="grid grid-cols-3">
                   <TabsTrigger value="day" className="flex items-center gap-2">
                     <CalendarDays className="w-4 h-4" /> Jour
                   </TabsTrigger>
                   <TabsTrigger value="week" className="flex items-center gap-2">
                     <LayoutGrid className="w-4 h-4" /> Semaine
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="month"
+                    className="flex items-center gap-2"
+                  >
+                    <Calendar className="w-4 h-4" /> Mois
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -456,11 +534,27 @@ const Calendar = () => {
               <CalendarSkeleton />
             ) : filteredSchedule.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
-                Aucun cours pour cette semaine
+                {viewMode === "month"
+                  ? "Aucun cours pour ce mois"
+                  : "Aucun cours pour cette semaine"}
               </div>
             ) : (
               <AnimatePresence mode="wait">
-                {viewMode === "week" ? (
+                {viewMode === "month" ? (
+                  <motion.div
+                    key="month"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <MonthView
+                      schedule={filteredSchedule}
+                      currentDate={selectedDate}
+                      onSelectDay={handleSelectDay}
+                    />
+                  </motion.div>
+                ) : viewMode === "week" ? (
                   <motion.div
                     ref={captureRef}
                     key="week"
