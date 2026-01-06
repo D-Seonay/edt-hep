@@ -38,6 +38,21 @@ const Settings = () => {
   // State for recent usernames
   const [recentUsernames, setRecentUsernames] = useState(getRecentUsernames());
 
+  // State for custom calendar URLs
+  const [customUrls, setCustomUrls] = useState<string[]>([]);
+  const [newUrl, setNewUrl] = useState("");
+
+  useEffect(() => {
+    const savedUrls = localStorage.getItem("customCalendarUrls");
+    if (savedUrls) {
+      setCustomUrls(JSON.parse(savedUrls));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("customCalendarUrls", JSON.stringify(customUrls));
+  }, [customUrls]);
+
   useEffect(() => {
     localStorage.setItem("showLandingPage", JSON.stringify(showLandingPage));
   }, [showLandingPage]);
@@ -91,6 +106,21 @@ const Settings = () => {
     });
     localStorage.removeItem("username");
     navigate("/login");
+  };
+
+  const handleAddUrl = () => {
+    if (newUrl && !customUrls.includes(newUrl)) {
+      setCustomUrls([...customUrls, newUrl]);
+      setNewUrl("");
+      toast({ title: "Succès", description: "Calendrier ajouté." });
+    } else {
+      toast({ title: "Erreur", description: "L'URL est invalide ou déjà présente.", variant: "destructive" });
+    }
+  };
+
+  const handleRemoveUrl = (urlToRemove: string) => {
+    setCustomUrls(customUrls.filter(url => url !== urlToRemove));
+    toast({ title: "Succès", description: "Calendrier supprimé." });
   };
 
   return (
@@ -157,6 +187,27 @@ const Settings = () => {
           </AccordionContent>
         </AccordionItem>
 
+        {/* Custom Calendars Section */}
+        <AccordionItem value="custom-calendars" className="bg-card p-6 rounded-2xl shadow-soft border border-border/50">
+          <AccordionTrigger className="text-xl font-semibold mb-4">Calendriers personnalisés</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-4">
+              {customUrls.map((url, index) => (
+                <div key={index} className="flex items-center justify-between bg-muted/50 p-3 rounded-lg">
+                  <p className="font-mono bg-primary/10 text-primary px-2 py-1 rounded-md text-sm truncate">{url}</p>
+                  <Button variant="ghost" size="icon" onClick={() => handleRemoveUrl(url)}>
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 flex gap-4">
+              <Input placeholder="URL du calendrier iCal" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} />
+              <Button onClick={handleAddUrl}><Plus className="w-4 h-4 mr-2" /> Ajouter</Button>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
         {/* Shortcuts Section */}
         <AccordionItem value="shortcuts" className="bg-card p-6 rounded-2xl shadow-soft border border-border/50">
           <AccordionTrigger className="text-xl font-semibold mb-4">Raccourcis de nom d'utilisateur</AccordionTrigger>
@@ -207,7 +258,7 @@ const Settings = () => {
             </div>
           </AccordionContent>
         </AccordionItem>
-        
+
         {/* Account Section (Logout) */}
         <AccordionItem value="account" className="bg-card p-6 rounded-2xl shadow-soft border border-border/50">
           <AccordionTrigger className="text-xl font-semibold mb-4">Compte</AccordionTrigger>

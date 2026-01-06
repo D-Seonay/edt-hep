@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import {
   fetchSchedule,
+  fetchCustomSchedule,
   getUniqueSubjects,
 } from "@/services/scheduleService";
 import { toast } from "@/hooks/use-toast";
@@ -43,7 +44,6 @@ import {
   startOfMonth,
   endOfMonth,
   eachWeekOfInterval,
-  differenceInWeeks,
   addMonths,
   subMonths,
 } from "date-fns";
@@ -94,14 +94,13 @@ const Calendar = () => {
     },
   });
 
-  // Load username & schedule
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
-    if (!storedUsername) {
+    if (storedUsername) {
+      setUsername(storedUsername);
+    } else {
       navigate("/login");
-      return;
     }
-    setUsername(storedUsername);
   }, [navigate]);
 
   useEffect(() => {
@@ -117,9 +116,24 @@ const Calendar = () => {
   const loadSchedule = async (user: string, weekOffset: number) => {
     setIsLoading(true);
     try {
-      const data = await fetchSchedule(user, weekOffset.toString());
-      setSchedule(data);
-      const allSubjects = getUniqueSubjects(data);
+      const mainSchedule = await fetchSchedule(user, weekOffset.toString());
+      const customUrls = JSON.parse(localStorage.getItem("customCalendarUrls") || "[]");
+
+      let finalSchedule = mainSchedule;
+
+      for (const url of customUrls) {
+        const customSchedule = await fetchCustomSchedule(url, weekOffset);
+        customSchedule.forEach((customDay) => {
+          const mainDay = finalSchedule.find(d => d.day === customDay.day);
+          if (mainDay) {
+            mainDay.courses.push(...customDay.courses);
+            mainDay.courses.sort((a, b) => a.start.localeCompare(b.start));
+          }
+        });
+      }
+      
+      setSchedule(finalSchedule);
+      const allSubjects = getUniqueSubjects(finalSchedule);
       setSubjects(allSubjects);
       setSelectedSubjects(new Set(allSubjects));
     } catch (error) {
@@ -149,6 +163,23 @@ const Calendar = () => {
         const weekOffset = getWeekOffset(weekStart);
         const weeklyData = await fetchSchedule(user, weekOffset.toString());
         allWeeksData.push(...weeklyData);
+      }
+
+      const customUrls = JSON.parse(localStorage.getItem("customCalendarUrls") || "[]");
+      for (const url of customUrls) {
+        for (const weekStart of weeks) {
+          const weekOffset = getWeekOffset(weekStart);
+          const customSchedule = await fetchCustomSchedule(url, weekOffset);
+          customSchedule.forEach((customDay) => {
+            const mainDay = allWeeksData.find(d => d.day === customDay.day && d.date === customDay.date);
+            if (mainDay) {
+              mainDay.courses.push(...customDay.courses);
+              mainDay.courses.sort((a, b) => a.start.localeCompare(b.start));
+            } else {
+              allWeeksData.push(customDay)
+            }
+          });
+        }
       }
 
       const uniqueDays = allWeeksData.filter(

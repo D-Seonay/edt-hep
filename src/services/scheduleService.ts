@@ -1,6 +1,7 @@
 import { COLORS } from "@/constants/schedule";
 import { Course, Day } from "@/types/schedule";
 import axios from "axios";
+import ICAL from "ical.js";
 
 export const isStringDotString = (input: string): boolean => {
   const regex = /^[a-zA-Z]+\.[a-zA-Z]+\d*$/;
@@ -16,7 +17,7 @@ const assignColors = (schedule: Day[]): Day[] => {
       if (!subjectColors.has(course.subject)) {
         subjectColors.set(course.subject, COLORS[colorIndex % COLORS.length]);
         colorIndex++;
-      } 
+      }
       course.color = subjectColors.get(course.subject)!;
     });
   });
@@ -25,33 +26,32 @@ const assignColors = (schedule: Day[]): Day[] => {
 };
 
 function getWorkingDays(dateInput?: string | number | null): string[] {
-  const currentDate = new Date();
+    const currentDate = new Date();
 
-  let weeksToAdd = 0;
-  if (typeof dateInput === "string" && /^-?\d+$/.test(dateInput)) {
-    weeksToAdd = parseInt(dateInput, 10);
-  } else if (typeof dateInput === "number") {
-    weeksToAdd = dateInput;
-  }
+    let weeksToAdd = 0;
+    if (typeof dateInput === "string" && /^-?\d+$/.test(dateInput)) {
+        weeksToAdd = parseInt(dateInput, 10);
+    } else if (typeof dateInput === "number") {
+        weeksToAdd = dateInput;
+    }
 
-  if (weeksToAdd !== 0) {
-    currentDate.setDate(currentDate.getDate() + weeksToAdd * 7);
-  }
+    if (weeksToAdd !== 0) {
+        currentDate.setDate(currentDate.getDate() + weeksToAdd * 7);
+    }
 
-  const dayOfWeek = currentDate.getDay(); // 0 = dimanche
-  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const monday = new Date(currentDate);
-  monday.setDate(currentDate.getDate() + diffToMonday);
+    const dayOfWeek = currentDate.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(currentDate);
+    monday.setDate(currentDate.getDate() + diffToMonday);
 
-  const workingDays: Date[] = [];
-  for (let i = 0; i < 5; i++) {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    d.setHours(12, 0, 0, 0);
-    workingDays.push(d);
-  }
+    const workingDays: Date[] = [];
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        workingDays.push(d);
+    }
 
-  return workingDays.map((d) => d.toISOString().split("T")[0]);
+    return workingDays.map((d) => d.toISOString().split("T")[0]);
 }
 
 const parseHtmlDay = (html: string): Course[] => {
@@ -84,6 +84,64 @@ const parseHtmlDay = (html: string): Course[] => {
   return courses;
 };
 
+const dayOfWeekMap: { [key: number]: string } = {
+    1: "Lundi",
+    2: "Mardi",
+    3: "Mercredi",
+    4: "Jeudi",
+    5: "Vendredi",
+    6: "Samedi",
+    0: "Dimanche",
+};
+
+const parseICalData = (icalData: string, weekOffset: number): Day[] => {
+    const jcalData = ICAL.parse(icalData);
+    const vcalendar = new ICAL.Component(jcalData);
+    const vevents = vcalendar.getAllSubcomponents("vevent");
+
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() + weekOffset * 7);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+
+    const coursesByDay: { [key: string]: Course[] } = {};
+
+    vevents.forEach((vevent: any) => {
+        const event = new ICAL.Event(vevent);
+        const dtstart = event.startDate.toJSDate();
+
+        if (dtstart >= weekStart && dtstart < weekEnd) {
+            const dayOfWeek = dtstart.getDay();
+            const dayName = dayOfWeekMap[dayOfWeek];
+            const date = dtstart.toISOString().split("T")[0];
+
+            if (!coursesByDay[dayName]) {
+                coursesByDay[dayName] = [];
+            }
+
+            coursesByDay[dayName].push({
+                start: event.startDate.toJSDate().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+                end: event.endDate.toJSDate().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+                subject: event.summary,
+                room: event.location || "",
+                teacher: "", // iCal doesn't always have a teacher field in the same way
+                color: { background: "", text: "" },
+            });
+        }
+    });
+
+    const schedule: Day[] = Object.keys(dayOfWeekMap).map(dayIndex => {
+        const dayName = dayOfWeekMap[dayIndex as unknown as number];
+        return {
+            day: dayName,
+            date: "", // This would need to be calculated based on the week
+            courses: coursesByDay[dayName] || []
+        };
+    });
+
+    return schedule;
+};
+
 export const fetchSchedule = async (
   username: string,
   dateInput?: string | null
@@ -109,6 +167,21 @@ export const fetchSchedule = async (
   );
 
   return assignColors(schedule);
+};
+
+export const fetchCustomSchedule = async (
+    icalUrl: string,
+    weekOffset: number
+): Promise<Day[]> => {
+    const url = `https://corsproxy.io/?${encodeURIComponent(icalUrl)}`;
+    try {
+        const { data } = await axios.get<string>(url);
+        const schedule = parseICalData(data, weekOffset);
+        return assignColors(schedule);
+    } catch (error) {
+        console.error("Error fetching or parsing iCal data:", error);
+        return [];
+    }
 };
 
 export const getUniqueSubjects = (schedule: Day[]): string[] => {
