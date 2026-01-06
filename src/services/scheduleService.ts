@@ -187,6 +187,18 @@ export const fetchCustomSchedule = async (
     }
 };
 
+export const getUniqueSources = (schedule: Day[]): string[] => {
+  const sources = new Set<string>();
+  schedule.forEach((day) => {
+    day.courses.forEach((course) => {
+      if (course.source) {
+        sources.add(course.source);
+      }
+    });
+  });
+  return Array.from(sources);
+};
+
 export const getUniqueSubjects = (schedule: Day[]): string[] => {
   const subjects = new Set<string>();
   schedule.forEach((day) => {

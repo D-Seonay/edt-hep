@@ -11,12 +11,14 @@ import {
   fetchSchedule,
   fetchCustomSchedule,
   getUniqueSubjects,
+  getUniqueSources,
 } from "@/services/scheduleService";
 import { toast } from "@/hooks/use-toast";
 import WeekNavigator from "@/components/schedule/WeekNavigator";
 import TimeGrid from "@/components/schedule/TimeGrid";
 import DayView from "@/components/schedule/DayView";
 import SubjectFilter from "@/components/schedule/SubjectFilter";
+import SourceFilter from "@/components/schedule/SourceFilter";
 import {
   Tabs,
   TabsList,
@@ -57,7 +59,11 @@ const Calendar = () => {
   const [username, setUsername] = useState("");
   const [schedule, setSchedule] = useState<Day[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
+  const [sources, setSources] = useState<string[]>([]);
   const [selectedSubjects, setSelectedSubjects] = useState<Set<string>>(
+    new Set()
+  );
+  const [selectedSources, setSelectedSources] = useState<Set<string>>(
     new Set()
   );
   const [filterDistanciel, setFilterDistanciel] = useState(false);
@@ -136,6 +142,10 @@ const Calendar = () => {
       const allSubjects = getUniqueSubjects(finalSchedule);
       setSubjects(allSubjects);
       setSelectedSubjects(new Set(allSubjects));
+
+      const allSources = getUniqueSources(finalSchedule);
+      setSources(allSources);
+      setSelectedSources(new Set(allSources));
     } catch (error) {
       toast({
         title: "Erreur",
@@ -191,6 +201,10 @@ const Calendar = () => {
       const allSubjects = getUniqueSubjects(uniqueDays);
       setSubjects(allSubjects);
       setSelectedSubjects(new Set(allSubjects));
+      
+      const allSources = getUniqueSources(uniqueDays);
+      setSources(allSources);
+      setSelectedSources(new Set(allSources));
     } catch (error) {
       toast({
         title: "Erreur",
@@ -211,12 +225,13 @@ const Calendar = () => {
       ...day,
       courses: day.courses.filter((course) => {
         const matchSubject = selectedSubjects.has(course.subject);
+        const matchSource = course.source ? selectedSources.has(course.source) : true;
         const matchDistanciel =
           !filterDistanciel || course.room.startsWith("SALLE");
-        return matchSubject && matchDistanciel;
+        return matchSubject && matchSource && matchDistanciel;
       }),
     }));
-  }, [schedule, selectedSubjects, filterDistanciel]);
+  }, [schedule, selectedSubjects, selectedSources, filterDistanciel]);
 
   useEffect(() => {
     if (viewMode === "day") {
@@ -283,6 +298,13 @@ const Calendar = () => {
     if (newSelected.has(subject)) newSelected.delete(subject);
     else newSelected.add(subject);
     setSelectedSubjects(newSelected);
+  };
+
+  const handleSourceToggle = (source: string) => {
+    const newSelected = new Set(selectedSources);
+    if (newSelected.has(source)) newSelected.delete(source);
+    else newSelected.add(source);
+    setSelectedSources(newSelected);
   };
 
   const handleLogout = () => {
@@ -565,6 +587,13 @@ const Calendar = () => {
                 onToggleDistanciel={() => {
                   setFilterDistanciel((v) => !v);
                 }}
+              />
+            )}
+            {!isLoading && sources.length > 1 && (
+              <SourceFilter
+                sources={sources}
+                selectedSources={selectedSources}
+                onToggle={handleSourceToggle}
               />
             )}
             {userRule && userRule.ad && <AdBanner username={username} />}

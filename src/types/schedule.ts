@@ -41,6 +41,12 @@ export interface SubjectFilterProps {
   defaultOpen?: boolean;
 }
 
+export interface SourceFilterProps {
+  sources: string[];
+  selectedSources: Set<string>;
+  onToggle: (source: string) => void;
+}
+
 /* TimeGridProps: (clés déjà en anglais) */
 export type TimeGridProps = {
   schedule: Day[];
