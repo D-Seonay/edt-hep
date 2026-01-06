@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Clock, User, X } from "lucide-react"; // MapPin retiré, remplacé par la logique emoji
+import { Clock, User, X, Calendar } from "lucide-react"; // MapPin retiré, remplacé par la logique emoji
 import { CourseModalProps } from "@/types/schedule";
 import { cn } from "@/lib/utils";
 import getRoomInfo from "@/utils/scheduleUtils";
@@ -128,6 +128,19 @@ const CourseModal = ({ course, isOpen, onClose }: CourseModalProps) => {
                 <div>
                     <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Enseignant</p>
                     <p className="font-semibold text-sm">{course.teacher}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Source */}
+            {course.source && (
+              <div className="flex items-center gap-3 text-foreground/80">
+                <div className="w-8 h-8 rounded-lg bg-gray-500/10 flex items-center justify-center text-gray-600 dark:text-gray-400">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Calendrier</p>
+                  <p className="font-semibold text-sm">{course.source}</p>
                 </div>
               </div>
             )}

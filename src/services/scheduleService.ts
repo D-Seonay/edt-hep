@@ -76,7 +76,8 @@ const parseHtmlDay = (html: string): Course[] => {
         subject,
         room,
         teacher,
-        color: { background: "", text: "" }, // sera rempli par assignColors
+        color: { background: "", text: "" },
+        source: "EDT",
       });
     }
   });
@@ -94,7 +95,7 @@ const dayOfWeekMap: { [key: number]: string } = {
     0: "Dimanche",
 };
 
-const parseICalData = (icalData: string, weekOffset: number): Day[] => {
+const parseICalData = (icalData: string, weekOffset: number, sourceName: string): Day[] => {
     const jcalData = ICAL.parse(icalData);
     const vcalendar = new ICAL.Component(jcalData);
     const vevents = vcalendar.getAllSubcomponents("vevent");
@@ -126,6 +127,7 @@ const parseICalData = (icalData: string, weekOffset: number): Day[] => {
                 room: event.location || "",
                 teacher: "", // iCal doesn't always have a teacher field in the same way
                 color: { background: "", text: "" },
+                source: sourceName,
             });
         }
     });
@@ -171,12 +173,13 @@ export const fetchSchedule = async (
 
 export const fetchCustomSchedule = async (
     icalUrl: string,
-    weekOffset: number
+    weekOffset: number,
+    sourceName: string
 ): Promise<Day[]> => {
     const url = `https://corsproxy.io/?${encodeURIComponent(icalUrl)}`;
     try {
         const { data } = await axios.get<string>(url);
-        const schedule = parseICalData(data, weekOffset);
+        const schedule = parseICalData(data, weekOffset, sourceName);
         return assignColors(schedule);
     } catch (error) {
         console.error("Error fetching or parsing iCal data:", error);

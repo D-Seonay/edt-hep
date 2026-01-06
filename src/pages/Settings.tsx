@@ -19,6 +19,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/legacy/accordion";
 
+interface CustomUrl {
+  name: string;
+  url: string;
+}
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -39,8 +43,9 @@ const Settings = () => {
   const [recentUsernames, setRecentUsernames] = useState(getRecentUsernames());
 
   // State for custom calendar URLs
-  const [customUrls, setCustomUrls] = useState<string[]>([]);
-  const [newUrl, setNewUrl] = useState("");
+  const [customUrls, setCustomUrls] = useState<CustomUrl[]>([]);
+  const [newUrlName, setNewUrlName] = useState("");
+  const [newUrlValue, setNewUrlValue] = useState("");
 
   useEffect(() => {
     const savedUrls = localStorage.getItem("customCalendarUrls");
@@ -109,17 +114,18 @@ const Settings = () => {
   };
 
   const handleAddUrl = () => {
-    if (newUrl && !customUrls.includes(newUrl)) {
-      setCustomUrls([...customUrls, newUrl]);
-      setNewUrl("");
+    if (newUrlName && newUrlValue && !customUrls.find(u => u.url === newUrlValue)) {
+      setCustomUrls([...customUrls, { name: newUrlName, url: newUrlValue }]);
+      setNewUrlName("");
+      setNewUrlValue("");
       toast({ title: "Succès", description: "Calendrier ajouté." });
     } else {
-      toast({ title: "Erreur", description: "L'URL est invalide ou déjà présente.", variant: "destructive" });
+      toast({ title: "Erreur", description: "Le nom et l'URL doivent être remplis et l'URL ne doit pas déjà exister.", variant: "destructive" });
     }
   };
 
   const handleRemoveUrl = (urlToRemove: string) => {
-    setCustomUrls(customUrls.filter(url => url !== urlToRemove));
+    setCustomUrls(customUrls.filter(url => url.url !== urlToRemove));
     toast({ title: "Succès", description: "Calendrier supprimé." });
   };
 
@@ -194,15 +200,20 @@ const Settings = () => {
             <div className="space-y-4">
               {customUrls.map((url, index) => (
                 <div key={index} className="flex items-center justify-between bg-muted/50 p-3 rounded-lg">
-                  <p className="font-mono bg-primary/10 text-primary px-2 py-1 rounded-md text-sm truncate">{url}</p>
-                  <Button variant="ghost" size="icon" onClick={() => handleRemoveUrl(url)}>
+                  <div>
+                    <span className="font-mono bg-primary/10 text-primary px-2 py-1 rounded-md text-sm">{url.name}</span>
+                    <span className="mx-2 text-muted-foreground">→</span>
+                    <span className="font-semibold truncate">{url.url}</span>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => handleRemoveUrl(url.url)}>
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
                 </div>
               ))}
             </div>
             <div className="mt-6 flex gap-4">
-              <Input placeholder="URL du calendrier iCal" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} />
+              <Input placeholder="Nom du calendrier" value={newUrlName} onChange={(e) => setNewUrlName(e.target.value)} />
+              <Input placeholder="URL du calendrier iCal" value={newUrlValue} onChange={(e) => setNewUrlValue(e.target.value)} />
               <Button onClick={handleAddUrl}><Plus className="w-4 h-4 mr-2" /> Ajouter</Button>
             </div>
           </AccordionContent>

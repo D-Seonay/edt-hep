@@ -121,8 +121,8 @@ const Calendar = () => {
 
       let finalSchedule = mainSchedule;
 
-      for (const url of customUrls) {
-        const customSchedule = await fetchCustomSchedule(url, weekOffset);
+      for (const customUrl of customUrls) {
+        const customSchedule = await fetchCustomSchedule(customUrl.url, weekOffset, customUrl.name);
         customSchedule.forEach((customDay) => {
           const mainDay = finalSchedule.find(d => d.day === customDay.day);
           if (mainDay) {
@@ -166,10 +166,10 @@ const Calendar = () => {
       }
 
       const customUrls = JSON.parse(localStorage.getItem("customCalendarUrls") || "[]");
-      for (const url of customUrls) {
+      for (const customUrl of customUrls) {
         for (const weekStart of weeks) {
           const weekOffset = getWeekOffset(weekStart);
-          const customSchedule = await fetchCustomSchedule(url, weekOffset);
+          const customSchedule = await fetchCustomSchedule(customUrl.url, weekOffset, customUrl.name);
           customSchedule.forEach((customDay) => {
             const mainDay = allWeeksData.find(d => d.day === customDay.day && d.date === customDay.date);
             if (mainDay) {

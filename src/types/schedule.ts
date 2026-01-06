@@ -18,6 +18,7 @@ export interface Course {
     background: string;   // bg -> background
     text: string;         // text -> text
   };
+  source?: string; // Ajout de la source
 }
 
 /* WeekNavigatorProps: (clés déjà en anglais) */
@@ -69,6 +70,7 @@ export interface CourseModalProps {
     end: string;
     room?: string | null;
     teacher?: string | null;
+    source?: string;
   } | null;
   isOpen: boolean;
   onClose: () => void;
