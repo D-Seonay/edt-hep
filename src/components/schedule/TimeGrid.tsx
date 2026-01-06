@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import CourseBlock from "./CourseBlock";
 import type { TimeGridProps } from "@/types/schedule";
-import { DAYS, HOURS, HOUR_HEIGHT_PX, DAY_START_MINUTES } from "@/constants/schedule";
+import { HOUR_HEIGHT_PX } from "@/constants/schedule";
 import { parseHHmmToDate, parseHHmmToMinutes } from "@/utils/dateHelpers";
 import { PositionedCourse } from "@/types/types";
 
 const GRID_PADDING_X = 4;
 
-function minutesToTop(minutesSinceMidnight: number): number {
-  const deltaMin = minutesSinceMidnight - DAY_START_MINUTES;
+function minutesToTop(minutesSinceMidnight: number, dayStartMinutes: number): number {
+  const deltaMin = minutesSinceMidnight - dayStartMinutes;
   return Math.max(0, (deltaMin / 60) * HOUR_HEIGHT_PX);
 }
 function durationToHeight(startMin: number, endMin: number): number {
@@ -19,7 +19,7 @@ function isOverlap(aStart: number, aEnd: number, bStart: number, bEnd: number) {
   return aStart < bEnd && bStart < aEnd;
 }
 
-function assignColumns(courses: any[]): PositionedCourse[] {
+function assignColumns(courses: any[], dayStartMinutes: number): PositionedCourse[] {
   // FIX: use start/end (english keys) everywhere
   const items = courses.map((c) => {
     const startMin = parseHHmmToMinutes(c.start);
@@ -28,7 +28,7 @@ function assignColumns(courses: any[]): PositionedCourse[] {
       course: c,
       startMin,
       endMin,
-      top: minutesToTop(startMin),
+      top: minutesToTop(startMin, dayStartMinutes),
       height: Math.max(durationToHeight(startMin, endMin), 36),
     };
   });
@@ -89,7 +89,7 @@ function assignColumns(courses: any[]): PositionedCourse[] {
 }
 
 // Position verticale de la barre “maintenant” pour une date donnée
-function getNowTopForDay(dayDateStr: string, now: Date): number | null {
+function getNowTopForDay(dayDateStr: string, now: Date, dayStartMinutes: number): number | null {
   let yyyy = 0, mm = 0, dd = 0;
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(dayDateStr)) {
     const parts = dayDateStr.split("/").map(Number);
@@ -111,16 +111,48 @@ function getNowTopForDay(dayDateStr: string, now: Date): number | null {
   }
 
   const minutesSinceMidnight = now.getHours() * 60 + now.getMinutes();
-  return minutesToTop(minutesSinceMidnight);
+  return minutesToTop(minutesSinceMidnight, dayStartMinutes);
 }
 
 const TimeGrid = ({ schedule, currentDate = new Date(), onSelectDay }: TimeGridProps) => {
   const [now, setNow] = useState<Date>(new Date());
-  // rafraîchit l’heure actuelle toutes les 30s (assez fin sans trop de re-render)
+  const [displayHours, setDisplayHours] = useState<string[]>([]);
+  const dayStartMinutes = useMemo(() => parseHHmmToMinutes(displayHours[0] || "08:00"), [displayHours]);
+  const workingDays: string[] = useMemo(() => JSON.parse(localStorage.getItem("workingDays") || '["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]'), []);
+
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    const hourRangeMode = localStorage.getItem("hourRangeMode") || 'dynamic';
+    if (hourRangeMode === 'fixed') {
+      const startHour = parseInt(localStorage.getItem("startHour") || "8", 10);
+      const endHour = parseInt(localStorage.getItem("endHour") || "20", 10);
+      const hours = [];
+      for (let i = startHour; i <= endHour; i++) {
+        hours.push(`${i.toString().padStart(2, '0')}:00`);
+      }
+      setDisplayHours(hours);
+    } else {
+      let minHour = 23;
+      let maxHour = 0;
+      schedule.forEach(day => {
+        day.courses.forEach(course => {
+          minHour = Math.min(minHour, parseInt(course.start.split(':')[0], 10));
+          maxHour = Math.max(maxHour, parseInt(course.end.split(':')[0], 10));
+        });
+      });
+      const startHour = Math.max(0, minHour - 1);
+      const endHour = Math.min(23, maxHour + 1);
+      const hours = [];
+      for (let i = startHour; i <= endHour; i++) {
+        hours.push(`${i.toString().padStart(2, '0')}:00`);
+      }
+      setDisplayHours(hours);
+    }
+  }, [schedule]);
 
   const isToday = (dateStr: string): boolean => {
     const today = currentDate.toLocaleDateString("fr-FR", {
@@ -145,9 +177,9 @@ const TimeGrid = ({ schedule, currentDate = new Date(), onSelectDay }: TimeGridP
         <>
           {/* Header cliquable */}
           <div className="hidden md:block">
-            <div className="grid grid-cols-[80px_repeat(5,1fr)] border-b border-border/50 bg-muted/30">
+            <div className={`grid grid-cols-[80px_repeat(${workingDays.length},1fr)] border-b border-border/50 bg-muted/30`}>
               <div className="p-4 border-r border-border/50" />
-              {DAYS.map((day) => {
+              {workingDays.map((day) => {
                 const dayData = schedule.find((d) => d.day === day);
                 const todayCell = dayData && isToday(dayData?.date || "");
 
@@ -175,10 +207,10 @@ const TimeGrid = ({ schedule, currentDate = new Date(), onSelectDay }: TimeGridP
             </div>
 
             {/* Grille horaire */}
-            <div className="grid grid-cols-[80px_repeat(5,1fr)] relative">
+            <div className={`grid grid-cols-[80px_repeat(${workingDays.length},1fr)] relative`}>
               {/* Colonne heures */}
               <div className="border-r border-border/50">
-                {HOURS.map((hour) => (
+                {displayHours.map((hour) => (
                   <div
                     key={hour}
                     className="h-[45px] px-3 py-1 text-xs text-muted-foreground border-b border-border/20 flex items-start"
@@ -189,13 +221,13 @@ const TimeGrid = ({ schedule, currentDate = new Date(), onSelectDay }: TimeGridP
               </div>
 
               {/* Colonnes jours */}
-              {DAYS.map((day) => {
+              {workingDays.map((day) => {
                 const dayData = schedule.find((d) => d.day === day);
                 const todayCell = dayData && isToday(dayData?.date || "");
-                const positioned = dayData?.courses?.length ? assignColumns(dayData.courses) : [];
+                const positioned = dayData?.courses?.length ? assignColumns(dayData.courses, dayStartMinutes) : [];
 
                 // calc barre “maintenant”
-                const nowTop = dayData?.date ? getNowTopForDay(dayData.date, now) : null;
+                const nowTop = dayData?.date ? getNowTopForDay(dayData.date, now, dayStartMinutes) : null;
 
                 return (
                   <div
@@ -212,7 +244,7 @@ const TimeGrid = ({ schedule, currentDate = new Date(), onSelectDay }: TimeGridP
                     aria-label={`Voir le jour ${day}`}
                   >
                     {/* Lignes horaires */}
-                    {HOURS.map((hour) => (
+                    {displayHours.map((hour) => (
                       <div key={hour} className="h-[45px] border-b border-border/20" />
                     ))}
 
@@ -221,7 +253,7 @@ const TimeGrid = ({ schedule, currentDate = new Date(), onSelectDay }: TimeGridP
                       <div
                         className="absolute left-0 right-0 pointer-events-none"
                         style={{
-                          top: `${Math.min(nowTop, HOURS.length * HOUR_HEIGHT_PX)}px`,
+                          top: `${Math.min(nowTop, displayHours.length * HOUR_HEIGHT_PX)}px`,
                         }}
                       >
                         {/* ligne */}
@@ -279,7 +311,7 @@ const TimeGrid = ({ schedule, currentDate = new Date(), onSelectDay }: TimeGridP
           <div className="block md:hidden p-4 space-y-4">
             {schedule.map((dayData) => {
               const todayCell = dayData?.date ? isToday(dayData.date) : false;
-              const nowTop = dayData?.date ? getNowTopForDay(dayData.date, now) : null;
+              const nowTop = dayData?.date ? getNowTopForDay(dayData.date, now, dayStartMinutes) : null;
 
               return (
                 <div
@@ -291,7 +323,7 @@ const TimeGrid = ({ schedule, currentDate = new Date(), onSelectDay }: TimeGridP
                     <div
                       className="absolute left-3 right-3 pointer-events-none"
                       style={{
-                        top: `${Math.min(nowTop, HOURS.length * HOUR_HEIGHT_PX)}px`,
+                        top: `${Math.min(nowTop, displayHours.length * HOUR_HEIGHT_PX)}px`,
                       }}
                     >
                       <div className="h-px bg-red-500/80" />

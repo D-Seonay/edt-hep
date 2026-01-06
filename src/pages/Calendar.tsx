@@ -220,17 +220,23 @@ const Calendar = () => {
     ? JSON.parse(localStorage.getItem("userRule") || "{}")
     : null;
 
+  const workingDaysFromStorage = JSON.parse(localStorage.getItem("workingDays") || '["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]');
+
   const filteredSchedule = useMemo(() => {
-    return schedule.map((day) => ({
-      ...day,
-      courses: day.courses.filter((course) => {
-        const matchSubject = selectedSubjects.has(course.subject);
-        const matchSource = course.source ? selectedSources.has(course.source) : true;
-        const matchDistanciel =
-          !filterDistanciel || course.room.startsWith("SALLE");
-        return matchSubject && matchSource && matchDistanciel;
-      }),
-    }));
+    const workingDays: string[] = JSON.parse(localStorage.getItem("workingDays") || '["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"]');
+    
+    return schedule
+      .filter(day => workingDays.includes(day.day))
+      .map((day) => ({
+        ...day,
+        courses: day.courses.filter((course) => {
+          const matchSubject = selectedSubjects.has(course.subject);
+          const matchSource = course.source ? selectedSources.has(course.source) : true;
+          const matchDistanciel =
+            !filterDistanciel || course.room.startsWith("SALLE");
+          return matchSubject && matchSource && matchDistanciel;
+        }),
+      }));
   }, [schedule, selectedSubjects, selectedSources, filterDistanciel]);
 
   useEffect(() => {
@@ -321,16 +327,8 @@ const Calendar = () => {
     filteredSchedule.find((d) => d.day === selectedDay) || null;
 
   const daysOfWeek = useMemo(
-    () => [
-      "Lundi",
-      "Mardi",
-      "Mercredi",
-      "Jeudi",
-      "Vendredi",
-      "Samedi",
-      "Dimanche",
-    ],
-    []
+    () => workingDaysFromStorage,
+    [workingDaysFromStorage]
   );
 
   const handleNextDay = () => {

@@ -18,6 +18,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/legacy/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+
 
 interface CustomUrl {
   name: string;
@@ -47,12 +50,40 @@ const Settings = () => {
   const [newUrlName, setNewUrlName] = useState("");
   const [newUrlValue, setNewUrlValue] = useState("");
 
+  // State for calendar display settings
+  const [hourRangeMode, setHourRangeMode] = useState<'dynamic' | 'fixed'>(() => {
+    return (localStorage.getItem("hourRangeMode") as 'dynamic' | 'fixed') || 'dynamic';
+  });
+  const [startHour, setStartHour] = useState(() => {
+    return localStorage.getItem("startHour") || "8";
+  });
+  const [endHour, setEndHour] = useState(() => {
+    return localStorage.getItem("endHour") || "20";
+  });
+  const [workingDays, setWorkingDays] = useState<string[]>(() => {
+    const saved = localStorage.getItem("workingDays");
+    return saved ? JSON.parse(saved) : ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("hourRangeMode", hourRangeMode);
+    localStorage.setItem("startHour", startHour);
+    localStorage.setItem("endHour", endHour);
+    localStorage.setItem("workingDays", JSON.stringify(workingDays));
+  }, [hourRangeMode, startHour, endHour, workingDays]);
+
   useEffect(() => {
     const savedUrls = localStorage.getItem("customCalendarUrls");
     if (savedUrls) {
       setCustomUrls(JSON.parse(savedUrls));
     }
   }, []);
+
+  const handleWorkingDayToggle = (day: string) => {
+    setWorkingDays(prev => 
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
+  };
 
   useEffect(() => {
     localStorage.setItem("customCalendarUrls", JSON.stringify(customUrls));
@@ -167,6 +198,46 @@ const Settings = () => {
                 </div>
               </div>
             </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="display" className="bg-card p-6 rounded-2xl shadow-soft border border-border/50">
+          <AccordionTrigger className="text-xl font-semibold mb-4">Affichage</AccordionTrigger>
+          <AccordionContent>
+            <Tabs defaultValue="hours">
+              <TabsList>
+                <TabsTrigger value="hours">Heures</TabsTrigger>
+                <TabsTrigger value="days">Jours</TabsTrigger>
+              </TabsList>
+              <TabsContent value="hours" className="pt-4">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="hour-range-toggle" className="text-base">Plage horaire dynamique</Label>
+                    <Switch id="hour-range-toggle" checked={hourRangeMode === 'dynamic'} onCheckedChange={(checked) => setHourRangeMode(checked ? 'dynamic' : 'fixed')} />
+                  </div>
+                  {hourRangeMode === 'fixed' && (
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="start-hour" className="text-base">Heures</Label>
+                      <div className="flex items-center gap-4">
+                        <Input id="start-hour" type="number" value={startHour} onChange={(e) => setStartHour(e.target.value)} className="w-20" />
+                        <span>-</span>
+                        <Input id="end-hour" type="number" value={endHour} onChange={(e) => setEndHour(e.target.value)} className="w-20" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+              <TabsContent value="days" className="pt-4">
+                <div className="space-y-2">
+                  {["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"].map(day => (
+                    <div key={day} className="flex items-center gap-2">
+                      <Checkbox id={`day-${day}`} checked={workingDays.includes(day)} onCheckedChange={() => handleWorkingDayToggle(day)} />
+                      <Label htmlFor={`day-${day}`}>{day}</Label>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
           </AccordionContent>
         </AccordionItem>
 
